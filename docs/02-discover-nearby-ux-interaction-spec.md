@@ -12,6 +12,8 @@
 > **Revision 3:** Adds §22 with links to the design canvas (screens, overview diagram, icon set). Interaction rules are unchanged.
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. Screens are described by layout, not template. The app now builds focus (§16) and applies driving restrictions itself (§17). The design canvas becomes the visual spec (§22). Flows, states and copy are unchanged.
+>
+> **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide. User-facing copy still says "park", because that is what the driver does.
 
 ---
 
@@ -350,6 +352,8 @@ Finding good places nearby…
 
 Location permission prompts may only be shown while the vehicle is parked.
 
+In this spec, "parked" means the car's UX restrictions do not require distraction optimization. The app reads those restrictions, not the gear (Engineering Plan §6). On the reference emulator this is the Park state.
+
 ### While parked
 
 ```text
@@ -492,7 +496,7 @@ Any problems found are app defects.
 
 The same core flow is available in Park and Drive.
 
-The app enforces driving restrictions itself, from the platform's `CarUxRestrictions`: while driving, it caps list length to the platform limit and disables parked-only actions. The activity is declared distraction-optimized; without that, AAOS blocks it while driving. The app does not add separate Park-only content in the POC.
+The app enforces driving restrictions itself, from the platform's `CarUxRestrictions`: while driving, it caps list length to the platform limit and disables parked-only actions (those allowed only when distraction optimization is not required). The activity is declared distraction-optimized; without that, AAOS blocks it while driving. The app does not add separate Park-only content in the POC.
 
 Differences the user may see:
 

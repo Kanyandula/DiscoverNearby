@@ -11,6 +11,8 @@
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. Decisions 1 and 4, the build and test baselines (§2, §3) and the verification register (§9: V1 closed, V2 restated, V7 and V8 added) change accordingly.
+>
+> **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
 ---
 
@@ -87,7 +89,7 @@ Use a dev-only key with low quota that is easy to revoke, and no production cred
 
 ### Driving restrictions
 
-The app reads `CarUxRestrictions` through the Car API, using NyasaPlayer's `CarUxRestrictionsHandler` as the reference. The activity is declared `distractionOptimized`. That declaration is only honest once list limits, parked-only Grant, touch targets and rotary focus are in place.
+The app reads `CarUxRestrictions` through the Car API, using NyasaPlayer's `CarUxRestrictionsHandler` as the reference. The activity is declared `distractionOptimized`. `DrivingState` reports UX restrictions (`distractionOptimizationRequired`, `listLimit`), never the gear. That declaration is only honest once list limits, restriction-gated Grant, touch targets and rotary focus are in place.
 
 ---
 
@@ -103,7 +105,7 @@ Three layers:
                │
 ┌──────────────┴────────────────┐
 │ Compose UI tests              │  screens → states, state transitions,
-│ (Robolectric)                 │  navigation intents, parked-only Grant
+│ (Robolectric)                 │  navigation intents, gated Grant
 └──────────────▲────────────────┘
                │
 ┌──────────────┴────────────────┐
@@ -120,7 +122,7 @@ Three layers:
 - loading / content / error transitions
 - each screen renders each state
 - navigation intent, checked via Robolectric `nextStartedActivity`
-- Grant offered only while parked
+- Grant offered only when distraction optimization is not required
 - stale-request handling
 
 **Emulator**
@@ -338,7 +340,7 @@ Work that does **not** wait for ADR-001: the Compose screens, domain models, the
 
 ## 9. Verification Register
 
-**V4 is the only decision that blocks a milestone after M0.** V6a–c are facts collected while making it. V7 is a technical check inside M0. V8 does not block the POC, but feeds the go/no-go.
+**V4 is the only decision that blocks a milestone after M0.** V6a–c are facts collected while making it. V7 is a technical check inside M0. V8 is a confirmed constraint; it does not block the POC, but feeds the go/no-go.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
@@ -350,7 +352,7 @@ Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
 | V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. Until then: dev-only key (§2a). | Tech Lead | M1 integration |
 | V7 | Rotary focus in Compose on the reference AAOS image: does the rotary controller move focus through Compose elements in order, with visible focus and sensible restoration after Back? | 🔴 Open — prove in M0 on the Discover grid | Android Engineer | M0 exit |
-| V8 | Distribution path for a Compose POI app. ⚠ Verify: Play's AAOS guidelines appear to accept POI apps only when built with Car App Library templates. If so, a Compose POI app ships through an OEM/preinstall route, or needs a template UI layer for Play. | 🟡 Open, not blocking the POC | Product Lead | Go / Iterate / Stop |
+| V8 | Distribution path for a Compose POI app. **Confirmed (2026-10-02):** the AAOS developer guide allows `distractionOptimized` only on the Car App Library's `CarAppActivity`: "No other activities should be marked as distraction optimized - if one is, your app will be rejected when submitted to the Google Play Store." ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). A Compose POI app therefore ships through an OEM/preinstall route, or needs a Car App Library template UI for Play. | 🟡 Constraint confirmed; route still to choose. Not blocking the POC | Product Lead | Go / Iterate / Stop |
 | V1 | `minCarApiLevel = 4` supports AAOS | 🟢 Closed (Rev 4). No Car App Library, so no Car App API level. | — | Nothing |
 | V2 | How automated UI tests run | 🟢 Resolved (restated in Rev 4). Compose UI tests under Robolectric, as on NyasaPlayer; one M0 smoke test checks project configuration; rotary and Park/Drive stay emulator-tested. | — | Nothing |
 | V3 | Emulator image and driving-state tooling | 🟢 Resolved. NyasaPlayer's `AAOS_AOSP_33_userdebug` AVD and adb driving-state commands (Test & Demo Plan §2). | — | Nothing |

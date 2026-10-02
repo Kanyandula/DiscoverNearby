@@ -12,6 +12,8 @@
 > **Revision 3:** This revision locks the build baseline (§6.1) and adds the three-layer test baseline (§20), including `app-testing`. M0 uses `FakePlacesRepository`, and only M1 waits for ADR-001. The provider spike is bounded (§5), and the milestones gain a dependency graph (§21). Growth seams are in §2 ("Built to grow, not built for scale"). Ownership, timeline and the verification register are in `05-discover-nearby-delivery-plan.md`.
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. This revision replaces the Car App Library layer with a Compose UI (§3, §6): `MainActivity` + Navigation Compose, a `ViewModel` per screen, `AppContainer` as the wiring point, driving restrictions from `CarUxRestrictionsManager` (NyasaPlayer pattern), `ACTION_VIEW` + `geo:` handoff, app-built rotary focus (§17) and Compose UI tests under Robolectric (§20). The template-step budget is gone. Domain, provider, ranking and state model are unchanged.
+>
+> **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
 ---
 
@@ -86,7 +88,7 @@ The POC should grow into a product without a rewrite. That means putting **seams
 | Maps | Grid/List/Details now; a map composable can be added to a screen later without touching domain code | Map rendering |
 | Localisation | All user-facing text in `strings.xml`; icons as vector drawables | Translations |
 | Hilt / multi-module (as in NyasaPlayer) | Constructor injection with a single wiring point (`AppContainer`), so adopting Hilt later is mechanical | Hilt, module split |
-| Play distribution (later) | Nothing; the POC is a sideloaded debug build | Flavors (NyasaPlayer's `oem` / `playstore` split is the reference), release signing, quality review, and possibly a template UI layer (V8) |
+| Play distribution (later) | Nothing; the POC is a sideloaded debug build | Flavors (NyasaPlayer's `oem` / `playstore` split is the reference), release signing, quality review, and a Car App Library template UI layer for Play (V8, confirmed) |
 
 **Dependency rule that keeps extraction mechanical:**
 
@@ -291,8 +293,8 @@ Candidates may include TomTom, HERE, Foursquare, OpenStreetMap-based data, or an
 
 - Provide one launcher activity, declared distraction-optimized
 - Render Compose screens; handle navigation and Back
-- Observe driving restrictions and apply them (list limit, parked-only actions)
-- Request location permission (parked only)
+- Observe UX restrictions and apply them (list limit; actions allowed only when distraction optimization is not required)
+- Request location permission (only when distraction optimization is not required)
 - Support touch and rotary focus
 
 ### 6.1 Build baseline
@@ -315,7 +317,7 @@ There is no Car App Library dependency, so there is no Car App API level. `minSd
 ### Manifest essentials
 
 - `uses-feature android.hardware.type.automotive` (required)
-- `MainActivity` with the launcher intent filter and `distractionOptimized` meta-data. Without it, AAOS replaces the app with its own block screen while driving (proven on NyasaPlayer). The declaration is only honest once list limits, parked-only Grant, touch targets and rotary focus are in place.
+- `MainActivity` with the launcher intent filter and `distractionOptimized` meta-data. Without it, AAOS replaces the app with its own block screen while driving (proven on NyasaPlayer). The declaration is only honest once list limits, restriction-gated Grant, touch targets and rotary focus are in place. It is acceptable for this sideloaded POC only: Play rejects `distractionOptimized` on any activity other than the Car App Library's `CarAppActivity` (V8).
 - `ACCESS_FINE_LOCATION`, `INTERNET`
 - No `CarAppService`, `automotive_app_desc.xml` or `minCarApiLevel`
 
@@ -343,7 +345,7 @@ Do not assume five rows always fit while driving. The platform limit reaches the
 
 ```kotlin
 data class DrivingState(
-    val isParked: Boolean,   // !requiresDistractionOptimization
+    val distractionOptimizationRequired: Boolean,   // CarUxRestrictions.isRequiresDistractionOptimization()
     val listLimit: Int?,     // maxCumulativeContentItems when UX_RESTRICTIONS_LIMIT_CONTENT is active; null = no limit
 )
 
@@ -353,6 +355,8 @@ interface DrivingRestrictions {
 ```
 
 `CarDrivingRestrictions` is the only implementation that touches `CarUxRestrictionsManager`.
+
+`DrivingState` reports **UX restrictions, not the gear**. AOSP tells apps to "monitor restrictions exposed by the CarUxRestrictionsManager and not an absolute driving state", and `isRequiresDistractionOptimization()` returning `false` only means "an app can safely run any activity" ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). Mapping driving state to restrictions is the platform's job and varies by market. Never name or treat this field as "parked" in code.
 
 The **ViewModel** applies the limit; the recommendation engine never sees driving state (§10):
 
@@ -395,8 +399,8 @@ interface LocationProvider {
 ### Permission flow
 
 - Permission is requested with `rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission())`.
-- Grant is offered **only while parked**. Templates enforced this with `ParkedOnlyOnClickListener`; in Compose the app enforces it, from `DrivingRestrictions`.
-- `RecommendationsScreen` shows `PermissionRequired(canRequest = isParked)` as a message state. `canRequest` updates live when the gear changes.
+- Grant is offered **only when `distractionOptimizationRequired` is false** (in practice, Park on the reference emulator). Templates enforced this with `ParkedOnlyOnClickListener`; in Compose the app enforces it, from `DrivingRestrictions`.
+- `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired)` as a message state. `canRequest` updates live when the restrictions change.
 - On grant, discovery continues for the selected category. On denial, show the denied message with Grant and Back.
 
 ### Test locations
@@ -829,7 +833,7 @@ Three layers:
 | Layer | Covers |
 | --- | --- |
 | Unit tests (JVM) | Ranking, category mapping, provider → domain mapping, stale requests, error mapping |
-| Compose UI tests (Robolectric) | Each screen renders each state, loading/content/error transitions, Navigate starts an `ACTION_VIEW` `geo:` intent (Robolectric `shadowOf(application).nextStartedActivity`), Grant hidden while driving and shown while parked |
+| Compose UI tests (Robolectric) | Each screen renders each state, loading/content/error transitions, Navigate starts an `ACTION_VIEW` `geo:` intent (Robolectric `shadowOf(application).nextStartedActivity`), Grant hidden while distraction optimization is required and shown when it is not |
 | AAOS emulator | Touch, rotary, Back, permission flow, Park/Drive, location changes, full flow, visual sanity |
 
 **Resolved (V2):** Compose UI tests run as **local Robolectric tests** with `createComposeRule`, using NyasaPlayer's setup (its ticket T1, automotive Compose test tooling). M0 includes one smoke test that renders `DiscoverScreen`. Rotary, focus, and Park/Drive on the real platform remain **emulator-tested**.
@@ -842,7 +846,7 @@ Three layers:
 - error mapping (provider, network, timeout, location → UI state)
 - stale-request dropping
 - navigation URI formatting (`Locale.US`, 6 dp)
-- ViewModel visible count = `min(5, uxLimit)` under parked and driving restrictions, re-trimmed on a state change
+- ViewModel visible count = `min(5, uxLimit)` with and without a restriction list limit, re-trimmed on a state change
 - detour calculation (stretch)
 
 ### Fakes
@@ -850,7 +854,7 @@ Three layers:
 - `PlacesRepository` (success, empty, sparse, null-heavy, slow, failing)
 - `LocationProvider` (available, permission missing, unavailable)
 - `NavigationLauncher` (success, failure)
-- `DrivingRestrictions` (parked; driving with a list limit), via the interface, never `android.car`
+- `DrivingRestrictions` (no optimization required; optimization required with a list limit), via the interface, never `android.car`
 - `RouteRepository` (stretch)
 
 ### Emulator checks
@@ -935,7 +939,7 @@ Starts when ADR-001 is Accepted, or Provisionally selected pending licensing con
 - Back
 - Park and Drive
 - permission flow
-- driving restrictions (list limit, parked-only Grant)
+- UX restrictions (list limit, restriction-gated Grant)
 - failure scenarios
 - demo validation
 
