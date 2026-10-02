@@ -33,6 +33,11 @@ android {
     }
 }
 
+// ManifestContractTest reads the source manifest; without this a manifest-only change leaves the test UP-TO-DATE.
+tasks.withType<Test>().configureEach {
+    inputs.file("src/main/AndroidManifest.xml")
+}
+
 dependencies {
     // Car API (CarUxRestrictionsManager), provided by AAOS at runtime (docs/03 §6.1).
     // ponytail: hard-coded platform dir; update it with compileSdk.
