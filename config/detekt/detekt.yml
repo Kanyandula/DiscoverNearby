@@ -1,6 +1,4 @@
-build:
-  maxIssues: 0
-
+# Overrides on top of detekt's defaults (buildUponDefaultConfig); maxIssues stays at its default of 0.
 naming:
   FunctionNaming:
     # Composable functions are PascalCase by convention.

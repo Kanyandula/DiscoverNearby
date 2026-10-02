@@ -26,9 +26,12 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      # compileSdk 37 and the android.car.jar compileOnly path need this platform.
-      - name: Install Android SDK platform 37
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" > /dev/null
+      # compileSdk and the android.car.jar compileOnly path both come from compileApi in app/build.gradle.kts.
+      - name: Install Android SDK platform
+        run: |
+          api=$(sed -n 's/^val compileApi = \([0-9][0-9]*\)$/\1/p' app/build.gradle.kts)
+          test -n "$api" || { echo "compileApi not found in app/build.gradle.kts"; exit 1; }
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$api.0" > /dev/null
 
       - name: Detekt, unit tests, debug build
         run: ./gradlew detekt testDebugUnitTest assembleDebug --console=plain
