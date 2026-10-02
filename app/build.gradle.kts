@@ -4,6 +4,7 @@ val compileApi = 37
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -34,6 +35,11 @@ android {
     buildFeatures {
         compose = true
     }
+}
+
+// Defaults plus config/detekt/detekt.yml (picked up from the root by convention).
+detekt {
+    buildUponDefaultConfig = true
 }
 
 // ManifestContractTest reads the source manifest; without this a manifest-only change leaves the test UP-TO-DATE.
