@@ -12,6 +12,8 @@
 > **Revision 3:** This revision pins Car App Library 1.7.0 and adds the `app-testing` automated layer (§11). Product owns the relevance benchmark, and its sign-off is the M2 exit condition (§4). Core-flow scenarios can run on `FakePlacesRepository` from M0.
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. Automated UI tests are Compose UI tests under Robolectric (§11). The template-host checks are gone; focus is now app-built and verified as such (Scenario F, V7).
+>
+> **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide. Scenario names keep Park/Drive: the tests drive the gear and observe the restrictions it produces.
 
 ---
 
@@ -476,7 +478,7 @@ Automated tests have two layers: JVM unit tests, and Compose UI tests run locall
 - each screen renders each of its states (Discover grid; Recommendations loading, content, empty, error, permission; Details content and summary-only)
 - Recommendations: loading → content, loading → empty, loading → error, all on the same screen
 - Navigate starts `ACTION_VIEW` with the expected `geo:` URI, asserted with Robolectric's `shadowOf(application).nextStartedActivity`
-- Grant is hidden while driving and shown while parked (fake `DrivingRestrictions`)
+- Grant is hidden while `distractionOptimizationRequired` is true and shown when it is false (fake `DrivingRestrictions`)
 
 These run as local tests with no emulator, using NyasaPlayer's setup (delivery plan V2). One M0 smoke test verifies the project configuration. Rotary, focus and Park/Drive on the real platform are covered by the emulator scenarios.
 

@@ -1,6 +1,6 @@
 # Discover Nearby — AAOS POC Documentation Pack
 
-**Revision 4 — 2026-10-02**
+**Revision 4.1 — 2026-10-02**
 
 This folder contains the product and engineering documentation for the Discover Nearby Android Automotive OS proof of concept.
 
@@ -44,6 +44,15 @@ Delivery Plan
 
 ---
 
+## Revision 4.1 Change Summary
+
+Two corrections to Revision 4; no scope change.
+
+- **UX restrictions, not driving state.** `DrivingState.isParked` is renamed `distractionOptimizationRequired` and maps directly to `CarUxRestrictions.isRequiresDistractionOptimization()`. Grant is offered when it is `false`. AOSP tells apps to monitor UX restrictions "and not an absolute driving state" ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)); `false` means "an app can safely run any activity", not that the car is in Park. UX copy still says "park" because that is the driver's action. Changed: 02 §10, §17; 03 §6, §7, §20, M4; 04 §11; 05 §2, §3.
+- **V8 confirmed.** The AAOS developer guide allows `distractionOptimized` only on `CarAppActivity`: "No other activities should be marked as distraction optimized - if one is, your app will be rejected when submitted to the Google Play Store." ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). Changed: 03 §2, §6; 05 §9.
+
+---
+
 ## Revision 4 Change Summary
 
 Revision 4 changes one decision: **the UI is built in Kotlin + Jetpack Compose**, not with Car App Library templates. Product scope, flows, states, the provider spike, the domain model, ranking and the relevance benchmark are unchanged.
@@ -51,7 +60,7 @@ Revision 4 changes one decision: **the UI is built in Kotlin + Jetpack Compose**
 ### What changes
 
 - **UI:** one distraction-optimized `MainActivity` with Compose (Material 3), Navigation Compose and a `ViewModel` per content screen. `AppContainer` replaces `DiscoverSession` as the single wiring point. This is the same approach NyasaPlayer takes on AAOS.
-- **The app now owns what the template host used to do:** layout, touch targets, rotary focus, and driving restrictions. Driving restrictions come from `CarUxRestrictionsManager` (NyasaPlayer's `CarUxRestrictionsHandler` pattern): the list limit while driving, and Grant offered only while parked.
+- **The app now owns what the template host used to do:** layout, touch targets, rotary focus, and driving restrictions. Driving restrictions come from `CarUxRestrictionsManager` (NyasaPlayer's `CarUxRestrictionsHandler` pattern): the list limit while driving, and Grant offered only when distraction optimization is not required (Revision 4.1 wording).
 - **Removed:** Car App Library 1.7.0, `minCarApiLevel`, the template-step budget, `ScreenManager`, `app-testing`/`TestCarContext`.
 - **Navigation handoff:** `ACTION_VIEW` + `geo:` from the activity; the stub navigation app becomes a plain `geo:` handler.
 - **Tests:** Compose UI tests under Robolectric replace `app-testing` (NyasaPlayer's setup).
@@ -64,7 +73,7 @@ Revision 4 changes one decision: **the UI is built in Kotlin + Jetpack Compose**
 | V1 | 🟢 **Closed:** no Car App Library, so no Car App API level. |
 | V2 | 🟢 **Restated:** automated UI tests are Compose UI tests under Robolectric. |
 | V7 | 🔴 **New, open:** rotary focus in Compose on the reference AAOS image. Prove in M0 on the Discover grid. |
-| V8 | 🟡 **New, not blocking the POC:** distribution path. ⚠ Play's AAOS POI category appears to require Car App Library templates; a Compose POI app may need an OEM/preinstall route or a template layer for Play. Feeds go/no-go. |
+| V8 | 🟡 **New, not blocking the POC:** distribution path. Confirmed in Revision 4.1: Play rejects `distractionOptimized` on any activity other than `CarAppActivity`, so a Compose POI app needs an OEM/preinstall route or a template layer for Play. Feeds go/no-go. |
 
 V4 (provider gate) is still the only decision that blocks a milestone after M0.
 
