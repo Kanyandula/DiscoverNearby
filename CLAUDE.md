@@ -4,16 +4,15 @@ AAOS proof of concept: intent-based nearby-place discovery (Coffee, Food, Outdoo
 Family, Scenic, Explore) → up to 3–5 recommendations → place details → navigation handoff.
 Emulator-only. Debug builds, sideloaded. Not shipping to Play.
 
-Source of truth: `docs/` — **Revision 4** (brief, UX spec, engineering plan, test plan,
+Source of truth: `docs/` — **Revision 4.1** (brief, UX spec, engineering plan, test plan,
 delivery plan, `docs/adr/`, `docs/design/` = visual spec). Read `docs/03-…` §2, §3, §6 before
 structural work. If code and docs disagree, stop and ask.
 
 ## Current state of the code (read this first)
-The project is still Android Studio's **Car App Library template scaffold** (`:automotive` +
-`:shared`, CarAppService, MessageTemplate, minCarApiLevel). That is **NOT the target**.
-Revision 4 replaces it with a single Compose `app` module. The first M0 ticket does that
-migration and fixes the build. Do not extend the template code; do not add Car App Library APIs.
-Known build issue: `core-ktx` 1.19.0 needs compileSdk 37 while modules compile against 36.x.
+Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
+`distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `compileApi` value in
+`app/build.gradle.kts`, which also derives the `android.car.jar` path), targetSdk 36, minSdk 29.
+No Car App Library; do not add its APIs. Next: DN-M0-012 (detekt + CI), then DN-M0-001.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -53,7 +52,8 @@ Known build issue: `core-ktx` 1.19.0 needs compileSdk 37 while modules compile a
   FLAG_ACTIVITY_NEW_TASK. Never target a specific app. ActivityNotFound/Security/any failure →
   NavigationUnavailable.
 - Location permission via `rememberLauncherForActivityResult(RequestPermission())`;
-  Grant offered only while parked (from `DrivingRestrictions`).
+  Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX
+  restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per
   UX spec §16, initial focus on first item, focus restored after Back (V7 — prove in M0).
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
@@ -81,21 +81,17 @@ Provider keys live in `local.properties` → BuildConfig. Never commit or log ke
 
 ## Ticket workflow
 
-For every ticket:
+Tickets live in the vault: `~/.claude/projects/Discover Nearby/tickets/` (status in frontmatter).
 
-1. **One ticket = one branch = one pull request.**
-2. Never commit directly on local `main`.
-3. Never push directly to remote `main`.
-4. Before any change, update `main` from the remote and branch from the latest `main`.
-5. Make all ticket commits on that branch only.
-6. Before opening the PR, run a code review with the `simplify` skill.
-7. Fix what `simplify` finds before opening the PR.
-8. Push the ticket branch to the remote.
-9. Open a PR from the ticket branch into remote `main`.
-10. Changes reach `main` only by merging the PR. Never bypass the PR process.
+1. Pick a `ready` ticket. Set `status: in_progress` and its `branch:` field.
+2. Update `main` (`git switch main && git pull`), then branch from it:
+   `dn-<ticket-id-lowercase>-<short-name>`, e.g. `dn-m0-001-compose-app`.
+3. Do the work. Run `./gradlew detekt testDebugUnitTest assembleDebug` (detekt once it exists).
+4. Run the `simplify` skill and fix its findings.
+5. Push the branch and open the PR into `main` with the `pr-description` skill; include
+   the ticket ID and its acceptance criteria. Never commit on local `main`, never push to
+   remote `main`; merge only via the PR (`main` is branch-protected).
+6. After the merge: set the ticket to `done`, update `NOW.md`, delete the branch.
 
-```text
-remote/main → update local main → create ticket branch → implement
-  → commit on ticket branch → simplify review → fix findings
-  → push ticket branch → open PR into main → merge PR
-```
+No AI attribution (`Co-Authored-By: Claude`, "Generated with Claude Code") in commits,
+PR titles or PR bodies.

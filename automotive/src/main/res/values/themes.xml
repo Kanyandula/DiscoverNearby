@@ -1,4 +1,0 @@
-<resources>
-
-    <style name="Theme.DiscoverNearby" parent="android:Theme.Material.Light.DarkActionBar" />
-</resources>
