@@ -1,13 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.kanyandula.discovernearby"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+        version = release(37)
     }
 
     defaultConfig {
@@ -16,8 +15,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -31,14 +28,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
-    implementation(project(":shared"))
-    implementation(libs.androidx.app.automotive)
-    implementation(libs.androidx.appcompat)
+    // Car API (CarUxRestrictionsManager), provided by AAOS at runtime (docs/03 §6.1).
+    // ponytail: hard-coded platform dir; update it with compileSdk.
+    compileOnly(
+        files(androidComponents.sdkComponents.sdkDirectory.map { it.file("platforms/android-37.0/optional/android.car.jar") }),
+    )
+
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
 }

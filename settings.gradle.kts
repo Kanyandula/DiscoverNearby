@@ -23,6 +23,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Discover Nearby"
-include(":automotive")
-include(":shared")
+include(":app")
  
