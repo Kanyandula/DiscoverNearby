@@ -31,5 +31,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-private const val DETEKT_GATE_PROBE = "this string only exists to push the line past the one hundred and twenty character limit"
