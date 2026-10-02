@@ -9,11 +9,10 @@ delivery plan, `docs/adr/`, `docs/design/` = visual spec). Read `docs/03-…` §
 structural work. If code and docs disagree, stop and ask.
 
 ## Current state of the code (read this first)
-The project is still Android Studio's **Car App Library template scaffold** (`:automotive` +
-`:shared`, CarAppService, MessageTemplate, minCarApiLevel). That is **NOT the target**.
-Revision 4 replaces it with a single Compose `app` module. The first M0 ticket does that
-migration and fixes the build. Do not extend the template code; do not add Car App Library APIs.
-Known build issue: `core-ktx` 1.19.0 needs compileSdk 37 while modules compile against 36.x.
+Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
+`distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `compileApi` value in
+`app/build.gradle.kts`, which also derives the `android.car.jar` path), targetSdk 36, minSdk 29.
+No Car App Library; do not add its APIs. Next: DN-M0-012 (detekt + CI), then DN-M0-001.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
