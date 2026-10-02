@@ -1,3 +1,6 @@
+// Single source for the compile SDK; the android.car.jar path below derives from it.
+val compileApi = 37
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -6,7 +9,7 @@ plugins {
 android {
     namespace = "com.kanyandula.discovernearby"
     compileSdk {
-        version = release(37)
+        version = release(compileApi)
     }
 
     defaultConfig {
@@ -40,9 +43,8 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     // Car API (CarUxRestrictionsManager), provided by AAOS at runtime (docs/03 §6.1).
-    // ponytail: hard-coded platform dir; update it with compileSdk.
     compileOnly(
-        files(androidComponents.sdkComponents.sdkDirectory.map { it.file("platforms/android-37.0/optional/android.car.jar") }),
+        files(androidComponents.sdkComponents.sdkDirectory.map { it.file("platforms/android-$compileApi.0/optional/android.car.jar") }),
     )
 
     implementation(libs.androidx.core.ktx)

@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 import java.io.File
@@ -17,10 +18,15 @@ private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
  */
 class ManifestContractTest {
 
-    private val manifest = DocumentBuilderFactory.newInstance()
-        .apply { isNamespaceAware = true }
-        .newDocumentBuilder()
-        .parse(File("src/main/AndroidManifest.xml"))
+    private companion object {
+        // Parsed once per class; JUnit creates a new instance for every test.
+        val manifest: Document by lazy {
+            DocumentBuilderFactory.newInstance()
+                .apply { isNamespaceAware = true }
+                .newDocumentBuilder()
+                .parse(File("src/main/AndroidManifest.xml"))
+        }
+    }
 
     private fun NodeList.elements(): List<Element> = (0 until length).map { item(it) as Element }
 
