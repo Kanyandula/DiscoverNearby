@@ -1,0 +1,8 @@
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    # Composable functions are PascalCase by convention.
+    ignoreAnnotated:
+      - "Composable"

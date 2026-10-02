@@ -51,14 +51,16 @@ class ManifestContractTest {
 
     @Test
     fun requiresAutomotiveHardware() {
-        val automotive = elements("uses-feature").single { it.androidAttr("name") == "android.hardware.type.automotive" }
+        val automotive = elements("uses-feature")
+            .single { it.androidAttr("name") == "android.hardware.type.automotive" }
         assertEquals("true", automotive.androidAttr("required"))
     }
 
     @Test
     fun declaresLocationAndInternetPermissions() {
         val permissions = elements("uses-permission").map { it.androidAttr("name") }.toSet()
-        assertTrue(permissions.containsAll(setOf("android.permission.ACCESS_FINE_LOCATION", "android.permission.INTERNET")))
+        val required = setOf("android.permission.ACCESS_FINE_LOCATION", "android.permission.INTERNET")
+        assertTrue(permissions.containsAll(required))
     }
 
     @Test

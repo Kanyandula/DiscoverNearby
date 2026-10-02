@@ -12,7 +12,7 @@ structural work. If code and docs disagree, stop and ask.
 Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
 `distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `compileApi` value in
 `app/build.gradle.kts`, which also derives the `android.car.jar` path), targetSdk 36, minSdk 29.
-No Car App Library; do not add its APIs. Next: DN-M0-012 (detekt + CI), then DN-M0-001.
+No Car App Library; do not add its APIs. detekt + CI in place (DN-M0-012). Next: DN-M0-001.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -64,9 +64,10 @@ No Car App Library; do not add its APIs. Next: DN-M0-012 (detekt + CI), then DN-
 - Build: `./gradlew assembleDebug`
 - Unit + Robolectric/Compose tests: `./gradlew test`
 - Lint: `./gradlew lintDebug`
-- Detekt: `./gradlew detekt` — not configured yet (M0 task). Until then: build + test + lint.
+- Detekt: `./gradlew detekt` (1.23.8, defaults + `config/detekt/detekt.yml`, `maxIssues: 0`).
+- CI runs `./gradlew detekt testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
 - Repo git hooks do NOT run on this machine (global `core.hooksPath`); run checks yourself.
-- Before saying a task is done: build, test and lint (and detekt once configured) must pass.
+- Before saying a task is done: detekt, test, build and lint must pass.
 
 ## Emulator (AVD `AAOS_AOSP_33_userdebug`, x86_64 — this Mac is Intel; always `adb -s emulator-5554`)
 - Drive: `adb -s emulator-5554 shell cmd car_service inject-vhal-event 0x11400400 8`
@@ -86,7 +87,7 @@ Tickets live in the vault: `~/.claude/projects/Discover Nearby/tickets/` (status
 1. Pick a `ready` ticket. Set `status: in_progress` and its `branch:` field.
 2. Update `main` (`git switch main && git pull`), then branch from it:
    `dn-<ticket-id-lowercase>-<short-name>`, e.g. `dn-m0-001-compose-app`.
-3. Do the work. Run `./gradlew detekt testDebugUnitTest assembleDebug` (detekt once it exists).
+3. Do the work. Run `./gradlew detekt testDebugUnitTest assembleDebug`.
 4. Run the `simplify` skill and fix its findings.
 5. Push the branch and open the PR into `main` with the `pr-description` skill; include
    the ticket ID and its acceptance criteria. Never commit on local `main`, never push to
