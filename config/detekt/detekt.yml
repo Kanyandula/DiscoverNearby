@@ -4,3 +4,8 @@ naming:
     # Composable functions are PascalCase by convention.
     ignoreAnnotated:
       - "Composable"
+
+style:
+  MagicNumber:
+    # Named property declarations (colours, dimensions) are the fix MagicNumber asks for.
+    ignorePropertyDeclaration: true

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -35,6 +36,14 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        unitTests {
+            // Robolectric reads merged resources and the manifest; createComposeRule needs both.
+            isIncludeAndroidResources = true
+            // Unmocked android.* calls (e.g. Log) return defaults instead of throwing.
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 // Defaults plus config/detekt/detekt.yml (picked up from the root by convention).
@@ -45,6 +54,8 @@ detekt {
 // ManifestContractTest reads the source manifest; without this a manifest-only change leaves the test UP-TO-DATE.
 tasks.withType<Test>().configureEach {
     inputs.file("src/main/AndroidManifest.xml")
+    // Robolectric at SDK 36 (Android 16) touches jdk.internal.access on JDK 21.
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }
 
 dependencies {
@@ -59,5 +70,24 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
 
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
+
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// ui-test-manifest is debugImplementation; release unit tests would have no test activity to launch.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) {
+        it.hostTests.getValue(com.android.build.api.variant.HostTestBuilder.UNIT_TEST_TYPE).enable = false
+    }
 }
