@@ -32,7 +32,6 @@ class DiscoverNearbyThemeTest {
     fun usesCanvasPalette() {
         lateinit var scheme: ColorScheme
         rule.setContent { DiscoverNearbyTheme { scheme = MaterialTheme.colorScheme } }
-        rule.waitForIdle()
         assertEquals(Background, scheme.background)
         assertEquals(Surface, scheme.surface)
         assertEquals(OnSurface, scheme.onSurface)
