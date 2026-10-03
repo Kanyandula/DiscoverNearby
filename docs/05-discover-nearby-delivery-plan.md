@@ -59,6 +59,22 @@ Seven decisions need agreement at kickoff. Once they are agreed, no project-leve
 - No alpha or RC dependencies unless a concrete blocker appears that stable cannot solve. Any such change needs a short note in this document.
 - No Car App Library dependency.
 
+Pinned at M0 (DN-M0-009, DN-M0-012, DN-M0-001; checked 2026-10-02):
+
+| Area | Version |
+| --- | --- |
+| AGP / built-in Kotlin / Gradle | 9.2.1 / 2.2.10 / 9.4.1 |
+| compileSdk / targetSdk / minSdk | 37 / 36 / 29 |
+| Compose BOM | 2026.09.00 (ui 1.12.1, material3 1.4.0) |
+| activity-compose / navigation-compose / lifecycle | 1.13.0 / 2.10.2 / 2.11.0 |
+| core-ktx | 1.19.1 |
+| kotlinx.coroutines / kotlinx.serialization | 1.11.0 / 1.11.0 |
+| OkHttp | 5.5.0 |
+| JUnit / Robolectric (runs at SDK 36) | 4.13.2 / 4.17 |
+| detekt | 1.23.8 |
+
+Lint reports newer AGP (9.4.1), Gradle (9.8.0) and Kotlin plugins (2.4.20). These are deferred toolchain upgrades, not M0 work; targetSdk 36 is deliberate.
+
 ### HTTP / JSON policy
 
 **REST only for the core POC (M1–M4).** Provider APIs are called directly with OkHttp + kotlinx.serialization through our own client and mapper. No provider SDK: M1–M4 need no map renderer, navigation engine, positioning stack, offline maps, SDK UI or route guidance. If M5 later needs an SDK, it gets its own ADR at that point. This closes V5.

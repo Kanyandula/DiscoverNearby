@@ -12,7 +12,9 @@ structural work. If code and docs disagree, stop and ask.
 Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
 `distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `compileApi` value in
 `app/build.gradle.kts`, which also derives the `android.car.jar` path), targetSdk 36, minSdk 29.
-No Car App Library; do not add its APIs. detekt + CI in place (DN-M0-012). Next: DN-M0-001.
+No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
+Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
+SDK 36, `ArchitectureRulesTest`. Next: DN-M0-002 / 003 / 010.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -62,7 +64,7 @@ No Car App Library; do not add its APIs. detekt + CI in place (DN-M0-012). Next:
 
 ## Commands
 - Build: `./gradlew assembleDebug`
-- Unit + Robolectric/Compose tests: `./gradlew test`
+- Unit + Robolectric/Compose tests: `./gradlew testDebugUnitTest` (release host tests are disabled).
 - Lint: `./gradlew lintDebug`
 - Detekt: `./gradlew detekt` (1.23.8, defaults + `config/detekt/detekt.yml`, `maxIssues: 0`).
 - CI runs `./gradlew detekt lintDebug testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
