@@ -59,7 +59,12 @@ class ManifestContractTest {
     @Test
     fun declaresLocationAndInternetPermissions() {
         val permissions = elements("uses-permission").map { it.androidAttr("name") }.toSet()
-        val required = setOf("android.permission.ACCESS_FINE_LOCATION", "android.permission.INTERNET")
+        // Fine location requires coarse alongside it (lint CoarseFineLocation; users may grant approximate only).
+        val required = setOf(
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.INTERNET",
+        )
         assertTrue(permissions.containsAll(required))
     }
 

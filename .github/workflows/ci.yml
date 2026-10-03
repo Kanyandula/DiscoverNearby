@@ -33,5 +33,5 @@ jobs:
           test -n "$api" || { echo "compileApi not found in app/build.gradle.kts"; exit 1; }
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$api.0" > /dev/null
 
-      - name: Detekt, unit tests, debug build
-        run: ./gradlew detekt testDebugUnitTest assembleDebug --console=plain
+      - name: Detekt, lint, unit tests, debug build
+        run: ./gradlew detekt lintDebug testDebugUnitTest assembleDebug --console=plain

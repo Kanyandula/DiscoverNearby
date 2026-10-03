@@ -318,7 +318,7 @@ There is no Car App Library dependency, so there is no Car App API level. `minSd
 
 - `uses-feature android.hardware.type.automotive` (required)
 - `MainActivity` with the launcher intent filter and `distractionOptimized` meta-data. Without it, AAOS replaces the app with its own block screen while driving (proven on NyasaPlayer). The declaration is only honest once list limits, restriction-gated Grant, touch targets and rotary focus are in place. It is acceptable for this sideloaded POC only: Play rejects `distractionOptimized` on any activity other than the Car App Library's `CarAppActivity` (V8).
-- `ACCESS_FINE_LOCATION`, `INTERNET`
+- `ACCESS_FINE_LOCATION` with `ACCESS_COARSE_LOCATION` (Android requires both; users may grant approximate only), `INTERNET`
 - No `CarAppService`, `automotive_app_desc.xml` or `minCarApiLevel`
 
 ### Screens

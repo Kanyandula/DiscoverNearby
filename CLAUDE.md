@@ -65,7 +65,7 @@ No Car App Library; do not add its APIs. detekt + CI in place (DN-M0-012). Next:
 - Unit + Robolectric/Compose tests: `./gradlew test`
 - Lint: `./gradlew lintDebug`
 - Detekt: `./gradlew detekt` (1.23.8, defaults + `config/detekt/detekt.yml`, `maxIssues: 0`).
-- CI runs `./gradlew detekt testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
+- CI runs `./gradlew detekt lintDebug testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
 - Repo git hooks do NOT run on this machine (global `core.hooksPath`); run checks yourself.
 - Before saying a task is done: detekt, test, build and lint must pass.
 
@@ -87,7 +87,7 @@ Tickets live in the vault: `~/.claude/projects/Discover Nearby/tickets/` (status
 1. Pick a `ready` ticket. Set `status: in_progress` and its `branch:` field.
 2. Update `main` (`git switch main && git pull`), then branch from it:
    `dn-<ticket-id-lowercase>-<short-name>`, e.g. `dn-m0-001-compose-app`.
-3. Do the work. Run `./gradlew detekt testDebugUnitTest assembleDebug`.
+3. Do the work. Run `./gradlew detekt lintDebug testDebugUnitTest assembleDebug`.
 4. Run the `simplify` skill and fix its findings.
 5. Push the branch and open the PR into `main` with the `pr-description` skill; include
    the ticket ID and its acceptance criteria. Never commit on local `main`, never push to
