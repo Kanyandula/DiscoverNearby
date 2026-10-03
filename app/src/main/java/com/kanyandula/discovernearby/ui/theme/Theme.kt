@@ -15,6 +15,25 @@ private val CanvasColors = darkColorScheme(
     onSurface = OnSurface,
     surfaceVariant = SurfaceVariant,
     onSurfaceVariant = OnSurfaceVariant,
+    // Container roles feed Material 3 components (Card, chips, nav bars). Unset, they fall back to the
+    // baseline purple; the canvas has only neutrals, so map them to its page, panel and tile tones.
+    surfaceDim = Background,
+    surfaceBright = SurfaceVariant,
+    surfaceContainerLowest = Background,
+    surfaceContainerLow = Surface,
+    surfaceContainer = Surface,
+    surfaceContainerHigh = SurfaceVariant,
+    surfaceContainerHighest = SurfaceVariant,
+    primaryContainer = SurfaceVariant,
+    onPrimaryContainer = OnSurface,
+    secondaryContainer = SurfaceVariant,
+    onSecondaryContainer = OnSurface,
+    tertiary = Brand,
+    onTertiary = Background,
+    tertiaryContainer = SurfaceVariant,
+    onTertiaryContainer = OnSurface,
+    outline = OnSurfaceVariant,
+    outlineVariant = SurfaceVariant,
 )
 
 // ponytail: one scheme for day and night until Design supplies a day palette (open decision 1).
