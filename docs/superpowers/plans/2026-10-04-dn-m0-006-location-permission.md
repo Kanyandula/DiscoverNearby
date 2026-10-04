@@ -32,6 +32,8 @@
 7. **Permission message icon:** the blue location pin from 05a/05b, replacing DN-M0-004's grey location-off placeholder.
 8. **`MessageState`'s primary action is generalised** to `onPrimary` + `primaryLabel` (Try Again or Grant Permission); `RecommendationsScreen` takes `onGrant` and carries `@Suppress("LongParameterList")` (state plus one lambda per user action).
 
+> **Changed during execution:** on the emulator an approximate-only grant never got a fix — the platform rewrites a coarse app's request as low-power (`Request[@+10m LOW_POWER]`), which GPS never serves. `AndroidLocationProvider` now answers approximate-only reads from the platform's recent fix (≤ 10 min, already coarsened) at once, or `Unavailable`; precise reads wait up to 8 s for a current fix and fall back to the recent one. The timeout is no longer a constructor parameter. Permission messages are built inline from the state; `CLAUDE.md`'s rule now names `RequestMultiplePermissions()` (docs/03 §7 still says `RequestPermission()` — flagged for a doc fix). The task steps below are the plan as first executed.
+
 ## Review Focus
 
 1. **The restrictions change while the permission message shows:** Grant appears in Park and disappears in Drive without leaving the screen. Pinned by `PermissionGrantTest.grantAppearsOnlyWhileRestrictionsAllow` (fake `DrivingRestrictions`).
