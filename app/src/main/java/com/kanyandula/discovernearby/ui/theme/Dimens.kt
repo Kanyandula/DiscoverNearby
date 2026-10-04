@@ -36,5 +36,4 @@ val NavigateHeight = 88.dp
 val NavigateRadius = 20.dp
 val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
-val InfoIconSize = 24.dp
 val InfoIconGap = 12.dp

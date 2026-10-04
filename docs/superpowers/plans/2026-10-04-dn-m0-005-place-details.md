@@ -24,14 +24,14 @@
 
 ## Open decisions (recorded here, in the ticket and the PR)
 
-1. **The route carries the whole `Recommendation` as JSON.** `GeoPoint`, `PlaceAttribute`, `PlaceSummary` and `Recommendation` become `@Serializable`; `JsonNavType` encodes the value for the route and the saved state. Details then has the summary (and the list's distance) at once, after a failed details call, and after process death, with no shared "selected place" holder. Cost: the domain model carries kotlinx.serialization annotations (pure Kotlin; the plugin is already applied).
+1. **The route carries the place as JSON:** `PlaceDetailsRoute(place: PlaceSummary, distanceMeters: Int)`. `GeoPoint`, `PlaceAttribute` and `PlaceSummary` become `@Serializable`; `JsonNavType` encodes the place for the route and the saved state. Details then has the summary and the list's distance at once, after a failed details call, and after process death, with no shared "selected place" holder. (Simplify pass: the first cut carried the whole `Recommendation`; only the place and distance are read.) Cost: the domain model carries kotlinx.serialization annotations (pure Kotlin; the plugin is already applied).
 2. **One layout for every state, Navigate fixed at the bottom of the right column** (the fallback artboard's position). The content artboard puts Navigate under the photo; with no photo (decision 5) it would otherwise jump when details arrive.
 3. **SummaryOnly shows the same sections as Content, built from the summary, plus "More details unavailable right now".** The fallback artboard rearranges rating and attributes; keeping one arrangement means nothing moves when the state changes. Reviews read "(342 reviews)" in both.
 4. **Opening line:** the details' `openingSummary` when present (fake: "Open until 18:00"), else "Open now" / "Closed now" from the summary's `isOpenNow`; green when open (`#6CD69A`, Details artboard).
 5. **No photo, attribution or place-kind label** ("Café" under the distance). Photo and attribution wait for ADR-001 (DN-M1-003); the kind vocabulary is fixed when categories map to provider types (DN-M2-001). docs/02 §7 lists all three as "where available".
 6. **Navigate does nothing visible in M0.** `FakeNavigationLauncher` records the destination and succeeds; the ViewModel does not yet map a failed `Result` (the fake cannot fail). DN-M3-001 adds `IntentNavigationLauncher`, the stub-app check and the Navigation unavailable state.
 7. **The details call goes through `DiscoverUseCase.details()`** (ui → discovery → places, docs/03 §4) with the same 8 s timeout; failure or timeout → `null` → `SummaryOnly`.
-8. **detekt `LongParameterList` ignores `@Composable` functions**: a screen takes its state plus one lambda per event (`RecommendationsScreen` reaches six with `onPlaceSelected`).
+8. **detekt `LongParameterList` ignores defaulted parameters** (simplify pass; the first cut exempted every `@Composable`): `RecommendationsScreen` reaches six only by counting `modifier`.
 9. **Shared UI pieces move, not copy:** `ScreenHeader` (Back + title) is extracted from `RecommendationsScreen`; attribute labels, `METERS_PER_KM` and the `" · "` separator move from `RecommendationRow` to `ui/PlaceText.kt`.
 
 ## Review Focus

@@ -20,8 +20,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
-import com.kanyandula.discovernearby.ui.METERS_PER_KM
 import com.kanyandula.discovernearby.ui.SEPARATOR
+import com.kanyandula.discovernearby.ui.attributeTypes
+import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
@@ -58,7 +59,7 @@ fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modif
                     overflow = TextOverflow.Ellipsis,
                 )
                 detailsLine(place)?.let { SupportingLine(it) }
-                SupportingLine(stringResource(R.string.distance_km, recommendation.distanceMeters / METERS_PER_KM))
+                SupportingLine(stringResource(R.string.distance_km, kilometres(recommendation.distanceMeters)))
             }
             // Decorative, as on the canvas.
             Icon(
@@ -77,7 +78,7 @@ private fun detailsLine(place: PlaceSummary): String? {
         place.ratingCount?.let { stringResource(R.string.rating_with_count, rating, it) }
             ?: stringResource(R.string.rating, rating)
     }
-    val attributes = place.attributes.map { it.type }.distinct().take(MAX_ROW_ATTRIBUTES)
+    val attributes = place.attributeTypes().take(MAX_ROW_ATTRIBUTES)
         .map { stringResource(it.label) }
     return (listOfNotNull(rating) + attributes).joinToString(SEPARATOR).ifEmpty { null }
 }

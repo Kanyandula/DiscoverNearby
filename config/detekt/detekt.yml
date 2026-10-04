@@ -12,6 +12,5 @@ style:
 
 complexity:
   LongParameterList:
-    # A screen takes its state plus one lambda per event (Compose convention); grouping them only hides the API.
-    ignoreAnnotated:
-      - "Composable"
+    # Defaulted parameters (Compose's `modifier`) add nothing a caller must pass.
+    ignoreDefaultParameters: true

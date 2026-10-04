@@ -16,9 +16,14 @@ import kotlinx.coroutines.launch
  * hand-off (DN-M3-001).
  */
 sealed interface PlaceDetailsUiState {
-    data class Loading(val summary: PlaceSummary) : PlaceDetailsUiState
-    data class Content(val details: PlaceDetails) : PlaceDetailsUiState
-    data class SummaryOnly(val summary: PlaceSummary) : PlaceDetailsUiState
+    /** The place as currently known: the route's summary, or the fresher one that came with the details. */
+    val summary: PlaceSummary
+
+    data class Loading(override val summary: PlaceSummary) : PlaceDetailsUiState
+    data class Content(val details: PlaceDetails) : PlaceDetailsUiState {
+        override val summary: PlaceSummary get() = details.summary
+    }
+    data class SummaryOnly(override val summary: PlaceSummary) : PlaceDetailsUiState
 }
 
 class PlaceDetailsViewModel(

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -30,17 +31,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
-import com.kanyandula.discovernearby.model.Recommendation
-import com.kanyandula.discovernearby.ui.METERS_PER_KM
 import com.kanyandula.discovernearby.ui.SEPARATOR
+import com.kanyandula.discovernearby.ui.attributeTypes
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
+import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ActionColumnWidth
 import com.kanyandula.discovernearby.ui.theme.DetailsColumnGap
 import com.kanyandula.discovernearby.ui.theme.DetailsInset
 import com.kanyandula.discovernearby.ui.theme.InfoIconGap
-import com.kanyandula.discovernearby.ui.theme.InfoIconSize
 import com.kanyandula.discovernearby.ui.theme.NavigateHeight
 import com.kanyandula.discovernearby.ui.theme.NavigateIconGap
 import com.kanyandula.discovernearby.ui.theme.NavigateIconSize
@@ -58,26 +58,21 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
  */
 @Composable
 fun PlaceDetailsScreen(
-    recommendation: Recommendation,
+    distanceMeters: Int,
     state: PlaceDetailsUiState,
     onNavigate: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val place = when (state) {
-        is PlaceDetailsUiState.Loading -> state.summary
-        is PlaceDetailsUiState.Content -> state.details.summary
-        is PlaceDetailsUiState.SummaryOnly -> state.summary
-    }
     val openingSummary = (state as? PlaceDetailsUiState.Content)?.details?.openingSummary
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
-        ScreenHeader(title = place.name, onBack = onBack)
+        ScreenHeader(title = state.summary.name, onBack = onBack)
         Row(
             modifier = Modifier.weight(1f).padding(start = DetailsInset),
             horizontalArrangement = Arrangement.spacedBy(DetailsColumnGap),
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Facts(place, recommendation.distanceMeters, openingSummary)
+                Facts(state.summary, distanceMeters, openingSummary)
                 if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
             }
             NavigateButton(onClick = onNavigate, modifier = Modifier.width(ActionColumnWidth).align(Alignment.Bottom))
@@ -85,59 +80,59 @@ fun PlaceDetailsScreen(
     }
 }
 
-private class Fact(val primary: AnnotatedString?, val secondary: String?, val secondaryColor: Color)
-
-/** Distance; rating and opening state; amenities. Each only when known, with dividers between. */
+/** Distance; then rating and opening state; then amenities. Each only when known, with dividers between. */
 @Composable
 private fun Facts(place: PlaceSummary, distanceMeters: Int, openingSummary: String?) {
-    facts(place, distanceMeters, openingSummary).forEachIndexed { index, fact ->
-        if (index > 0) HorizontalDivider(color = Raised)
-        Column(
-            modifier = Modifier.padding(vertical = SectionPadding),
-            verticalArrangement = Arrangement.spacedBy(RowLineGap),
-        ) {
-            fact.primary?.let { Text(text = it, style = MaterialTheme.typography.headlineSmall) }
-            fact.secondary?.let {
-                Text(text = it, style = MaterialTheme.typography.titleMedium, color = fact.secondaryColor)
-            }
-        }
-    }
-}
-
-@Composable
-private fun facts(place: PlaceSummary, distanceMeters: Int, openingSummary: String?): List<Fact> {
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    val distance = AnnotatedString(stringResource(R.string.distance_away, distanceMeters / METERS_PER_KM))
+    Section(AnnotatedString(stringResource(R.string.distance_away, kilometres(distanceMeters))))
+    val rating = ratingLine(place)
     val opening = openingSummary ?: when (place.isOpenNow) {
         true -> stringResource(R.string.open_now)
         false -> stringResource(R.string.closed_now)
         null -> null
     }
-    val rating = place.rating?.let { rating ->
-        buildAnnotatedString {
-            append(stringResource(R.string.rating, rating))
-            place.ratingCount?.let { count ->
-                withStyle(SpanStyle(color = muted, fontWeight = FontWeight.Normal)) {
-                    append(" ")
-                    append(pluralStringResource(R.plurals.reviews, count, count))
-                }
+    if (rating != null || opening != null) {
+        HorizontalDivider(color = Raised)
+        Section(rating, opening, secondaryColor = if (place.isOpenNow == true) OpenNow else Color.Unspecified)
+    }
+    val amenities = place.attributeTypes().map { stringResource(it.label) }
+    if (amenities.isNotEmpty()) {
+        HorizontalDivider(color = Raised)
+        Section(AnnotatedString(amenities.joinToString(SEPARATOR)), stringResource(R.string.amenities))
+    }
+}
+
+/** "4.6 ★" and, when the provider counts them, "(342 reviews)" in the muted style; null without a rating. */
+@Composable
+private fun ratingLine(place: PlaceSummary): AnnotatedString? {
+    val rating = place.rating ?: return null
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    return buildAnnotatedString {
+        append(stringResource(R.string.rating, rating))
+        place.ratingCount?.let { count ->
+            withStyle(SpanStyle(color = muted, fontWeight = FontWeight.Normal)) {
+                append(" ")
+                append(pluralStringResource(R.plurals.reviews, count, count))
             }
         }
     }
-    val amenities = place.attributes.map { it.type }.distinct().map { stringResource(it.label) }
-    return listOfNotNull(
-        Fact(distance, secondary = null, secondaryColor = muted),
-        if (rating != null || opening != null) {
-            Fact(rating, opening, if (place.isOpenNow == true) OpenNow else muted)
-        } else {
-            null
-        },
-        if (amenities.isNotEmpty()) {
-            Fact(AnnotatedString(amenities.joinToString(SEPARATOR)), stringResource(R.string.amenities), muted)
-        } else {
-            null
-        },
-    )
+}
+
+/** A primary line and a muted secondary line, as on the canvas sections. */
+@Composable
+private fun Section(primary: AnnotatedString?, secondary: String? = null, secondaryColor: Color = Color.Unspecified) {
+    Column(
+        modifier = Modifier.padding(vertical = SectionPadding),
+        verticalArrangement = Arrangement.spacedBy(RowLineGap),
+    ) {
+        primary?.let { Text(text = it, style = MaterialTheme.typography.headlineSmall) }
+        secondary?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleMedium,
+                color = secondaryColor.takeOrElse { MaterialTheme.colorScheme.onSurfaceVariant },
+            )
+        }
+    }
 }
 
 @Composable
@@ -152,7 +147,6 @@ private fun DetailsUnavailable() {
             painter = painterResource(R.drawable.ic_info),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(InfoIconSize),
         )
         Text(
             text = stringResource(R.string.details_unavailable),

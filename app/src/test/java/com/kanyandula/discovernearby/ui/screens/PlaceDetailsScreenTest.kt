@@ -18,7 +18,6 @@ import com.kanyandula.discovernearby.model.AttributeType.FAMILY_FRIENDLY
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
-import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
@@ -47,14 +46,6 @@ class PlaceDetailsScreenTest {
         isOpenNow = true,
         attributes = setOf(PlaceAttribute(PARKING, PROVIDED), PlaceAttribute(FAMILY_FRIENDLY, DERIVED)),
     )
-    private val recommendation = Recommendation(
-        place = place,
-        score = 1.0,
-        distanceMeters = 2_100,
-        travelTimeMinutes = null,
-        minutesAhead = null,
-        detourMinutes = null,
-    )
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
     private var navigations = 0
     private var backs = 0
@@ -64,7 +55,7 @@ class PlaceDetailsScreenTest {
         rule.setContent {
             DiscoverNearbyTheme {
                 PlaceDetailsScreen(
-                    recommendation = recommendation,
+                    distanceMeters = 2_100,
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },
