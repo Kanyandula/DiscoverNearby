@@ -15,7 +15,8 @@ Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, decla
 No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
 Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
 SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost`, in-app Back
-(AOSP car bar has none), Recommendations placeholder. Next: DN-M0-003 / 010 / 011.
+(AOSP car bar has none), Recommendations placeholder. Domain model, `CategoryConfigs` and fakes (DN-M0-003): `model/`,
+`places/` (+ `fake/`), `location/` (+ `fake/`), wired in `AppContainer`. Next: DN-M0-004 / 010 / 011.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
