@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Discover Nearby</string>
+    <string name="category_coffee">Coffee</string>
+    <string name="category_coffee_subtitle">Great coffee near you</string>
+    <string name="category_food">Food</string>
+    <string name="category_food_subtitle">Places to eat</string>
+    <string name="category_outdoors">Outdoors</string>
+    <string name="category_outdoors_subtitle">Parks, trails and more</string>
+    <string name="category_family">Family</string>
+    <string name="category_family_subtitle">Family-friendly places</string>
+    <string name="category_scenic">Scenic</string>
+    <string name="category_scenic_subtitle">Beautiful views near you</string>
+    <string name="category_explore">Explore</string>
+    <string name="category_explore_subtitle">Hidden gems and local spots</string>
+    <string name="back">Back</string>
 </resources>
