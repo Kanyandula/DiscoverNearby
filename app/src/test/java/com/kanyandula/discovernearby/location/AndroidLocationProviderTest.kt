@@ -25,6 +25,10 @@ class AndroidLocationProviderTest {
     private val provider = AndroidLocationProvider(RuntimeEnvironment.getApplication())
     private val greystones = TestLocation.GREYSTONES.point
 
+    private companion object {
+        const val MINUTE = 60_000L
+    }
+
     /** Starts a read and lets the location callback run; the result is there unless it is still waiting. */
     private fun TestScope.read(): Deferred<LocationResult> = async { provider.currentLocation() }.also {
         runCurrent()
@@ -56,6 +60,24 @@ class AndroidLocationProviderTest {
     fun approximateWithoutARecentFixIsUnavailableAtOnce() = runTest {
         deviceAt(point = null, permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
         assertEquals(LocationResult.Unavailable, read().getCompleted())
+    }
+
+    // The platform refreshes an approximate-only app's coarse fix only every 10 min, so a 12-min-old one is current.
+    @Test
+    fun approximateAcceptsTheLatestCoarseFix() = runTest {
+        val approximateOnly = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+        deviceAt(greystones, permissions = approximateOnly, fixAgeMillis = 12 * MINUTE)
+        assertEquals(LocationResult.Available(greystones), read().getCompleted())
+    }
+
+    // A precise read that gets no current fix may fall back only to a fix a couple of minutes old, not one from
+    // several kilometres back.
+    @Test
+    fun preciseFallsBackOnlyToAFreshFix() = runTest {
+        deviceAt(greystones, fixAgeMillis = 5 * MINUTE)
+        val result = read()
+        advanceTimeBy(LOCATION_TIMEOUT_MILLIS + 1)
+        assertEquals(LocationResult.Unavailable, result.getCompleted())
     }
 
     @Test

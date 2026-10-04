@@ -38,10 +38,11 @@ class AndroidLocationProvider(private val context: Context) : LocationProvider {
         val fix = when {
             provider == null -> null
             granted(Manifest.permission.ACCESS_FINE_LOCATION) ->
-                withTimeoutOrNull(LOCATION_TIMEOUT_MILLIS) { currentFix(provider) } ?: recentFix(provider)
+                withTimeoutOrNull(LOCATION_TIMEOUT_MILLIS) { currentFix(provider) }
+                    ?: recentFix(provider, PRECISE_FIX_AGE)
             // Approximate only: the platform turns a fresh request into a low-power one that GPS never serves, so
             // the platform's recent fix, already coarsened for this app, is the answer.
-            else -> recentFix(provider)
+            else -> recentFix(provider, APPROXIMATE_FIX_AGE)
         }
         return fix?.let { LocationResult.Available(GeoPoint(it.latitude, it.longitude)) } ?: LocationResult.Unavailable
     }
@@ -49,9 +50,10 @@ class AndroidLocationProvider(private val context: Context) : LocationProvider {
     private fun granted(permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
-    private fun recentFix(provider: String): Location? = locationManager.getLastKnownLocation(provider)?.takeIf {
-        SystemClock.elapsedRealtime() - LocationCompat.getElapsedRealtimeMillis(it) <= RECENT_FIX_MILLIS
-    }
+    private fun recentFix(provider: String, maxAgeMillis: Long): Location? =
+        locationManager.getLastKnownLocation(provider)?.takeIf {
+            SystemClock.elapsedRealtime() - LocationCompat.getElapsedRealtimeMillis(it) <= maxAgeMillis
+        }
 
     private suspend fun currentFix(provider: String): Location? = suspendCancellableCoroutine { continuation ->
         val cancel = CancellationSignal()
@@ -64,7 +66,9 @@ class AndroidLocationProvider(private val context: Context) : LocationProvider {
     private companion object {
         val PROVIDERS = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
 
-        // The platform's update interval for approximate-only apps; an older fix may be far behind the car.
-        const val RECENT_FIX_MILLIS = 10 * 60_000L
+        // How old a cached fix may be. Precise: a couple of minutes' driving. Approximate: the platform refreshes an
+        // approximate-only app's coarse fix only every 10 minutes, so one refresh cycle plus slack.
+        const val PRECISE_FIX_AGE = 2 * 60_000L
+        const val APPROXIMATE_FIX_AGE = 15 * 60_000L
     }
 }
