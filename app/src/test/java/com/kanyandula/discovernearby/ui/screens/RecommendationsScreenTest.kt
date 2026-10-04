@@ -50,12 +50,19 @@ class RecommendationsScreenTest {
     private var state by mutableStateOf<RecommendationsUiState>(Loading)
     private var retries = 0
     private var backs = 0
+    private var selected: Recommendation? = null
 
     @Before
     fun setUp() {
         rule.setContent {
             DiscoverNearbyTheme {
-                RecommendationsScreen(category = COFFEE, state = state, onRetry = { retries++ }, onBack = { backs++ })
+                RecommendationsScreen(
+                    category = COFFEE,
+                    state = state,
+                    onRetry = { retries++ },
+                    onBack = { backs++ },
+                    onPlaceSelected = { selected = it },
+                )
             }
         }
     }
@@ -154,5 +161,13 @@ class RecommendationsScreenTest {
         state = Error(DiscoverError.NetworkUnavailable)
         rule.onNodeWithText("Try Again").assertHeightIsAtLeast(MinTouchTarget)
         rule.onNodeWithText("Back").assertHeightIsAtLeast(MinTouchTarget)
+    }
+
+    @Test
+    fun tappingARowSelectsIt() {
+        val chosen = row(testPlace("Harbour Roasters", "cafe"), 500)
+        state = Content(requestId = 1, recommendations = listOf(chosen))
+        rule.onNodeWithText("Harbour Roasters").performClick()
+        assertEquals(chosen, selected)
     }
 }

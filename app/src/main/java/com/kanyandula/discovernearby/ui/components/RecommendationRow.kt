@@ -34,12 +34,13 @@ private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or deriv
 /**
  * One recommendation (canvas Recommendations artboard): name; rating and attributes when known; distance.
  * Missing fields are left out, never shown blank. ponytail: no photo or attribution until ADR-001 says what
- * the provider allows; DN-M0-005 makes the row open Place Details.
+ * the provider allows.
  */
 @Composable
-fun RecommendationRow(recommendation: Recommendation, modifier: Modifier = Modifier) {
+fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val place = recommendation.place
     Surface(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(RowRadius),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,

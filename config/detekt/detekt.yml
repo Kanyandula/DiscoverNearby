@@ -9,3 +9,9 @@ style:
   MagicNumber:
     # Named property declarations (colours, dimensions) are the fix MagicNumber asks for.
     ignorePropertyDeclaration: true
+
+complexity:
+  LongParameterList:
+    # A screen takes its state plus one lambda per event (Compose convention); grouping them only hides the API.
+    ignoreAnnotated:
+      - "Composable"

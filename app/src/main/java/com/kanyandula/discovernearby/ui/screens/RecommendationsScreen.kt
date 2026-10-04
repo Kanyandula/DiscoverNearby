@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoverError
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
@@ -53,6 +54,7 @@ fun RecommendationsScreen(
     state: RecommendationsUiState,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    onPlaceSelected: (Recommendation) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
@@ -62,7 +64,9 @@ fun RecommendationsScreen(
             RecommendationsUiState.Loading -> LoadingState(body)
             is RecommendationsUiState.Content ->
                 LazyColumn(modifier = body, verticalArrangement = Arrangement.spacedBy(RowGap)) {
-                    items(state.recommendations, key = { it.place.id }) { RecommendationRow(it) }
+                    items(state.recommendations, key = { it.place.id }) { recommendation ->
+                        RecommendationRow(recommendation, onClick = { onPlaceSelected(recommendation) })
+                    }
                 }
             RecommendationsUiState.Empty ->
                 MessageState(EmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)

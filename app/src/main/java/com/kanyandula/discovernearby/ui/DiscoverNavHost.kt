@@ -15,16 +15,27 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsViewModel
 import kotlinx.serialization.Serializable
+import kotlin.reflect.typeOf
 
 @Serializable
 data object DiscoverRoute
 
 @Serializable
 data class RecommendationsRoute(val category: DiscoveryCategory)
+
+@Serializable
+data class PlaceDetailsRoute(val recommendation: Recommendation)
+
+// The route carries the whole Recommendation, so Details shows the summary at once and keeps it after a failed
+// details call or process death (docs/02 §7).
+private val PlaceDetailsTypes = mapOf(typeOf<Recommendation>() to JsonNavType(Recommendation.serializer()))
 
 /**
  * A destination acts only while it is the top of the back stack. navigate and popBackStack change the
@@ -66,6 +77,20 @@ fun DiscoverNavHost(
                 category = category,
                 state = state,
                 onRetry = viewModel::retry,
+                onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+                onPlaceSelected = { if (navController.isTop(entry)) navController.navigate(PlaceDetailsRoute(it)) },
+            )
+        }
+        composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
+            val recommendation = entry.toRoute<PlaceDetailsRoute>().recommendation
+            val viewModel = viewModel {
+                PlaceDetailsViewModel(recommendation.place, container.discoverUseCase, container.navigationLauncher)
+            }
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            PlaceDetailsScreen(
+                recommendation = recommendation,
+                state = state,
+                onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
             )
         }
