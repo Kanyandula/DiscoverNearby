@@ -109,7 +109,38 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
+    // A deliberate tap during the 700 ms fade must still act; only the stale second tap is dropped.
+    @Test
+    fun tileTappedRightAfterBackOpensIt() {
+        rule.onNodeWithText("Food").performClick()
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.mainClock.advanceTimeBy(MID_FADE_MS)
+        rule.onNodeWithText("Coffee").performClick()
+        rule.mainClock.autoAdvance = true
+        rule.mainClock.advanceTimeBy(SETTLE_MS)
+        rule.onNodeWithContentDescription("Back").assertIsDisplayed()
+        rule.onNodeWithText("Coffee").assertIsDisplayed()
+        rule.onNodeWithText("Food").assertDoesNotExist()
+    }
+
+    @Test
+    fun backTappedRightAfterOpeningReturns() {
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithText("Food").performClick()
+        rule.mainClock.advanceTimeBy(MID_FADE_MS)
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.mainClock.autoAdvance = true
+        rule.mainClock.advanceTimeBy(SETTLE_MS)
+        rule.onNodeWithContentDescription("Back").assertDoesNotExist()
+        onDiscover()
+    }
+
     private companion object {
         const val SETTLE_MS = 2_000L
+
+        // Well inside NavHost's 700 ms default fade: the new screen is drawn but not yet RESUMED.
+        const val MID_FADE_MS = 100L
     }
 }
