@@ -6,21 +6,29 @@ import android.car.drivingstate.CarUxRestrictionsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
 /**
  * [DrivingRestrictions] from CarUxRestrictionsManager (NyasaPlayer's CarUxRestrictionsHandler pattern).
  * The only file that imports android.car. Connected while [state] is collected; disconnected
- * [STOP_TIMEOUT_MILLIS] after the last collector stops.
+ * [STOP_TIMEOUT_MILLIS] after the last collector stops. No automotive feature, no Car service or no
+ * restrictions manager reports [UNKNOWN_DRIVING_STATE]; anything else (e.g. flag drift) fails loudly.
+ * The binder connect runs on [connectDispatcher], off the main thread.
  */
-class CarDrivingRestrictions(context: Context, scope: CoroutineScope) : DrivingRestrictions {
+class CarDrivingRestrictions(
+    context: Context,
+    scope: CoroutineScope,
+    connectDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : DrivingRestrictions {
 
     private val appContext = context.applicationContext
 
@@ -43,11 +51,7 @@ class CarDrivingRestrictions(context: Context, scope: CoroutineScope) : DrivingR
             Log.i(TAG, "disconnected")
         }
     }
-        // Anything the Car stack throws (including a missing class off-device) becomes the fallback.
-        .catch { e ->
-            Log.w(TAG, "UX restrictions failed; assuming restrictions apply", e)
-            emit(UNKNOWN_DRIVING_STATE)
-        }
+        .flowOn(connectDispatcher)
         .onEach { Log.i(TAG, "UX restrictions: $it") }
         .stateIn(scope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), UNKNOWN_DRIVING_STATE)
 
