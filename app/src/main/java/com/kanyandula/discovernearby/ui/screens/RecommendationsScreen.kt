@@ -2,21 +2,17 @@ package com.kanyandula.discovernearby.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.kanyandula.discovernearby.R
@@ -25,11 +21,10 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
-import com.kanyandula.discovernearby.ui.theme.ContentGap
+import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.theme.Highlight
 import com.kanyandula.discovernearby.ui.theme.MessageGap
 import com.kanyandula.discovernearby.ui.theme.MessageIconSize
-import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
@@ -61,13 +56,7 @@ fun RecommendationsScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(ContentGap)) {
-            // The AOSP car system bar has no Back button, so the screen provides one (docs/02 §3.6).
-            IconButton(onClick = onBack, modifier = Modifier.size(MinTouchTarget)) {
-                Icon(painter = painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
-            }
-            Text(text = stringResource(category.visual.label), style = MaterialTheme.typography.headlineMedium)
-        }
+        ScreenHeader(title = stringResource(category.visual.label), onBack = onBack)
         val body = Modifier.weight(1f)
         when (state) {
             RecommendationsUiState.Loading -> LoadingState(body)

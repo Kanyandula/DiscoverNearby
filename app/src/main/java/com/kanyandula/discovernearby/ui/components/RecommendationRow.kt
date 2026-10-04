@@ -1,6 +1,5 @@
 package com.kanyandula.discovernearby.ui.components
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,9 +18,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.kanyandula.discovernearby.R
-import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
+import com.kanyandula.discovernearby.ui.METERS_PER_KM
+import com.kanyandula.discovernearby.ui.SEPARATOR
+import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 import com.kanyandula.discovernearby.ui.theme.RowPadding
@@ -29,8 +30,6 @@ import com.kanyandula.discovernearby.ui.theme.RowRadius
 import com.kanyandula.discovernearby.ui.theme.RowVerticalPadding
 
 private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or derived attributes
-private const val METERS_PER_KM = 1_000.0
-private const val SEPARATOR = " · "
 
 /**
  * One recommendation (canvas Recommendations artboard): name; rating and attributes when known; distance.
@@ -92,18 +91,3 @@ private fun SupportingLine(text: String) {
         overflow = TextOverflow.Ellipsis,
     )
 }
-
-@get:StringRes
-private val AttributeType.label: Int
-    get() = when (this) {
-        AttributeType.PARKING -> R.string.attribute_parking
-        AttributeType.TOILETS -> R.string.attribute_toilets
-        AttributeType.CAFE -> R.string.attribute_cafe
-        AttributeType.PLAYGROUND -> R.string.attribute_playground
-        AttributeType.TRAILS -> R.string.attribute_trails
-        AttributeType.BEACH -> R.string.attribute_beach
-        AttributeType.VIEWPOINT -> R.string.attribute_viewpoint
-        AttributeType.MUSEUM -> R.string.attribute_museum
-        AttributeType.FAMILY_FRIENDLY -> R.string.attribute_family_friendly
-        AttributeType.DRIVE_THROUGH -> R.string.attribute_drive_through
-    }
