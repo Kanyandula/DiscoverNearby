@@ -25,43 +25,34 @@ const val LOCATION_TIMEOUT_MILLIS = 8_000L
 /**
  * The vehicle's location from LocationManager (docs/03 §7), read only when discovery asks (docs/01 §14). GPS
  * first, network where a car has one; the reference image's Play-services fused provider adds nothing for one fix.
+ * Every location call follows the permission check in currentLocation(); revoking it ends the process.
  */
-class AndroidLocationProvider(
-    private val context: Context,
-    private val timeoutMillis: Long = LOCATION_TIMEOUT_MILLIS,
-) : LocationProvider {
+@SuppressLint("MissingPermission")
+class AndroidLocationProvider(private val context: Context) : LocationProvider {
 
     private val locationManager = context.getSystemService(LocationManager::class.java)
 
     override suspend fun currentLocation(): LocationResult {
-        val fine = granted(Manifest.permission.ACCESS_FINE_LOCATION)
-        val approximate = granted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (LOCATION_PERMISSIONS.none(::granted)) return LocationResult.PermissionMissing
         val provider = PROVIDERS.firstOrNull { locationManager.isProviderEnabled(it) }
         val fix = when {
-            provider == null || !(fine || approximate) -> null
-            fine -> withTimeoutOrNull(timeoutMillis) { currentFix(provider) }
-            // Approximate only: the platform turns the request into a low-power one that GPS never serves, so the
-            // platform's recent (already coarsened) fix is the answer; a fresh request is the fallback.
-            else -> recentFix(provider) ?: withTimeoutOrNull(timeoutMillis) { currentFix(provider) }
+            provider == null -> null
+            granted(Manifest.permission.ACCESS_FINE_LOCATION) ->
+                withTimeoutOrNull(LOCATION_TIMEOUT_MILLIS) { currentFix(provider) } ?: recentFix(provider)
+            // Approximate only: the platform turns a fresh request into a low-power one that GPS never serves, so
+            // the platform's recent fix, already coarsened for this app, is the answer.
+            else -> recentFix(provider)
         }
-        return when {
-            !(fine || approximate) -> LocationResult.PermissionMissing
-            fix == null -> LocationResult.Unavailable
-            else -> LocationResult.Available(GeoPoint(fix.latitude, fix.longitude))
-        }
+        return fix?.let { LocationResult.Available(GeoPoint(it.latitude, it.longitude)) } ?: LocationResult.Unavailable
     }
 
     private fun granted(permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
-    // currentLocation() checks the permission first; revoking it ends the process, so nothing can race it.
-    @SuppressLint("MissingPermission")
     private fun recentFix(provider: String): Location? = locationManager.getLastKnownLocation(provider)?.takeIf {
         SystemClock.elapsedRealtime() - LocationCompat.getElapsedRealtimeMillis(it) <= RECENT_FIX_MILLIS
     }
 
-    // currentLocation() checks the permission first; revoking it ends the process, so nothing can race it.
-    @SuppressLint("MissingPermission")
     private suspend fun currentFix(provider: String): Location? = suspendCancellableCoroutine { continuation ->
         val cancel = CancellationSignal()
         continuation.invokeOnCancellation { cancel.cancel() }
@@ -73,7 +64,7 @@ class AndroidLocationProvider(
     private companion object {
         val PROVIDERS = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
 
-        // The platform's update interval for approximate-only apps.
+        // The platform's update interval for approximate-only apps; an older fix may be far behind the car.
         const val RECENT_FIX_MILLIS = 10 * 60_000L
     }
 }

@@ -62,7 +62,8 @@ denied copy; emulator location via `adb emu geo fix`, location on for user 10, `
 - Navigation: `Intent(ACTION_VIEW, "geo:%.6f,%.6f")` with Locale.US, application Context +
   FLAG_ACTIVITY_NEW_TASK. Never target a specific app. ActivityNotFound/Security/any failure →
   NavigationUnavailable.
-- Location permission via `rememberLauncherForActivityResult(RequestPermission())`;
+- Location permission via `rememberLauncherForActivityResult(RequestMultiplePermissions())`, fine and coarse
+  together (either grant counts; approximate-only must work — DN-M0-006);
   Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX
   restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per

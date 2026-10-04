@@ -42,6 +42,7 @@ class RecommendationsViewModelTest {
 
     private val places = ScriptedPlaces()
     private val restrictions = FakeDrivingRestrictions()
+    private val location = FakeLocationProvider(LocationResult.Available(ORIGIN))
 
     private fun cafes(count: Int) = List(count) { testPlace("p$it", "cafe", metersNorth = 100 * (it + 1)) }
 
@@ -50,9 +51,9 @@ class RecommendationsViewModelTest {
         cafes(count)
     }
 
-    private fun newViewModel(location: LocationResult = LocationResult.Available(ORIGIN)) = RecommendationsViewModel(
+    private fun newViewModel() = RecommendationsViewModel(
         category = COFFEE,
-        discover = DiscoverUseCase(places, FakeLocationProvider(location), BasicRecommendationEngine()),
+        discover = DiscoverUseCase(places, location, BasicRecommendationEngine()),
         drivingRestrictions = restrictions,
     )
 
@@ -133,7 +134,8 @@ class RecommendationsViewModelTest {
         assertEquals(Error(DiscoverError.NetworkUnavailable), collected().uiState.value)
         places.reply = { throw ProviderFailure() }
         assertEquals(Error(DiscoverError.ProviderFailure), collected().uiState.value)
-        val noLocation = collected(newViewModel(LocationResult.Unavailable))
+        location.result = LocationResult.Unavailable
+        val noLocation = collected()
         assertEquals(Error(DiscoverError.LocationUnavailable), noLocation.uiState.value)
     }
 
@@ -178,7 +180,8 @@ class RecommendationsViewModelTest {
     @Test
     fun permissionRequiredFollowsTheRestrictions() = runTest {
         restrictions.state.value = DrivingState(distractionOptimizationRequired = true, listLimit = null)
-        val vm = collected(newViewModel(LocationResult.PermissionMissing))
+        location.result = LocationResult.PermissionMissing
+        val vm = collected()
         assertEquals(PermissionRequired(canRequest = false), vm.uiState.value)
         restrictions.state.value = DrivingState(distractionOptimizationRequired = false, listLimit = null)
         runCurrent()
@@ -188,9 +191,8 @@ class RecommendationsViewModelTest {
     // docs/02 §10: a refusal shows the denied copy; a later grant resumes discovery for the same category.
     @Test
     fun deniedPermissionSaysSoAndGrantResumesDiscovery() = runTest {
-        val location = FakeLocationProvider(LocationResult.PermissionMissing)
-        val discover = DiscoverUseCase(places, location, BasicRecommendationEngine())
-        val vm = collected(RecommendationsViewModel(COFFEE, discover, restrictions))
+        location.result = LocationResult.PermissionMissing
+        val vm = collected()
         vm.onPermissionResult(granted = false)
         runCurrent()
         assertEquals(PermissionRequired(canRequest = true, denied = true), vm.uiState.value)

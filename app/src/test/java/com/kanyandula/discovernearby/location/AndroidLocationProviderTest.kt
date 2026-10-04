@@ -51,6 +51,13 @@ class AndroidLocationProviderTest {
         assertEquals(LocationResult.Available(greystones), read().getCompleted())
     }
 
+    // Approximate only, with no recent fix to coarsen: Unavailable at once, not after the timeout.
+    @Test
+    fun approximateWithoutARecentFixIsUnavailableAtOnce() = runTest {
+        deviceAt(point = null, permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
+        assertEquals(LocationResult.Unavailable, read().getCompleted())
+    }
+
     @Test
     fun locationOffIsUnavailable() = runTest {
         deviceAt(greystones, locationOn = false)

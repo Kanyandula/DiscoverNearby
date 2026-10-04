@@ -57,7 +57,7 @@ class RecommendationsViewModel(
 
     fun retry() = load()
 
-    /** The answer to the location permission request (fine or coarse counts): a grant resumes discovery. */
+    /** The answer to the location permission request: a grant resumes discovery. */
     fun onPermissionResult(granted: Boolean) {
         permissionDenied.value = !granted
         if (granted) load()

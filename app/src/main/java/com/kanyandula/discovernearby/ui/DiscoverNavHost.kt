@@ -77,9 +77,8 @@ fun DiscoverNavHost(
                 RecommendationsViewModel(category, container.discoverUseCase, container.drivingRestrictions)
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
-            // Fine and coarse in one dialog; either answer counts, so an approximate-only grant works too.
             val permissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                viewModel.onPermissionResult(granted = it.values.any { granted -> granted })
+                viewModel.onPermissionResult(granted = true in it.values)
             }
             RecommendationsScreen(
                 category = category,
