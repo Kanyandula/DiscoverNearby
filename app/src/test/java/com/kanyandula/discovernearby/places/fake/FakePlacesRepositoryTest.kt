@@ -9,6 +9,7 @@ import com.kanyandula.discovernearby.places.ProviderFailure
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -113,6 +114,17 @@ class FakePlacesRepositoryTest {
         advanceTimeBy(2)
         assertTrue(result.isCompleted)
         assertTrue(SLOW_DELAY_MILLIS > 8_000)
+    }
+
+    // docs/04 Scenario P: a slow Coffee request is overtaken by a quick Family one.
+    @OptIn(ExperimentalCoroutinesApi::class) // runCurrent
+    @Test
+    fun slowScenarioDelaysCoffeeOnly() = runTest {
+        val slow = FakePlacesRepository(FakeScenario.SLOW)
+        val family = async { slow.at(TestLocation.GREYSTONES, DiscoveryCategory.FAMILY) }
+        runCurrent()
+        assertTrue(family.isCompleted)
+        assertTrue(family.await().isNotEmpty())
     }
 
     @Test

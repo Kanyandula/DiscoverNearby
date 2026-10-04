@@ -12,6 +12,9 @@ import kotlinx.coroutines.delay
 /** Longer than docs/03 §15's ~8 s provider timeout, so the slow case reaches Error(Timeout). */
 const val SLOW_DELAY_MILLIS = 10_000L
 
+/** The category [FakeScenario.SLOW] delays; the rest answer at once (docs/04 Scenarios O and P). */
+val SLOW_CATEGORY = DiscoveryCategory.COFFEE
+
 /** docs/03 §20 fake cases, plus a details-only failure for the summary-only fallback (docs/04 R). */
 enum class FakeScenario { NORMAL, EMPTY, SPARSE, NULL_HEAVY, SLOW, PROVIDER_FAILURE, NETWORK_FAILURE, DETAILS_FAILURE }
 
@@ -34,7 +37,7 @@ class FakePlacesRepository(
         when (scenario) {
             FakeScenario.PROVIDER_FAILURE -> throw ProviderFailure()
             FakeScenario.NETWORK_FAILURE -> throw NetworkUnavailable()
-            FakeScenario.SLOW -> delay(SLOW_DELAY_MILLIS)
+            FakeScenario.SLOW -> if (category == SLOW_CATEGORY) delay(SLOW_DELAY_MILLIS)
             else -> Unit
         }
         val location = TestLocation.nearestTo(origin) ?: return emptyList()
