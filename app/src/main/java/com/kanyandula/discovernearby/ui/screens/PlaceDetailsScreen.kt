@@ -28,6 +28,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
@@ -117,19 +118,31 @@ private fun ratingLine(place: PlaceSummary): AnnotatedString? {
     }
 }
 
-/** A primary line and a muted secondary line, as on the canvas sections. */
+/**
+ * A primary line and a muted secondary line, as on the canvas sections. One line each: the panel has no room to
+ * scroll, and a wrapped amenity list would push the summary-only note off it.
+ */
 @Composable
 private fun Section(primary: AnnotatedString?, secondary: String? = null, secondaryColor: Color = Color.Unspecified) {
     Column(
         modifier = Modifier.padding(vertical = SectionPadding),
         verticalArrangement = Arrangement.spacedBy(RowLineGap),
     ) {
-        primary?.let { Text(text = it, style = MaterialTheme.typography.headlineSmall) }
+        primary?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.headlineSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         secondary?.let {
             Text(
                 text = it,
                 style = MaterialTheme.typography.titleMedium,
                 color = secondaryColor.takeOrElse { MaterialTheme.colorScheme.onSurfaceVariant },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
