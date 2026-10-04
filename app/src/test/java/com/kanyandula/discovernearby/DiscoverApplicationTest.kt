@@ -1,5 +1,6 @@
 package com.kanyandula.discovernearby
 
+import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import org.junit.Assert.assertNotNull
@@ -19,9 +20,10 @@ class DiscoverApplicationTest {
     }
 
     @Test
-    fun containerProvidesTheM0Fakes() {
+    fun containerProvidesItsDependencies() {
         val container = (RuntimeEnvironment.getApplication() as DiscoverApplication).container
         assertTrue(container.placesRepository is FakePlacesRepository)
         assertTrue(container.locationProvider is FakeLocationProvider)
+        assertTrue(container.drivingRestrictions is CarDrivingRestrictions)
     }
 }
