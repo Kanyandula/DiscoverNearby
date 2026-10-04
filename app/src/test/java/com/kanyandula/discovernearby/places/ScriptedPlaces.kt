@@ -5,7 +5,7 @@ import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.PlaceSummary
 
-/** Answers every search with [reply]; records what it was asked and how many searches are still running. */
+/** Answers searches with [reply] and details with [details]; records what it was asked and what still runs. */
 class ScriptedPlaces(var reply: suspend () -> List<PlaceSummary> = { emptyList() }) : PlacesRepository {
     var searches = 0
         private set
@@ -29,5 +29,7 @@ class ScriptedPlaces(var reply: suspend () -> List<PlaceSummary> = { emptyList()
         }
     }
 
-    override suspend fun getPlaceDetails(placeId: String): PlaceDetails = error("not used")
+    var details: suspend (String) -> PlaceDetails = { error("not used") }
+
+    override suspend fun getPlaceDetails(placeId: String): PlaceDetails = details(placeId)
 }

@@ -23,3 +23,6 @@ val ExploreTint = Color(0xFFC3CCD4)
 val Raised = Color(0xFF2A3138) // secondary button, spinner track
 val Action = Color(0xFF2563EB) // primary button, white label
 val Highlight = Color(0xFF6FA8F5) // loading arc, empty and timeout icons
+
+// Place Details artboard.
+val OpenNow = Color(0xFF6CD69A) // "Open now"

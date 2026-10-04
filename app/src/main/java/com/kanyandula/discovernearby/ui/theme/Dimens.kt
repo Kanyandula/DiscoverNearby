@@ -26,3 +26,14 @@ val SpinnerStroke = 7.dp // the canvas arc: stroke 2 on a 24 viewBox, drawn at 8
 val ButtonMinWidth = 260.dp
 val ButtonRadius = 16.dp
 val ButtonGap = 16.dp
+
+// Place Details artboards.
+val DetailsInset = 16.dp
+val DetailsColumnGap = 40.dp
+val SectionPadding = 18.dp
+val ActionColumnWidth = 400.dp
+val NavigateHeight = 88.dp
+val NavigateRadius = 20.dp
+val NavigateIconSize = 28.dp
+val NavigateIconGap = 14.dp
+val InfoIconGap = 12.dp

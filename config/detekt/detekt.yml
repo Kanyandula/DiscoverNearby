@@ -9,3 +9,8 @@ style:
   MagicNumber:
     # Named property declarations (colours, dimensions) are the fix MagicNumber asks for.
     ignorePropertyDeclaration: true
+
+complexity:
+  LongParameterList:
+    # Defaulted parameters (Compose's `modifier`) add nothing a caller must pass.
+    ignoreDefaultParameters: true

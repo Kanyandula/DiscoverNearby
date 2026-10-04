@@ -4,6 +4,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,16 +16,27 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsViewModel
 import kotlinx.serialization.Serializable
+import kotlin.reflect.typeOf
 
 @Serializable
 data object DiscoverRoute
 
 @Serializable
 data class RecommendationsRoute(val category: DiscoveryCategory)
+
+// The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
+// call or process death (docs/02 §7).
+@Serializable
+data class PlaceDetailsRoute(val place: PlaceSummary, val distanceMeters: Int)
+
+private val PlaceDetailsTypes = mapOf(typeOf<PlaceSummary>() to JsonNavType(PlaceSummary.serializer()))
 
 /**
  * A destination acts only while it is the top of the back stack. navigate and popBackStack change the
@@ -66,6 +78,24 @@ fun DiscoverNavHost(
                 category = category,
                 state = state,
                 onRetry = viewModel::retry,
+                onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+                onPlaceSelected = { picked ->
+                    if (navController.isTop(entry)) {
+                        navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters))
+                    }
+                },
+            )
+        }
+        composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
+            val route = remember(entry) { entry.toRoute<PlaceDetailsRoute>() }
+            val viewModel = viewModel {
+                PlaceDetailsViewModel(route.place, container.discoverUseCase, container.navigationLauncher)
+            }
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            PlaceDetailsScreen(
+                distanceMeters = route.distanceMeters,
+                state = state,
+                onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
             )
         }

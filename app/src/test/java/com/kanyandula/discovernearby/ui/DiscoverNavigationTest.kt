@@ -152,4 +152,24 @@ class DiscoverNavigationTest {
         // Well inside NavHost's 700 ms default fade: the new screen is drawn but not yet RESUMED.
         const val MID_FADE_MS = 100L
     }
+
+    // The route carries the place as JSON: a name with "&" and "," must arrive intact; Back returns to the list.
+    @Test
+    fun rowOpensPlaceDetailsAndBackReturnsToTheList() {
+        rule.onNodeWithText("Coffee").performClick()
+        rule.onNodeWithText("Brew & Bloom, Greystones").performClick()
+        rule.onNodeWithText("Navigate").assertIsDisplayed()
+        rule.onNodeWithText("Brew & Bloom, Greystones").assertIsDisplayed()
+        systemBack()
+        rule.onNodeWithText("Harbour Roasters, Greystones").assertIsDisplayed()
+        rule.onNodeWithText("Navigate").assertDoesNotExist()
+    }
+
+    @Test
+    fun doubleTappedRowOpensOneDetailsScreen() {
+        rule.onNodeWithText("Coffee").performClick()
+        doubleTap(rule.onNodeWithText("Harbour Roasters, Greystones"))
+        systemBack()
+        rule.onNodeWithText("Brew & Bloom, Greystones").assertIsDisplayed()
+    }
 }

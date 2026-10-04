@@ -1,0 +1,30 @@
+package com.kanyandula.discovernearby.ui
+
+import androidx.annotation.StringRes
+import com.kanyandula.discovernearby.R
+import com.kanyandula.discovernearby.model.AttributeType
+import com.kanyandula.discovernearby.model.PlaceSummary
+
+private const val METERS_PER_KM = 1_000.0
+internal const val SEPARATOR = " · "
+
+/** Kilometres, for the "%.1f km" strings. */
+internal fun kilometres(meters: Int) = meters / METERS_PER_KM
+
+/** Each known attribute type once, in the provider's order. Unknown attributes are absent from the set. */
+internal fun PlaceSummary.attributeTypes() = attributes.map { it.type }.distinct()
+
+@get:StringRes
+internal val AttributeType.label: Int
+    get() = when (this) {
+        AttributeType.PARKING -> R.string.attribute_parking
+        AttributeType.TOILETS -> R.string.attribute_toilets
+        AttributeType.CAFE -> R.string.attribute_cafe
+        AttributeType.PLAYGROUND -> R.string.attribute_playground
+        AttributeType.TRAILS -> R.string.attribute_trails
+        AttributeType.BEACH -> R.string.attribute_beach
+        AttributeType.VIEWPOINT -> R.string.attribute_viewpoint
+        AttributeType.MUSEUM -> R.string.attribute_museum
+        AttributeType.FAMILY_FRIENDLY -> R.string.attribute_family_friendly
+        AttributeType.DRIVE_THROUGH -> R.string.attribute_drive_through
+    }

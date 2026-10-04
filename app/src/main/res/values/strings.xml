@@ -40,4 +40,14 @@
     <string name="attribute_museum">Museum</string>
     <string name="attribute_family_friendly">Family-friendly</string>
     <string name="attribute_drive_through">Drive-through</string>
+    <string name="distance_away">%1$.1f km away</string>
+    <plurals name="reviews">
+        <item quantity="one">(%d review)</item>
+        <item quantity="other">(%d reviews)</item>
+    </plurals>
+    <string name="open_now">Open now</string>
+    <string name="closed_now">Closed now</string>
+    <string name="amenities">Amenities</string>
+    <string name="details_unavailable">More details unavailable right now</string>
+    <string name="navigate">Navigate</string>
 </resources>
