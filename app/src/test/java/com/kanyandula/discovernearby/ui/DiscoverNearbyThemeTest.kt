@@ -62,7 +62,7 @@ class DiscoverNearbyThemeTest {
 
     @Test
     fun appShowsItsTitle() {
-        rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp() } }
+        rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) } }
         rule.onNodeWithText("Discover Nearby").assertIsDisplayed()
     }
 

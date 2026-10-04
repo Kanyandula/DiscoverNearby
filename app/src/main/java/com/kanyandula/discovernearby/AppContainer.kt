@@ -3,6 +3,8 @@ package com.kanyandula.discovernearby
 import android.content.Context
 import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.car.DrivingRestrictions
+import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
+import com.kanyandula.discovernearby.discovery.DiscoverUseCase
 import com.kanyandula.discovernearby.location.LocationProvider
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
 import com.kanyandula.discovernearby.places.PlacesRepository
@@ -21,4 +23,5 @@ class AppContainer(context: Context) {
     val placesRepository: PlacesRepository = FakePlacesRepository()
     val locationProvider: LocationProvider = FakeLocationProvider()
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
+    val discoverUseCase = DiscoverUseCase(placesRepository, locationProvider, BasicRecommendationEngine())
 }
