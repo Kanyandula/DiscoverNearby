@@ -39,5 +39,5 @@ private val CanvasColors = darkColorScheme(
 // ponytail: one scheme for day and night until Design supplies a day palette (open decision 1).
 @Composable
 fun DiscoverNearbyTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = CanvasColors, content = content)
+    MaterialTheme(colorScheme = CanvasColors, typography = CanvasTypography, content = content)
 }

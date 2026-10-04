@@ -15,11 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.theme.CategoryIconSize
-import com.kanyandula.discovernearby.ui.theme.CategoryLabelSize
-import com.kanyandula.discovernearby.ui.theme.CategorySubtitleSize
 import com.kanyandula.discovernearby.ui.theme.ContentGap
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import com.kanyandula.discovernearby.ui.theme.TileRadius
@@ -46,10 +43,10 @@ fun CategoryTile(category: DiscoveryCategory, onClick: () -> Unit, modifier: Mod
                 tint = visual.tint,
                 modifier = Modifier.size(CategoryIconSize),
             )
-            Text(text = stringResource(visual.label), fontSize = CategoryLabelSize, fontWeight = FontWeight.SemiBold)
+            Text(text = stringResource(visual.label), style = MaterialTheme.typography.headlineMedium)
             Text(
                 text = stringResource(visual.subtitle),
-                fontSize = CategorySubtitleSize,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

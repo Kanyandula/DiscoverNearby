@@ -21,7 +21,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(qualifiers = "w1024dp-h768dp-land-mdpi")
+@Config(qualifiers = AUTOMOTIVE_1024P)
 class DiscoverNavigationTest {
 
     @get:Rule

@@ -12,11 +12,12 @@ import com.kanyandula.discovernearby.ui.components.CategoryTile
 import com.kanyandula.discovernearby.ui.theme.GridGap
 
 private const val GRID_COLUMNS = 3
+private val Rows = DiscoveryCategory.entries.chunked(GRID_COLUMNS)
 
 @Composable
 fun DiscoverScreen(onCategorySelected: (DiscoveryCategory) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(GridGap)) {
-        DiscoveryCategory.entries.chunked(GRID_COLUMNS).forEach { row ->
+        Rows.forEach { row ->
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(GridGap)) {
                 row.forEach { category ->
                     CategoryTile(

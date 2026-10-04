@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import org.junit.Assert.assertEquals
@@ -20,7 +21,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(qualifiers = "w1024dp-h768dp-land-mdpi") // automotive_1024p_landscape
+@Config(qualifiers = AUTOMOTIVE_1024P)
 class DiscoverScreenTest {
 
     @get:Rule

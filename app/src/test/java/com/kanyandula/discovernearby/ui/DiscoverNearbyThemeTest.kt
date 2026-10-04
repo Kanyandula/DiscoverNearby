@@ -2,7 +2,10 @@ package com.kanyandula.discovernearby.ui
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -23,6 +26,18 @@ class DiscoverNearbyThemeTest {
         lateinit var scheme: ColorScheme
         rule.setContent { DiscoverNearbyTheme { scheme = MaterialTheme.colorScheme } }
         return scheme
+    }
+
+    // Canvas text roles: tile label and screen title 32 sp semibold, header 20 sp semibold, body 20 sp.
+    @Test
+    fun usesCanvasTypeScale() {
+        lateinit var type: Typography
+        rule.setContent { DiscoverNearbyTheme { type = MaterialTheme.typography } }
+        assertEquals(32.sp, type.headlineMedium.fontSize)
+        assertEquals(FontWeight.SemiBold, type.headlineMedium.fontWeight)
+        assertEquals(20.sp, type.titleLarge.fontSize)
+        assertEquals(FontWeight.SemiBold, type.titleLarge.fontWeight)
+        assertEquals(20.sp, type.bodyLarge.fontSize)
     }
 
     @Test
