@@ -21,7 +21,9 @@ apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004):
 `DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
 launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows open
 `PlaceDetailsRoute(place, distanceMeters)` (JSON route via `JsonNavType`), `PlaceDetailsViewModel` falls back to the summary,
-`NavigationLauncher` is a fake until DN-M3-001. Next: DN-M0-006 / 011.
+`NavigationLauncher` is a fake until DN-M3-001. Location (DN-M0-006): `AndroidLocationProvider` (GPS/network,
+8 s fix timeout; approximate-only uses the platform's recent coarse fix), Grant only while restrictions allow it,
+denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Next: DN-M0-011.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -60,7 +62,8 @@ launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows op
 - Navigation: `Intent(ACTION_VIEW, "geo:%.6f,%.6f")` with Locale.US, application Context +
   FLAG_ACTIVITY_NEW_TASK. Never target a specific app. ActivityNotFound/Security/any failure →
   NavigationUnavailable.
-- Location permission via `rememberLauncherForActivityResult(RequestPermission())`;
+- Location permission via `rememberLauncherForActivityResult(RequestMultiplePermissions())`, fine and coarse
+  together (either grant counts; approximate-only must work — DN-M0-006);
   Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX
   restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per

@@ -6,8 +6,8 @@ import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.car.DrivingRestrictions
 import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
 import com.kanyandula.discovernearby.discovery.DiscoverUseCase
+import com.kanyandula.discovernearby.location.AndroidLocationProvider
 import com.kanyandula.discovernearby.location.LocationProvider
-import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
 import com.kanyandula.discovernearby.navigation.NavigationLauncher
 import com.kanyandula.discovernearby.navigation.fake.FakeNavigationLauncher
 import com.kanyandula.discovernearby.places.PlacesRepository
@@ -24,10 +24,10 @@ class AppContainer(context: Context) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val applicationInfo = context.applicationInfo
 
-    // ponytail: fakes until the provider (M1, after ADR-001) and AndroidLocationProvider (DN-M0-006).
+    // ponytail: fake places until the provider (M1, after ADR-001).
     private val fakePlaces = FakePlacesRepository()
     val placesRepository: PlacesRepository = fakePlaces
-    val locationProvider: LocationProvider = FakeLocationProvider()
+    val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
 
     // ponytail: DN-M3-001 swaps in IntentNavigationLauncher (geo: intent, application Context).

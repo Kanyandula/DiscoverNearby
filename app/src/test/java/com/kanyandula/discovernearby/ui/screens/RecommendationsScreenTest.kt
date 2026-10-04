@@ -51,6 +51,7 @@ class RecommendationsScreenTest {
     private var retries = 0
     private var backs = 0
     private var selected: Recommendation? = null
+    private var grants = 0
 
     @Before
     fun setUp() {
@@ -62,6 +63,7 @@ class RecommendationsScreenTest {
                     onRetry = { retries++ },
                     onBack = { backs++ },
                     onPlaceSelected = { selected = it },
+                    onGrant = { grants++ },
                 )
             }
         }
@@ -147,13 +149,34 @@ class RecommendationsScreenTest {
         rule.onNodeWithText("Try Again").assertIsDisplayed()
     }
 
+    // docs/02 §10: Grant only while restrictions allow it; otherwise ask the user to park.
     @Test
     fun permissionCopyFollowsTheRestrictions() {
         state = PermissionRequired(canRequest = false)
+        rule.onNodeWithText("Location permission required").assertIsDisplayed()
         rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").assertDoesNotExist()
         state = PermissionRequired(canRequest = true)
         rule.onNodeWithText("Discover Nearby needs your location to find places around you.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").performClick()
+        assertEquals(1, grants)
         rule.onNodeWithText("Try Again").assertDoesNotExist()
+    }
+
+    @Test
+    fun deniedOffersGrantAgain() {
+        state = PermissionRequired(canRequest = true, denied = true)
+        rule.onNodeWithText("Discover Nearby can't find places without location access.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").assertIsDisplayed()
+        rule.onNodeWithText("Back").assertIsDisplayed()
+    }
+
+    // While driving the park-first copy wins over the denied copy, and no request can be made.
+    @Test
+    fun restrictedCopyWinsOverDenied() {
+        state = PermissionRequired(canRequest = false, denied = true)
+        rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").assertDoesNotExist()
     }
 
     @Test

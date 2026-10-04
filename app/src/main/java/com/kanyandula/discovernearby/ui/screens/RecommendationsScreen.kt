@@ -38,16 +38,9 @@ private val LoadFailedMessage =
 private val TimeoutMessage = Message(R.drawable.ic_timeout, Highlight, R.string.timeout_title, R.string.timeout_body)
 private val NoLocationMessage =
     Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.no_location_title, R.string.no_location_body)
-private val PermissionMessage =
-    Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.permission_title, R.string.permission_body)
-private val PermissionRestrictedMessage = Message(
-    R.drawable.ic_location_off,
-    OnSurfaceVariant,
-    R.string.permission_title,
-    R.string.permission_body_restricted,
-)
 
 /** Every state draws on this one destination; a state change never pushes a screen (docs/02 §6). */
+@Suppress("LongParameterList") // the state plus one lambda per user action
 @Composable
 fun RecommendationsScreen(
     category: DiscoveryCategory,
@@ -55,6 +48,7 @@ fun RecommendationsScreen(
     onRetry: () -> Unit,
     onBack: () -> Unit,
     onPlaceSelected: (Recommendation) -> Unit,
+    onGrant: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
@@ -71,13 +65,31 @@ fun RecommendationsScreen(
             RecommendationsUiState.Empty ->
                 MessageState(EmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)
             is RecommendationsUiState.Error ->
-                MessageState(state.type.message, R.string.back, onBack = onBack, modifier = body, onRetry = onRetry)
-            // ponytail: Back only; DN-M0-006 adds Grant Permission and its launcher (docs/02 §10).
+                MessageState(
+                    message = state.type.message,
+                    backLabel = R.string.back,
+                    onBack = onBack,
+                    modifier = body,
+                    onPrimary = onRetry,
+                    primaryLabel = R.string.try_again,
+                )
+            // Grant only while restrictions allow a permission dialog; otherwise ask the user to park (docs/02 §10).
             is RecommendationsUiState.PermissionRequired -> MessageState(
-                if (state.canRequest) PermissionMessage else PermissionRestrictedMessage,
-                R.string.back,
+                message = Message(
+                    icon = R.drawable.ic_location,
+                    tint = Highlight,
+                    title = R.string.permission_title,
+                    body = when {
+                        !state.canRequest -> R.string.permission_body_restricted
+                        state.denied -> R.string.permission_body_denied
+                        else -> R.string.permission_body
+                    },
+                ),
+                backLabel = R.string.back,
                 onBack = onBack,
                 modifier = body,
+                onPrimary = onGrant.takeIf { state.canRequest },
+                primaryLabel = R.string.grant_permission,
             )
         }
     }

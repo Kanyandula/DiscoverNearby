@@ -8,7 +8,7 @@ sealed interface LocationResult {
     data object Unavailable : LocationResult
 }
 
-/** Read only when the user requests discovery (docs/01 §14). AndroidLocationProvider arrives in DN-M0-006. */
+/** Read only when the user requests discovery (docs/01 §14). */
 interface LocationProvider {
     suspend fun currentLocation(): LocationResult
 }

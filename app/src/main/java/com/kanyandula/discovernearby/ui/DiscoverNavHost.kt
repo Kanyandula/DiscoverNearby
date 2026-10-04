@@ -1,5 +1,7 @@
 package com.kanyandula.discovernearby.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
@@ -74,6 +77,9 @@ fun DiscoverNavHost(
                 RecommendationsViewModel(category, container.discoverUseCase, container.drivingRestrictions)
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
+            val permissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                viewModel.onPermissionResult(granted = true in it.values)
+            }
             RecommendationsScreen(
                 category = category,
                 state = state,
@@ -84,6 +90,7 @@ fun DiscoverNavHost(
                         navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters))
                     }
                 },
+                onGrant = { permissions.launch(LOCATION_PERMISSIONS) },
             )
         }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->

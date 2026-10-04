@@ -32,14 +32,15 @@ import com.kanyandula.discovernearby.ui.theme.MessageIconSize
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import com.kanyandula.discovernearby.ui.theme.Raised
 
-/** A centred message with a Back action and, when [onRetry] is given, Try Again first (docs/02 §9–§13). */
+/** A centred message with a Back action and, when [onPrimary] is given, a primary action first (docs/02 §9–§13). */
 @Composable
 internal fun MessageState(
     message: Message,
     @StringRes backLabel: Int,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    onRetry: (() -> Unit)? = null,
+    onPrimary: (() -> Unit)? = null,
+    @StringRes primaryLabel: Int = R.string.try_again,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -65,7 +66,7 @@ internal fun MessageState(
             textAlign = TextAlign.Center,
         )
         Row(modifier = Modifier.padding(top = ButtonGap), horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-            if (onRetry != null) MessageButton(R.string.try_again, onRetry, container = Action, content = Color.White)
+            if (onPrimary != null) MessageButton(primaryLabel, onPrimary, container = Action, content = Color.White)
             MessageButton(backLabel, onBack, container = Raised, content = MaterialTheme.colorScheme.onSurface)
         }
     }

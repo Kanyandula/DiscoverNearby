@@ -4,9 +4,9 @@ import com.kanyandula.discovernearby.location.LocationProvider
 import com.kanyandula.discovernearby.location.LocationResult
 import com.kanyandula.discovernearby.places.fake.TestLocation
 
-/** Always returns [result]; the default stands at test location A until DN-M0-006 reads the real one. */
+/** Returns [result], which a test may change; the app reads AndroidLocationProvider. */
 class FakeLocationProvider(
-    private val result: LocationResult = LocationResult.Available(TestLocation.GREYSTONES.point),
+    var result: LocationResult = LocationResult.Available(TestLocation.GREYSTONES.point),
 ) : LocationProvider {
     override suspend fun currentLocation(): LocationResult = result
 }
