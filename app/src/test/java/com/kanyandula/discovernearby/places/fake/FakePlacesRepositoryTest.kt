@@ -122,7 +122,6 @@ class FakePlacesRepositoryTest {
         assertFalse(result.isCompleted)
         advanceTimeBy(2)
         assertTrue(result.isCompleted)
-        assertTrue(SLOW_DELAY_MILLIS > 8_000)
     }
 
     // docs/04 Scenario P: a slow Coffee request is overtaken by a quick Family one.

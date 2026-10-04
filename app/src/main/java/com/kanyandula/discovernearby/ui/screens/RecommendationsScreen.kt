@@ -42,6 +42,14 @@ private val LoadFailedMessage =
 private val TimeoutMessage = Message(R.drawable.ic_timeout, Highlight, R.string.timeout_title, R.string.timeout_body)
 private val NoLocationMessage =
     Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.no_location_title, R.string.no_location_body)
+private val PermissionMessage =
+    Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.permission_title, R.string.permission_body)
+private val PermissionRestrictedMessage = Message(
+    R.drawable.ic_location_off,
+    OnSurfaceVariant,
+    R.string.permission_title,
+    R.string.permission_body_restricted,
+)
 
 /** Every state draws on this one destination; a state change never pushes a screen (docs/02 §6). */
 @Composable
@@ -72,8 +80,12 @@ fun RecommendationsScreen(
             is RecommendationsUiState.Error ->
                 MessageState(state.type.message, R.string.back, onBack = onBack, modifier = body, onRetry = onRetry)
             // ponytail: Back only; DN-M0-006 adds Grant Permission and its launcher (docs/02 §10).
-            is RecommendationsUiState.PermissionRequired ->
-                MessageState(permissionMessage(state.canRequest), R.string.back, onBack = onBack, modifier = body)
+            is RecommendationsUiState.PermissionRequired -> MessageState(
+                if (state.canRequest) PermissionMessage else PermissionRestrictedMessage,
+                R.string.back,
+                onBack = onBack,
+                modifier = body,
+            )
         }
     }
 }
@@ -106,10 +118,3 @@ private val DiscoverError.message: Message
         DiscoverError.Timeout -> TimeoutMessage
         DiscoverError.LocationUnavailable -> NoLocationMessage
     }
-
-private fun permissionMessage(canRequest: Boolean) = Message(
-    icon = R.drawable.ic_location_off,
-    tint = OnSurfaceVariant,
-    title = R.string.permission_title,
-    body = if (canRequest) R.string.permission_body else R.string.permission_body_restricted,
-)

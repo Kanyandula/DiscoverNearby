@@ -27,7 +27,7 @@ class DiscoverUseCaseTest {
         location: LocationResult = LocationResult.Available(TestLocation.GREYSTONES.point),
     ) = DiscoverUseCase(places, FakeLocationProvider(location), BasicRecommendationEngine())
 
-    private fun failing(scenario: FakeScenario) = useCase(FakePlacesRepository(scenario))
+    private fun withScenario(scenario: FakeScenario) = useCase(FakePlacesRepository(scenario))
 
     // The slow fake must outlast the timeout, or Scenario O never times out.
     @Test
@@ -54,21 +54,21 @@ class DiscoverUseCaseTest {
 
     @Test
     fun noMatchesIsAnEmptySuccess() = runTest {
-        val result = failing(FakeScenario.EMPTY).invoke(1, COFFEE) as DiscoverResult.Success
+        val result = withScenario(FakeScenario.EMPTY).invoke(1, COFFEE) as DiscoverResult.Success
         assertTrue(result.recommendations.isEmpty())
     }
 
     @Test
     fun providerFailuresKeepTheirCause() = runTest {
-        val network = failing(FakeScenario.NETWORK_FAILURE).invoke(1, COFFEE)
+        val network = withScenario(FakeScenario.NETWORK_FAILURE).invoke(1, COFFEE)
         assertEquals(DiscoverResult.Failure(DiscoverError.NetworkUnavailable), network)
-        val provider = failing(FakeScenario.PROVIDER_FAILURE).invoke(1, COFFEE)
+        val provider = withScenario(FakeScenario.PROVIDER_FAILURE).invoke(1, COFFEE)
         assertEquals(DiscoverResult.Failure(DiscoverError.ProviderFailure), provider)
     }
 
     @Test
     fun slowProviderTimesOut() = runTest {
-        val result = failing(FakeScenario.SLOW).invoke(1, SLOW_CATEGORY)
+        val result = withScenario(FakeScenario.SLOW).invoke(1, SLOW_CATEGORY)
         assertEquals(DiscoverResult.Failure(DiscoverError.Timeout), result)
         assertEquals(PROVIDER_TIMEOUT_MILLIS, currentTime)
     }

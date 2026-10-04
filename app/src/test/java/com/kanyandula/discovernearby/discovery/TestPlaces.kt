@@ -27,5 +27,5 @@ fun testPlace(
     travelTimeMinutes = null,
 )
 
-fun testContext(category: DiscoveryCategory, requestId: Long = 1) =
-    DiscoveryContext(requestId = requestId, origin = ORIGIN, category = category, createdAtMillis = 0)
+fun testContext(category: DiscoveryCategory) =
+    DiscoveryContext(requestId = 1, origin = ORIGIN, category = category, createdAtMillis = 0)

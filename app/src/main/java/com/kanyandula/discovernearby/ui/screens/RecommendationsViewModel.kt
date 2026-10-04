@@ -27,9 +27,6 @@ sealed interface RecommendationsUiState {
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 
-/** How long the UI state keeps its upstreams after the screen stops collecting. */
-internal const val UI_STATE_STOP_TIMEOUT_MILLIS = 5_000L
-
 class RecommendationsViewModel(
     private val category: DiscoveryCategory,
     private val discover: DiscoverUseCase,
@@ -41,11 +38,12 @@ class RecommendationsViewModel(
     private var request: Job? = null
 
     // The driving state is combined in, not read, so the restrictions connection is open only while the
-    // screen collects, and a change re-trims the list without a new request (docs/03 §6).
+    // screen collects, and a change re-trims the list without a new request (docs/03 §6). No stop timeout
+    // here: the shared restrictions flow already keeps its connection through a quick restart.
     val uiState: StateFlow<RecommendationsUiState> = combine(result, drivingRestrictions.state, ::toUiState)
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(UI_STATE_STOP_TIMEOUT_MILLIS),
+            started = SharingStarted.WhileSubscribed(),
             initialValue = RecommendationsUiState.Loading,
         )
 

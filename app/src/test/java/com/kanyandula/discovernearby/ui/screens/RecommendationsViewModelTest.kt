@@ -13,6 +13,7 @@ import com.kanyandula.discovernearby.discovery.PROVIDER_TIMEOUT_MILLIS
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.location.LocationResult
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
+import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.ProviderFailure
 import com.kanyandula.discovernearby.places.ScriptedPlaces
@@ -44,15 +45,20 @@ class RecommendationsViewModelTest {
 
     private fun cafes(count: Int) = List(count) { testPlace("p$it", "cafe", metersNorth = 100 * (it + 1)) }
 
+    private fun slowCafes(count: Int): suspend () -> List<PlaceSummary> = {
+        delay(1_000)
+        cafes(count)
+    }
+
     private fun newViewModel(location: LocationResult = LocationResult.Available(ORIGIN)) = RecommendationsViewModel(
         category = COFFEE,
         discover = DiscoverUseCase(places, FakeLocationProvider(location), BasicRecommendationEngine()),
         drivingRestrictions = restrictions,
     )
 
-    /** A view model whose state the UI is collecting, after its first request ran as far as it can. */
-    private fun TestScope.collected(location: LocationResult = LocationResult.Available(ORIGIN)) =
-        newViewModel(location).also { vm ->
+    /** [vm] with the UI collecting its state, after its first request ran as far as it can. */
+    private fun TestScope.collected(vm: RecommendationsViewModel = newViewModel()) =
+        vm.also {
             backgroundScope.launch { vm.uiState.collect {} }
             runCurrent()
         }
@@ -66,10 +72,7 @@ class RecommendationsViewModelTest {
 
     @Test
     fun loadingUntilTheResultArrives() = runTest {
-        places.reply = {
-            delay(1_000)
-            cafes(2)
-        }
+        places.reply = slowCafes(2)
         val vm = collected()
         assertEquals(Loading, vm.uiState.value)
         advanceTimeBy(1_001)
@@ -100,16 +103,13 @@ class RecommendationsViewModelTest {
         assertEquals(2, vm.shown.size)
         limitTo(null)
         runCurrent()
-        assertEquals(5, vm.shown.size)
+        assertEquals(CategoryConfigs.getValue(COFFEE).desiredResults, vm.shown.size)
         assertEquals(1, places.searches)
     }
 
     @Test
     fun limitChangedWhileLoadingAppliesToTheResult() = runTest {
-        places.reply = {
-            delay(1_000)
-            cafes(7)
-        }
+        places.reply = slowCafes(7)
         val vm = collected()
         limitTo(2)
         advanceTimeBy(1_001)
@@ -133,7 +133,8 @@ class RecommendationsViewModelTest {
         assertEquals(Error(DiscoverError.NetworkUnavailable), collected().uiState.value)
         places.reply = { throw ProviderFailure() }
         assertEquals(Error(DiscoverError.ProviderFailure), collected().uiState.value)
-        assertEquals(Error(DiscoverError.LocationUnavailable), collected(LocationResult.Unavailable).uiState.value)
+        val noLocation = collected(newViewModel(LocationResult.Unavailable))
+        assertEquals(Error(DiscoverError.LocationUnavailable), noLocation.uiState.value)
     }
 
     @Test
@@ -153,10 +154,7 @@ class RecommendationsViewModelTest {
     fun retryShowsLoadingThenANewRequest() = runTest {
         places.reply = { throw NetworkUnavailable() }
         val vm = collected()
-        places.reply = {
-            delay(1_000)
-            cafes(1)
-        }
+        places.reply = slowCafes(1)
         vm.retry()
         runCurrent()
         assertEquals(Loading, vm.uiState.value)
@@ -166,10 +164,7 @@ class RecommendationsViewModelTest {
 
     @Test
     fun retryCancelsTheRequestInFlightAndItsLateResponseIsDropped() = runTest {
-        places.reply = {
-            delay(1_000)
-            cafes(1)
-        }
+        places.reply = slowCafes(1)
         val vm = collected()
         places.reply = { cafes(3) }
         vm.retry()
@@ -183,7 +178,7 @@ class RecommendationsViewModelTest {
     @Test
     fun permissionRequiredFollowsTheRestrictions() = runTest {
         restrictions.state.value = DrivingState(distractionOptimizationRequired = true, listLimit = null)
-        val vm = collected(LocationResult.PermissionMissing)
+        val vm = collected(newViewModel(LocationResult.PermissionMissing))
         assertEquals(PermissionRequired(canRequest = false), vm.uiState.value)
         restrictions.state.value = DrivingState(distractionOptimizationRequired = false, listLimit = null)
         runCurrent()
@@ -200,7 +195,6 @@ class RecommendationsViewModelTest {
         runCurrent()
         assertEquals(1, restrictions.state.subscriptionCount.value)
         ui.cancel()
-        advanceTimeBy(UI_STATE_STOP_TIMEOUT_MILLIS + 1)
         runCurrent()
         assertEquals(0, restrictions.state.subscriptionCount.value)
     }
