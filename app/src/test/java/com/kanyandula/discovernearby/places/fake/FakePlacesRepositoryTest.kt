@@ -6,6 +6,7 @@ import com.kanyandula.discovernearby.model.AttributeSource
 import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.ProviderFailure
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
@@ -102,6 +103,7 @@ class FakePlacesRepositoryTest {
     }
 
     // Longer than docs/03 §15's ~8 s provider timeout, so DN-M0-004 can reach Error(Timeout).
+    @OptIn(ExperimentalCoroutinesApi::class) // advanceTimeBy
     @Test
     fun slowScenarioTakesLongerThanTheProviderTimeout() = runTest {
         val slow = FakePlacesRepository(FakeScenario.SLOW)

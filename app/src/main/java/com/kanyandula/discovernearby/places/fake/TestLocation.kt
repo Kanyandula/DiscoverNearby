@@ -1,14 +1,12 @@
-@file:Suppress("MagicNumber") // Fixture coordinates from docs/03 §7.
-
 package com.kanyandula.discovernearby.places.fake
 
 import com.kanyandula.discovernearby.model.GeoPoint
 
 /** docs/03 §7 test locations A–C, stored once. */
 enum class TestLocation(val label: String, val point: GeoPoint) {
-    GREYSTONES("Greystones", GeoPoint(53.1440, -6.0633)),
-    DUBLIN("Dublin", GeoPoint(53.3498, -6.2603)),
-    GALWAY("Galway", GeoPoint(53.2707, -9.0568)),
+    GREYSTONES("Greystones", GeoPoint(lat = 53.1440, lng = -6.0633)),
+    DUBLIN("Dublin", GeoPoint(lat = 53.3498, lng = -6.2603)),
+    GALWAY("Galway", GeoPoint(lat = 53.2707, lng = -9.0568)),
     ;
 
     companion object {

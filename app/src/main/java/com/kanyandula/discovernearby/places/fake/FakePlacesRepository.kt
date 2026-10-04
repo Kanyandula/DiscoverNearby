@@ -18,7 +18,6 @@ enum class FakeScenario { NORMAL, EMPTY, SPARSE, NULL_HEAVY, SLOW, PROVIDER_FAIL
 /** Deterministic stand-in for the provider until ADR-001 (M1). */
 class FakePlacesRepository(
     private val scenario: FakeScenario = FakeScenario.NORMAL,
-    private val slowDelayMillis: Long = SLOW_DELAY_MILLIS,
 ) : PlacesRepository {
 
     private val byId: Map<String, PlaceSummary> by lazy {
@@ -35,7 +34,7 @@ class FakePlacesRepository(
         when (scenario) {
             FakeScenario.PROVIDER_FAILURE -> throw ProviderFailure()
             FakeScenario.NETWORK_FAILURE -> throw NetworkUnavailable()
-            FakeScenario.SLOW -> delay(slowDelayMillis)
+            FakeScenario.SLOW -> delay(SLOW_DELAY_MILLIS)
             else -> Unit
         }
         val location = TestLocation.nearestTo(origin) ?: return emptyList()
