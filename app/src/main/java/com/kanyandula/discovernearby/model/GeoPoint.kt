@@ -6,7 +6,9 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GeoPoint(val lat: Double, val lng: Double) {
 
     /** Great-circle (haversine) distance in metres. */

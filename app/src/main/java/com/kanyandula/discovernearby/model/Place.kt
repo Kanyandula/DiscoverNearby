@@ -1,6 +1,9 @@
 package com.kanyandula.discovernearby.model
 
+import kotlinx.serialization.Serializable
+
 /** List-level fields only (docs/03 §8): keeps searches small and each field's cost visible. */
+@Serializable
 data class PlaceSummary(
     val id: String,
     val name: String,
