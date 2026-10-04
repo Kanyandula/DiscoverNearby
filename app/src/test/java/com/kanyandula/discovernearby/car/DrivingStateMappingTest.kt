@@ -41,7 +41,7 @@ class DrivingStateMappingTest {
         assertEquals(DrivingState(false, 10), state)
     }
 
-    // Unknown restrictions: assume they apply, so parked-only actions stay hidden.
+    // Unknown restrictions: assume they apply, so Grant and other restricted actions stay hidden.
     @Test
     fun unknownStateAssumesRestrictionsApply() {
         assertEquals(DrivingState(true, null), UNKNOWN_DRIVING_STATE)

@@ -1,6 +1,10 @@
 package com.kanyandula.discovernearby.car
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * The car's UX restrictions as the UI needs them (docs/03 §6). This reports restrictions, not the
@@ -40,3 +44,18 @@ internal fun drivingState(
     listLimit = maxCumulativeContentItems.coerceAtLeast(0)
         .takeIf { activeRestrictions and UxFlags.LIMIT_CONTENT != 0 },
 )
+
+/** How long the restrictions stay shared after the last collector stops (survives a quick restart). */
+const val DRIVING_STATE_STOP_TIMEOUT_MILLIS = 5_000L
+
+/**
+ * Shares restriction updates while collected. Once the last collector has been gone for
+ * [DRIVING_STATE_STOP_TIMEOUT_MILLIS] the source stops and the value resets to [UNKNOWN_DRIVING_STATE]:
+ * a screen returning later must not start from a stale state (e.g. unrestricted while the car now moves).
+ */
+internal fun Flow<DrivingState>.shareAsDrivingState(scope: CoroutineScope): StateFlow<DrivingState> =
+    stateIn(
+        scope,
+        SharingStarted.WhileSubscribed(DRIVING_STATE_STOP_TIMEOUT_MILLIS, replayExpirationMillis = 0),
+        UNKNOWN_DRIVING_STATE,
+    )

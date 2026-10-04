@@ -10,17 +10,15 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * [DrivingRestrictions] from CarUxRestrictionsManager (NyasaPlayer's CarUxRestrictionsHandler pattern).
  * The only file that imports android.car. Connected while [state] is collected; disconnected
- * [STOP_TIMEOUT_MILLIS] after the last collector stops. No automotive feature, no Car service or no
+ * [DRIVING_STATE_STOP_TIMEOUT_MILLIS] after the last collector stops. No automotive feature, no Car service or no
  * restrictions manager reports [UNKNOWN_DRIVING_STATE]; anything else (e.g. flag drift) fails loudly.
  * The binder connect runs on [connectDispatcher], off the main thread.
  */
@@ -53,7 +51,7 @@ class CarDrivingRestrictions(
     }
         .flowOn(connectDispatcher)
         .onEach { Log.i(TAG, "UX restrictions: $it") }
-        .stateIn(scope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), UNKNOWN_DRIVING_STATE)
+        .shareAsDrivingState(scope)
 
     /** Null off-device or when the Car service is unavailable (Car.createCar returns null then). */
     private fun connectOrNull(): Car? =
@@ -68,6 +66,5 @@ class CarDrivingRestrictions(
 
     private companion object {
         const val TAG = "DrivingRestrictions"
-        const val STOP_TIMEOUT_MILLIS = 5_000L
     }
 }
