@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.CancellationSignal
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationCompat
 import androidx.core.location.LocationManagerCompat
 import com.kanyandula.discovernearby.model.GeoPoint
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -32,16 +34,30 @@ class AndroidLocationProvider(
     private val locationManager = context.getSystemService(LocationManager::class.java)
 
     override suspend fun currentLocation(): LocationResult {
-        val granted = LOCATION_PERMISSIONS.any {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
+        val fine = granted(Manifest.permission.ACCESS_FINE_LOCATION)
+        val approximate = granted(Manifest.permission.ACCESS_COARSE_LOCATION)
         val provider = PROVIDERS.firstOrNull { locationManager.isProviderEnabled(it) }
-        val fix = if (granted && provider != null) withTimeoutOrNull(timeoutMillis) { currentFix(provider) } else null
+        val fix = when {
+            provider == null || !(fine || approximate) -> null
+            fine -> withTimeoutOrNull(timeoutMillis) { currentFix(provider) }
+            // Approximate only: the platform turns the request into a low-power one that GPS never serves, so the
+            // platform's recent (already coarsened) fix is the answer; a fresh request is the fallback.
+            else -> recentFix(provider) ?: withTimeoutOrNull(timeoutMillis) { currentFix(provider) }
+        }
         return when {
-            !granted -> LocationResult.PermissionMissing
+            !(fine || approximate) -> LocationResult.PermissionMissing
             fix == null -> LocationResult.Unavailable
             else -> LocationResult.Available(GeoPoint(fix.latitude, fix.longitude))
         }
+    }
+
+    private fun granted(permission: String) =
+        ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+    // currentLocation() checks the permission first; revoking it ends the process, so nothing can race it.
+    @SuppressLint("MissingPermission")
+    private fun recentFix(provider: String): Location? = locationManager.getLastKnownLocation(provider)?.takeIf {
+        SystemClock.elapsedRealtime() - LocationCompat.getElapsedRealtimeMillis(it) <= RECENT_FIX_MILLIS
     }
 
     // currentLocation() checks the permission first; revoking it ends the process, so nothing can race it.
@@ -56,5 +72,8 @@ class AndroidLocationProvider(
 
     private companion object {
         val PROVIDERS = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+
+        // The platform's update interval for approximate-only apps.
+        const val RECENT_FIX_MILLIS = 10 * 60_000L
     }
 }
