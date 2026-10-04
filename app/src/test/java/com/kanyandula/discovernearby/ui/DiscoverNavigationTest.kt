@@ -10,6 +10,8 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.kanyandula.discovernearby.location.deviceAt
+import com.kanyandula.discovernearby.places.fake.TestLocation
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import org.junit.Assert.assertTrue
@@ -29,6 +31,7 @@ class DiscoverNavigationTest {
 
     @Before
     fun setUp() {
+        deviceAt(TestLocation.GREYSTONES.point) // the app reads the real location since DN-M0-006
         rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) } }
     }
 
