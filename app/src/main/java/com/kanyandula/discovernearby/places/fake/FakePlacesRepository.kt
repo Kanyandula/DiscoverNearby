@@ -20,7 +20,7 @@ enum class FakeScenario { NORMAL, EMPTY, SPARSE, NULL_HEAVY, SLOW, PROVIDER_FAIL
 
 /** Deterministic stand-in for the provider until ADR-001 (M1). */
 class FakePlacesRepository(
-    private val scenario: FakeScenario = FakeScenario.NORMAL,
+    var scenario: FakeScenario = FakeScenario.NORMAL,
 ) : PlacesRepository {
 
     private val byId: Map<String, PlaceSummary> by lazy {

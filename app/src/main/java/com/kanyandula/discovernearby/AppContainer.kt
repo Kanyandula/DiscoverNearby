@@ -20,7 +20,9 @@ class AppContainer(context: Context) {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     // ponytail: fakes until the provider (M1, after ADR-001) and AndroidLocationProvider (DN-M0-006).
-    val placesRepository: PlacesRepository = FakePlacesRepository()
+    // Debug launches choose fakePlaces.scenario for the docs/04 §7 emulator scenarios (MainActivity).
+    val fakePlaces = FakePlacesRepository()
+    val placesRepository: PlacesRepository = fakePlaces
     val locationProvider: LocationProvider = FakeLocationProvider()
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
     val discoverUseCase = DiscoverUseCase(placesRepository, locationProvider, BasicRecommendationEngine())
