@@ -4,7 +4,7 @@
 
 **Goal:** Selecting a recommendation opens a Place Details destination that shows what is known about the place, offers Navigate at once, fetches richer details without ever blocking on them, and falls back to the summary when they fail; Back returns to the list.
 
-**Architecture:** The route carries the selected `Recommendation` as JSON through a small `JsonNavType`, so Details shows the summary immediately and keeps it after a failed details call or process death. `PlaceDetailsViewModel` asks `DiscoverUseCase.details()` (same provider timeout) for richer data and exposes `Loading(summary)` → `Content(details)` or `SummaryOnly(summary)`; `navigate()` hands the summary's location to a `NavigationLauncher` from `AppContainer` (an M0 fake; DN-M3-001 brings the intent hand-off). One stateless `PlaceDetailsScreen` draws all three states with Navigate in a fixed place.
+**Architecture:** The route carries the selected place and its distance (`PlaceDetailsRoute(place, distanceMeters)`, the place as JSON through a small `JsonNavType`), so Details shows the summary immediately and keeps it after a failed details call or process death. `PlaceDetailsViewModel` asks `DiscoverUseCase.details()` (same provider timeout) for richer data and exposes `Loading(summary)` → `Content(details)` or `SummaryOnly(summary)`; `navigate()` hands the summary's location to a `NavigationLauncher` from `AppContainer` (an M0 fake; DN-M3-001 brings the intent hand-off). One stateless `PlaceDetailsScreen` draws all three states with Navigate in a fixed place.
 
 **Tech Stack:** Navigation Compose 2.10.2 type-safe routes with a custom `NavType`, kotlinx.serialization 1.11.0, Compose Material 3, kotlinx-coroutines-test, Robolectric 4.17.
 
@@ -34,6 +34,8 @@
 8. **detekt `LongParameterList` ignores defaulted parameters** (simplify pass; the first cut exempted every `@Composable`): `RecommendationsScreen` reaches six only by counting `modifier`.
 9. **Shared UI pieces move, not copy:** `ScreenHeader` (Back + title) is extracted from `RecommendationsScreen`; attribute labels, `METERS_PER_KM` and the `" · "` separator move from `RecommendationRow` to `ui/PlaceText.kt`.
 
+> **Changed during execution (simplify pass and final review):** the route carries `place: PlaceSummary` and `distanceMeters: Int` instead of the whole `Recommendation` (which is no longer `@Serializable`); `PlaceDetailsUiState` exposes `summary`, so `PlaceDetailsScreen` takes `distanceMeters` and `state`; detekt ignores defaulted parameters rather than every `@Composable`; Place Details facts are one line each (`PlaceDetailsFitTest`, native graphics, 468 dp panel). The task steps below are the plan as first executed.
+
 ## Review Focus
 
 1. **A place name with route-unsafe characters** (`& , / ? # % "`) must reach Details intact. Pinned by `JsonNavTypeTest.survivesTheRouteString` and `DiscoverNavigationTest.rowOpensPlaceDetailsAndBackReturnsToTheList` ("Brew & Bloom, Greystones").
@@ -56,7 +58,7 @@
 
 | Path | Action | Responsibility |
 | --- | --- | --- |
-| `…/model/GeoPoint.kt`, `Place.kt`, `PlaceAttribute.kt`, `Recommendation.kt` | Modify | `@Serializable` |
+| `…/model/GeoPoint.kt`, `Place.kt`, `PlaceAttribute.kt` | Modify | `@Serializable` (`Recommendation.kt` only in the first cut; see the note below) |
 | `…/ui/JsonNavType.kt` | Create | A `@Serializable` value in a route and saved state |
 | `…/navigation/NavigationLauncher.kt` | Create | Interface (docs/03 §11) |
 | `…/navigation/fake/FakeNavigationLauncher.kt` | Create | Records the destination, succeeds |
@@ -68,7 +70,7 @@
 | `…/ui/components/RecommendationRow.kt`, `ui/screens/RecommendationsScreen.kt` | Modify | Clickable rows; `ScreenHeader`; `onPlaceSelected` |
 | `…/ui/DiscoverNavHost.kt`, `…/AppContainer.kt` | Modify | Details destination; `navigationLauncher` |
 | `…/ui/theme/Color.kt`, `Dimens.kt`; `res/drawable/ic_navigate.xml`, `ic_info.xml`; `res/values/strings.xml` | Modify/Create | Canvas tokens, icons, copy |
-| `config/detekt/detekt.yml` | Modify | `LongParameterList` ignores `@Composable` |
+| `config/detekt/detekt.yml` | Modify | `LongParameterList` ignores defaulted parameters |
 | `…/test/…/ui/JsonNavTypeTest.kt`, `ui/screens/PlaceDetailsViewModelTest.kt`, `ui/screens/PlaceDetailsScreenTest.kt` | Create | Route, ViewModel, screen |
 | `…/test/…/places/ScriptedPlaces.kt`, `discovery/DiscoverUseCaseTest.kt`, `ui/screens/RecommendationsScreenTest.kt`, `ui/DiscoverNavigationTest.kt`, `DiscoverApplicationTest.kt` | Modify | Scriptable details; details tests; row selection; navigation; container |
 
