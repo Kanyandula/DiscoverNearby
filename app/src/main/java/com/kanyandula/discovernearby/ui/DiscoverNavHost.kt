@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
+import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -39,6 +40,8 @@ fun DiscoverNavHost(modifier: Modifier = Modifier, navController: NavHostControl
         composable<RecommendationsRoute> { entry ->
             RecommendationsScreen(
                 category = entry.toRoute<RecommendationsRoute>().category,
+                state = RecommendationsUiState.Loading, // Task 5 replaces this with the ViewModel's state
+                onRetry = {},
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
             )
         }

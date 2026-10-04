@@ -18,3 +18,8 @@ val OutdoorsTint = Color(0xFF6CC48A)
 val FamilyTint = Color(0xFFB79CF2)
 val ScenicTint = Color(0xFF6FA8F5)
 val ExploreTint = Color(0xFFC3CCD4)
+
+// Recommendations and message artboards.
+val Raised = Color(0xFF2A3138) // secondary button, spinner track
+val Action = Color(0xFF2563EB) // primary button, white label
+val Highlight = Color(0xFF6FA8F5) // loading arc, empty and timeout icons

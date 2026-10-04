@@ -9,7 +9,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
+import com.kanyandula.discovernearby.ui.theme.Highlight
+import com.kanyandula.discovernearby.ui.theme.Raised
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -28,16 +31,33 @@ class DiscoverNearbyThemeTest {
         return scheme
     }
 
-    // Canvas text roles: tile label and screen title 32 sp semibold, header 20 sp semibold, body 20 sp.
+    // Canvas text roles: message title 36, tile label and screen title 32, place name 28, header 20, buttons 24
+    // (all semibold); row details and message body 22; tile subtitle 20.
     @Test
     fun usesCanvasTypeScale() {
         lateinit var type: Typography
         rule.setContent { DiscoverNearbyTheme { type = MaterialTheme.typography } }
+        assertEquals(36.sp, type.headlineLarge.fontSize)
+        assertEquals(FontWeight.SemiBold, type.headlineLarge.fontWeight)
         assertEquals(32.sp, type.headlineMedium.fontSize)
         assertEquals(FontWeight.SemiBold, type.headlineMedium.fontWeight)
+        assertEquals(28.sp, type.headlineSmall.fontSize)
+        assertEquals(FontWeight.SemiBold, type.headlineSmall.fontWeight)
         assertEquals(20.sp, type.titleLarge.fontSize)
         assertEquals(FontWeight.SemiBold, type.titleLarge.fontWeight)
+        assertEquals(22.sp, type.titleMedium.fontSize)
+        assertEquals(FontWeight.Normal, type.titleMedium.fontWeight)
         assertEquals(20.sp, type.bodyLarge.fontSize)
+        assertEquals(24.sp, type.labelLarge.fontSize)
+        assertEquals(FontWeight.SemiBold, type.labelLarge.fontWeight)
+    }
+
+    // Literal hex values from the canvas message and loading artboards.
+    @Test
+    fun messageTokensMatchTheCanvas() {
+        assertEquals(Color(0xFF2A3138), Raised)
+        assertEquals(Color(0xFF2563EB), Action)
+        assertEquals(Color(0xFF6FA8F5), Highlight)
     }
 
     @Test
