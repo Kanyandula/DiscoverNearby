@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby.discovery
 
 import com.kanyandula.discovernearby.location.LocationProvider
 import com.kanyandula.discovernearby.location.LocationResult
+import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.PlacesException
@@ -39,6 +40,13 @@ class DiscoverUseCase(
             LocationResult.PermissionMissing -> DiscoverResult.PermissionRequired
             LocationResult.Unavailable -> DiscoverResult.Failure(DiscoverError.LocationUnavailable)
         }
+
+    /** The opened place's richer details, or null when they fail or time out: the screen keeps the summary. */
+    suspend fun details(placeId: String): PlaceDetails? = try {
+        withTimeoutOrNull(timeoutMillis) { places.getPlaceDetails(placeId) }
+    } catch (ignored: PlacesException) {
+        null
+    }
 
     private suspend fun search(context: DiscoveryContext): DiscoverResult = try {
         val radius = CategoryConfigs.getValue(context.category).radiusMeters

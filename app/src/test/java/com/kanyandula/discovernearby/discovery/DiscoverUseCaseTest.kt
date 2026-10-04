@@ -13,9 +13,11 @@ import com.kanyandula.discovernearby.places.fake.SLOW_CATEGORY
 import com.kanyandula.discovernearby.places.fake.SLOW_DELAY_MILLIS
 import com.kanyandula.discovernearby.places.fake.TestLocation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -82,5 +84,24 @@ class DiscoverUseCaseTest {
         val unavailable = useCase(places, LocationResult.Unavailable).invoke(1, COFFEE)
         assertEquals(DiscoverResult.Failure(DiscoverError.LocationUnavailable), unavailable)
         assertEquals(0, places.searches)
+    }
+
+    @Test
+    fun detailsComeFromTheProvider() = runTest {
+        assertEquals("greystones-coffee-0", useCase().details("greystones-coffee-0")?.summary?.id)
+    }
+
+    // docs/02 §7: a failed or slow details call never blocks the screen; the caller keeps the summary.
+    @Test
+    fun failedOrSlowDetailsAreNull() = runTest {
+        assertNull(withScenario(FakeScenario.DETAILS_FAILURE).details("greystones-coffee-0"))
+        val slow = ScriptedPlaces().apply {
+            details = {
+                delay(SLOW_DELAY_MILLIS)
+                error("answered after the timeout")
+            }
+        }
+        assertNull(useCase(slow).details("any"))
+        assertEquals(PROVIDER_TIMEOUT_MILLIS, currentTime)
     }
 }
