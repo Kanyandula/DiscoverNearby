@@ -17,7 +17,9 @@ Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`u
 SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost`, in-app Back
 (AOSP car bar has none), Recommendations placeholder. Domain model, `CategoryConfigs` and fakes (DN-M0-003): `model/`,
 `places/` (+ `fake/`), `location/` (+ `fake/`), wired in `AppContainer`. UX restrictions via `CarDrivingRestrictions` (DN-M0-010; unknown = restrictions
-apply; emulator moving limit 21). Next: DN-M0-004 / 011.
+apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004): `RecommendationEngine`,
+`DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
+launches take `--es scenario <FakeScenario>`. Next: DN-M0-005 / 006 / 011.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).

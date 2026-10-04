@@ -29,7 +29,7 @@ class DiscoverNavigationTest {
 
     @Before
     fun setUp() {
-        rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp() } }
+        rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) } }
     }
 
     /**
@@ -82,6 +82,15 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
+    // Loading then content draw on the one destination: a single Back returns to Discover.
+    @Test
+    fun recommendationsShowFakePlacesOnOneDestination() {
+        rule.onNodeWithText("Family").performClick()
+        rule.onNodeWithText("Adventure Playground, Greystones").assertIsDisplayed()
+        systemBack()
+        onDiscover()
+    }
+
     @Test
     fun systemBackOnDiscoverLeavesTheApp() {
         systemBack()
@@ -109,7 +118,7 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
-    // A deliberate tap during the 700 ms fade must still act; only the stale second tap is dropped.
+    // A deliberate tap right after Back must still act; only the stale second tap is dropped.
     @Test
     fun tileTappedRightAfterBackOpensIt() {
         rule.onNodeWithText("Food").performClick()

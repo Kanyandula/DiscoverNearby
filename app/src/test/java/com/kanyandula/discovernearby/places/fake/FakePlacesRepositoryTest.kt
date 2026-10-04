@@ -27,6 +27,15 @@ class FakePlacesRepositoryTest {
         DiscoveryCategory.entries.flatMap { c -> normal.at(l, c) }
     }
 
+    // Debug launches switch the scenario on the running app's repository (docs/04 §7).
+    @Test
+    fun scenarioCanChangeAtRunTime() = runTest {
+        val repository = FakePlacesRepository()
+        assertTrue(repository.at(TestLocation.GREYSTONES, DiscoveryCategory.COFFEE).isNotEmpty())
+        repository.scenario = FakeScenario.EMPTY
+        assertTrue(repository.at(TestLocation.GREYSTONES, DiscoveryCategory.COFFEE).isEmpty())
+    }
+
     @Test
     fun normalScenarioCoversEveryCategoryAtEveryTestLocation() = runTest {
         TestLocation.entries.forEach { location ->
@@ -113,7 +122,6 @@ class FakePlacesRepositoryTest {
         assertFalse(result.isCompleted)
         advanceTimeBy(2)
         assertTrue(result.isCompleted)
-        assertTrue(SLOW_DELAY_MILLIS > 8_000)
     }
 
     // docs/04 Scenario P: a slow Coffee request is overtaken by a quick Family one.

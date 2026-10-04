@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.ui.theme.ContentGap
 import com.kanyandula.discovernearby.ui.theme.HeaderHeight
@@ -27,7 +28,7 @@ import com.kanyandula.discovernearby.ui.theme.PanelPadding
 import com.kanyandula.discovernearby.ui.theme.PanelRadius
 
 @Composable
-fun DiscoverNearbyApp(modifier: Modifier = Modifier) {
+fun DiscoverNearbyApp(container: AppContainer, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -39,7 +40,7 @@ fun DiscoverNearbyApp(modifier: Modifier = Modifier) {
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 shape = RoundedCornerShape(PanelRadius),
             ) {
-                DiscoverNavHost(modifier = Modifier.padding(PanelPadding))
+                DiscoverNavHost(container = container, modifier = Modifier.padding(PanelPadding))
             }
         }
     }
