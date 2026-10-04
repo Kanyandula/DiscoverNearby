@@ -185,6 +185,23 @@ class RecommendationsViewModelTest {
         assertEquals(PermissionRequired(canRequest = true), vm.uiState.value)
     }
 
+    // docs/02 §10: a refusal shows the denied copy; a later grant resumes discovery for the same category.
+    @Test
+    fun deniedPermissionSaysSoAndGrantResumesDiscovery() = runTest {
+        val location = FakeLocationProvider(LocationResult.PermissionMissing)
+        val discover = DiscoverUseCase(places, location, BasicRecommendationEngine())
+        val vm = collected(RecommendationsViewModel(COFFEE, discover, restrictions))
+        vm.onPermissionResult(granted = false)
+        runCurrent()
+        assertEquals(PermissionRequired(canRequest = true, denied = true), vm.uiState.value)
+
+        places.reply = { cafes(2) }
+        location.result = LocationResult.Available(ORIGIN)
+        vm.onPermissionResult(granted = true)
+        runCurrent()
+        assertEquals(listOf("p0", "p1"), vm.shown)
+    }
+
     // DN-M0-010: the restrictions connection exists only while collected, so the screen must be the collector.
     @Test
     fun drivingStateIsCollectedOnlyWhileTheUiCollects() = runTest {
