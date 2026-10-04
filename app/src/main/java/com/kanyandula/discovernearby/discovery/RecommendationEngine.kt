@@ -32,6 +32,7 @@ class BasicRecommendationEngine : RecommendationEngine {
             .sortedWith(
                 compareByDescending<Recommendation> { it.score }.thenBy { it.distanceMeters }.thenBy { it.place.id },
             )
+            .distinctBy { it.place.id } // the list keys rows by id; a repeated place would crash it
     }
 
     private companion object {

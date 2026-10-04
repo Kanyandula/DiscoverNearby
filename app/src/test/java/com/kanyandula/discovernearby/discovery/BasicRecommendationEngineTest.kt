@@ -43,6 +43,16 @@ class BasicRecommendationEngineTest {
         assertEquals(listOf("near", "far"), ranked(COFFEE, far, near))
     }
 
+    // A provider listing a place twice must not crash the list, whose rows are keyed by id (docs/03 §16).
+    @Test
+    fun keepsTheNearestCopyOfARepeatedPlace() {
+        val ranked = engine.rank(
+            listOf(testPlace("a", "cafe", metersNorth = 300), testPlace("a", "cafe", metersNorth = 100)),
+            testContext(COFFEE),
+        )
+        assertEquals(listOf(100), ranked.map { it.distanceMeters })
+    }
+
     @Test
     fun tiesBreakById() {
         assertEquals(listOf("a", "b"), ranked(COFFEE, testPlace("b", "cafe"), testPlace("a", "cafe")))
