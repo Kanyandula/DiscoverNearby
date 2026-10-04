@@ -23,7 +23,10 @@ sealed interface RecommendationsUiState {
     data object Loading : RecommendationsUiState
     data class Content(val requestId: Long, val recommendations: List<Recommendation>) : RecommendationsUiState
     data object Empty : RecommendationsUiState
-    data class PermissionRequired(val canRequest: Boolean, val denied: Boolean = false) : RecommendationsUiState
+    data class PermissionRequired(
+        val canRequest: Boolean,
+        val denied: Boolean = false,
+    ) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 
@@ -41,8 +44,8 @@ class RecommendationsViewModel(
     // The driving state is combined in, not read, so the restrictions connection is open only while the
     // screen collects, and a change re-trims the list without a new request (docs/03 §6). No stop timeout
     // here: the shared restrictions flow already keeps its connection through a quick restart.
-    val uiState: StateFlow<RecommendationsUiState> = combine(result, drivingRestrictions.state, permissionDenied, ::toUiState)
-        .stateIn(
+    val uiState: StateFlow<RecommendationsUiState> =
+        combine(result, drivingRestrictions.state, permissionDenied, ::toUiState).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = RecommendationsUiState.Loading,

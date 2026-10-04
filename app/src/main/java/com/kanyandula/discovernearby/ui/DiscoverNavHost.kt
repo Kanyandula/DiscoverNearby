@@ -84,6 +84,7 @@ fun DiscoverNavHost(
                         navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters))
                     }
                 },
+                onGrant = {},
             )
         }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
