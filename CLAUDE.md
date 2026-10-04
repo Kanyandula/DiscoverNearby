@@ -19,7 +19,9 @@ SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `Disc
 `places/` (+ `fake/`), `location/` (+ `fake/`), wired in `AppContainer`. UX restrictions via `CarDrivingRestrictions` (DN-M0-010; unknown = restrictions
 apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004): `RecommendationEngine`,
 `DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
-launches take `--es scenario <FakeScenario>`. Next: DN-M0-005 / 006 / 011.
+launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows open
+`PlaceDetailsRoute(recommendation)` (JSON route via `JsonNavType`), `PlaceDetailsViewModel` falls back to the summary,
+`NavigationLauncher` is a fake until DN-M3-001. Next: DN-M0-006 / 011.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
