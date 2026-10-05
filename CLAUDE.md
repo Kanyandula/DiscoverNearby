@@ -28,6 +28,8 @@ denied copy; emulator location via `adb emu geo fix`, location on for user 10, `
 the UI stack waits on ADR-002 (Compose vs Car App Library). Check docs/05 §9 V7 before rotary work.
 Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
 (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
+Smoke baseline (DN-M0-007): reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it when
+the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 Next: ADR-002 decision (Product Lead) before more UI work.
 
 ## Stack (Revision 4)
