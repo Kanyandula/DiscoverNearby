@@ -13,6 +13,7 @@ import com.kanyandula.discovernearby.places.ScriptedPlaces
 import com.kanyandula.discovernearby.places.fake.SLOW_DELAY_MILLIS
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.NavigationUnavailable
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -82,5 +83,28 @@ class PlaceDetailsViewModelTest {
         runCurrent()
         vm.navigate()
         assertEquals(place.location, launcher.lastDestination)
+    }
+
+    // docs/03 §16: any hand-off failure becomes NavigationUnavailable, keeping the place for the header.
+    @Test
+    fun aFailedHandOffShowsNavigationUnavailable() = runTest {
+        places.details = { loaded }
+        val vm = viewModel()
+        runCurrent()
+        launcher.failure = SecurityException()
+        vm.navigate()
+        assertEquals(NavigationUnavailable(loaded.summary), vm.uiState.value)
+    }
+
+    // The driver asked to navigate: details arriving afterwards must not replace the message.
+    @Test
+    fun detailsArrivingAfterAFailedHandOffKeepTheMessage() = runTest {
+        places.details = slowDetails(1_000)
+        launcher.failure = IllegalStateException()
+        val vm = viewModel()
+        runCurrent()
+        vm.navigate()
+        advanceTimeBy(1_001)
+        assertEquals(NavigationUnavailable(place), vm.uiState.value)
     }
 }

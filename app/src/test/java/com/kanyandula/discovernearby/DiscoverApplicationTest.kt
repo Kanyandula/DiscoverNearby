@@ -2,7 +2,7 @@ package com.kanyandula.discovernearby
 
 import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.location.AndroidLocationProvider
-import com.kanyandula.discovernearby.navigation.fake.FakeNavigationLauncher
+import com.kanyandula.discovernearby.navigation.IntentNavigationLauncher
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -26,6 +26,6 @@ class DiscoverApplicationTest {
         assertTrue(container.placesRepository is FakePlacesRepository)
         assertTrue(container.locationProvider is AndroidLocationProvider)
         assertTrue(container.drivingRestrictions is CarDrivingRestrictions)
-        assertTrue(container.navigationLauncher is FakeNavigationLauncher)
+        assertTrue(container.navigationLauncher is IntentNavigationLauncher)
     }
 }

@@ -117,4 +117,16 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithContentDescription("Back").performClick()
         assertEquals(1, backs)
     }
+
+    // docs/02 §14, design 11: the message under the place's header; Back is the only action.
+    @Test
+    fun navigationUnavailableShowsTheMessageWithBack() {
+        state = PlaceDetailsUiState.NavigationUnavailable(place)
+        rule.onNodeWithText(place.name).assertIsDisplayed()
+        rule.onNodeWithText("Navigation unavailable").assertIsDisplayed()
+        rule.onNodeWithText("No compatible navigation app could open this destination.").assertIsDisplayed()
+        rule.onNodeWithText("Navigate").assertDoesNotExist()
+        rule.onNodeWithText("Back").performClick()
+        assertEquals(1, backs)
+    }
 }

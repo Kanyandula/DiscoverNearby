@@ -9,12 +9,10 @@ import com.kanyandula.discovernearby.navigation.NavigationLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * The Place Details destination's states (docs/03 §15). ponytail: NavigationUnavailable arrives with the real
- * hand-off (DN-M3-001).
- */
+/** The Place Details destination's states (docs/03 §15). */
 sealed interface PlaceDetailsUiState {
     /** The place as currently known: the route's summary, or the fresher one that came with the details. */
     val summary: PlaceSummary
@@ -24,6 +22,9 @@ sealed interface PlaceDetailsUiState {
         override val summary: PlaceSummary get() = details.summary
     }
     data class SummaryOnly(override val summary: PlaceSummary) : PlaceDetailsUiState
+
+    /** The hand-off failed (docs/02 §14): the message, under this place's header. */
+    data class NavigationUnavailable(override val summary: PlaceSummary) : PlaceDetailsUiState
 }
 
 class PlaceDetailsViewModel(
@@ -37,14 +38,17 @@ class PlaceDetailsViewModel(
 
     init {
         viewModelScope.launch {
-            state.value = discover.details(place.id)?.let { PlaceDetailsUiState.Content(it) }
+            val loaded = discover.details(place.id)?.let { PlaceDetailsUiState.Content(it) }
                 ?: PlaceDetailsUiState.SummaryOnly(place)
+            // A failed hand-off stays on screen: the driver asked to navigate, not to read the details.
+            state.update { if (it is PlaceDetailsUiState.NavigationUnavailable) it else loaded }
         }
     }
 
-    // Navigate never waits for details (docs/02 §7). ponytail: the M0 fake cannot fail; DN-M3-001 maps a failed
-    // hand-off to NavigationUnavailable.
+    // Navigate never waits for details (docs/02 §7). Any hand-off failure shows NavigationUnavailable (docs/03 §16).
     fun navigate() {
-        navigation.navigateTo(place.location)
+        navigation.navigateTo(place.location).onFailure {
+            state.value = PlaceDetailsUiState.NavigationUnavailable(state.value.summary)
+        }
     }
 }

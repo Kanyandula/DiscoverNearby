@@ -717,7 +717,7 @@ sealed interface PlaceDetailsUiState {
     data class Loading(val summary: PlaceSummary) : PlaceDetailsUiState
     data class Content(val details: PlaceDetails) : PlaceDetailsUiState
     data class SummaryOnly(val summary: PlaceSummary) : PlaceDetailsUiState  // details failed
-    data object NavigationUnavailable : PlaceDetailsUiState
+    data class NavigationUnavailable(val summary: PlaceSummary) : PlaceDetailsUiState  // keeps the header
 }
 ```
 
