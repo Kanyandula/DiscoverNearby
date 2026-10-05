@@ -1,5 +1,9 @@
 # DN-M0-011 Rotary Focus Proof (V7) Implementation Plan
 
+> **Superseded in part — read [Outcome (2026-10-05)](#outcome-2026-10-05-v7-not-workable) first.** The emulator
+> disproved the investigation's premise (the ComposeView was already in the accessibility tree; the "stuck"
+> baseline was a uiautomator artefact), Task 3 was dropped and V7 is Not workable.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Prove V7 on the reference emulator: the AAOS rotary controller moves focus through the six Discover tiles in UX order, focus is clearly visible, select opens the focused category, Back returns focus to the originating tile, and nothing is unreachable or trapped — then record the outcome in the ticket and the docs/05 §9 register.
@@ -49,6 +53,8 @@ All on `AAOS_AOSP_33_userdebug` (emulator-5554), with `com.android.car.rotary/.R
 ## Outcome (2026-10-05): V7 Not workable
 
 - **Pass criteria revised.** The full journey (Discover → Recommendations → Place Details → Navigate) and its Back path must work by rotary (UX spec §16). Failures on Recommendations and Details count against V7; they are not follow-ups, as Task 4 Step 3 first assumed.
+- **Task 1: no production change.** Compose's root already qualifies for the rotary service, so MainActivity is unchanged; `RotaryContractTest` pins that precondition. Open decision 1 and the Architecture line about marking the ComposeView no longer apply.
+- **Review Focus 2** (touch leaves no ring) is pinned by `FocusRingTest.touchedTileShowsNoRing`, since Task 3's test went with it.
 - **Task 3 dropped.** Restoring focus to the originating tile left the rotary service unable to move after Back. Without it, Back focuses Coffee.
 - **Task 4.**
   - Grid ends hold: Explore and Coffee, with no wrap.

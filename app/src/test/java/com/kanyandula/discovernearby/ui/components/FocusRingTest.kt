@@ -11,6 +11,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
@@ -57,5 +58,18 @@ class FocusRingTest {
         rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
         tile.requestFocus()
         assertArrayEquals(Accent.rgb(), tile.edgePixel().rgb(), TOLERANCE)
+    }
+
+    // A touch selection never leaves a ring behind (docs/02 §16 rings are for rotary only).
+    @Test
+    fun touchedTileShowsNoRing() {
+        rule.setContent {
+            DiscoverNearbyTheme {
+                CategoryTile(DiscoveryCategory.COFFEE, onClick = {}, modifier = Modifier.size(300.dp, 200.dp))
+            }
+        }
+        val tile = rule.onNodeWithText("Coffee")
+        tile.performClick()
+        assertArrayEquals(SurfaceVariant.rgb(), tile.edgePixel().rgb(), TOLERANCE)
     }
 }
