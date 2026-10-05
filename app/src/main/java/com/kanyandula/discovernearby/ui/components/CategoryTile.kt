@@ -1,6 +1,6 @@
 package com.kanyandula.discovernearby.ui.components
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -31,16 +31,15 @@ import com.kanyandula.discovernearby.ui.visual
 @Composable
 fun CategoryTile(category: DiscoveryCategory, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val visual = category.visual
-    val shape = RoundedCornerShape(TileRadius)
     val interactions = remember { MutableInteractionSource() }
     // Rotary focus must be clearly visible (docs/02 §16); touch never focuses a tile, so touch never shows it.
     val focused by interactions.collectIsFocusedAsState()
-    val ring = if (focused) Modifier.border(FocusRingWidth, MaterialTheme.colorScheme.primary, shape) else Modifier
     Surface(
         onClick = onClick,
-        modifier = modifier.defaultMinSize(minWidth = MinTouchTarget, minHeight = MinTouchTarget).then(ring),
-        shape = shape,
+        modifier = modifier.defaultMinSize(minWidth = MinTouchTarget, minHeight = MinTouchTarget),
+        shape = RoundedCornerShape(TileRadius),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        border = if (focused) BorderStroke(FocusRingWidth, MaterialTheme.colorScheme.primary) else null,
         interactionSource = interactions,
     ) {
         Column(

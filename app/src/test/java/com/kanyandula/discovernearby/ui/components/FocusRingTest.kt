@@ -17,13 +17,14 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.SurfaceVariant
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertArrayEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
-import kotlin.math.abs
+
+private const val TOLERANCE = 0.02f
 
 // docs/02 §16: focus must be clearly visible. Native graphics, so the capture draws real pixels.
 @RunWith(RobolectricTestRunner::class)
@@ -33,24 +34,17 @@ class FocusRingTest {
     @get:Rule
     val rule = createComposeRule()
 
-    // Touch never focuses a clickable; rotary (keyboard mode) does.
-    private lateinit var inputModes: InputModeManager
-
     /** The colour 2 px inside the tile's left edge, halfway down: inside the ring when it is drawn. */
     private fun SemanticsNodeInteraction.edgePixel(): Color {
         val pixels = captureToImage().toPixelMap()
         return pixels[2, pixels.height / 2]
     }
 
-    private fun assertNear(expected: Color, actual: Color) {
-        val close = abs(expected.red - actual.red) < TOLERANCE &&
-            abs(expected.green - actual.green) < TOLERANCE &&
-            abs(expected.blue - actual.blue) < TOLERANCE
-        assertTrue("expected about $expected, was $actual", close)
-    }
+    private fun Color.rgb() = floatArrayOf(red, green, blue)
 
     @Test
     fun focusedTileShowsTheRing() {
+        lateinit var inputModes: InputModeManager
         rule.setContent {
             inputModes = LocalInputModeManager.current
             DiscoverNearbyTheme {
@@ -58,13 +52,10 @@ class FocusRingTest {
             }
         }
         val tile = rule.onNodeWithText("Coffee")
-        assertNear(SurfaceVariant, tile.edgePixel())
-        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) } // rotary mode: tiles take focus
+        assertArrayEquals(SurfaceVariant.rgb(), tile.edgePixel().rgb(), TOLERANCE)
+        // Touch never focuses a clickable; rotary puts Compose in keyboard mode, where it does.
+        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
         tile.requestFocus()
-        assertNear(Accent, tile.edgePixel())
-    }
-
-    private companion object {
-        const val TOLERANCE = 0.02f
+        assertArrayEquals(Accent.rgb(), tile.edgePixel().rgb(), TOLERANCE)
     }
 }
