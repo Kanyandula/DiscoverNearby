@@ -1,5 +1,6 @@
 package com.kanyandula.discovernearby.ui
 
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -14,12 +15,15 @@ import com.kanyandula.discovernearby.location.deviceAt
 import com.kanyandula.discovernearby.places.fake.TestLocation
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -147,6 +151,31 @@ class DiscoverNavigationTest {
         rule.mainClock.advanceTimeBy(SETTLE_MS)
         rule.onNodeWithContentDescription("Back").assertDoesNotExist()
         onDiscover()
+    }
+
+    // docs/04 E: Navigate hands the selected place to the system — Greystones + Harbour Roasters' offset.
+    @Test
+    fun navigateHandsTheSelectedPlaceToTheSystem() {
+        rule.onNodeWithText("Coffee").performClick()
+        rule.onNodeWithText("Harbour Roasters, Greystones").performClick()
+        rule.onNodeWithText("Navigate").performClick()
+        val started = shadowOf(RuntimeEnvironment.getApplication()).nextStartedActivity
+        assertEquals(Intent.ACTION_VIEW, started.action)
+        assertEquals("geo:53.148000,-6.060300", started.dataString)
+    }
+
+    // docs/04 S: no navigation app → the message; Back returns to the list.
+    @Test
+    fun navigateWithNoHandlerShowsNavigationUnavailableAndBackReturns() {
+        shadowOf(RuntimeEnvironment.getApplication()).checkActivities(true)
+        rule.onNodeWithText("Coffee").performClick()
+        rule.onNodeWithText("Harbour Roasters, Greystones").performClick()
+        rule.onNodeWithText("Navigate").performClick()
+        rule.onNodeWithText("Navigation unavailable").assertIsDisplayed()
+        rule.onNodeWithText("Back").performClick()
+        rule.mainClock.advanceTimeBy(SETTLE_MS)
+        rule.onNodeWithText("The Daily Grind, Greystones").assertIsDisplayed()
+        rule.onNodeWithText("Navigation unavailable").assertDoesNotExist()
     }
 
     private companion object {

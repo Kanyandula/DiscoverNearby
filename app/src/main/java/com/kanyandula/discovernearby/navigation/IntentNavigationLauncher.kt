@@ -2,7 +2,7 @@ package com.kanyandula.discovernearby.navigation
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import com.kanyandula.discovernearby.model.GeoPoint
 import java.util.Locale
 
@@ -17,7 +17,7 @@ internal fun geoUri(point: GeoPoint): String = String.format(Locale.US, "geo:%.6
 class IntentNavigationLauncher(private val appContext: Context) : NavigationLauncher {
     override fun navigateTo(point: GeoPoint): Result<Unit> = runCatching {
         appContext.startActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse(geoUri(point))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            Intent(Intent.ACTION_VIEW, geoUri(point).toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
         )
     }
 }

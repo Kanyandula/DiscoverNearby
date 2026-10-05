@@ -34,6 +34,8 @@ import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.attributeTypes
+import com.kanyandula.discovernearby.ui.components.Message
+import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
@@ -46,6 +48,7 @@ import com.kanyandula.discovernearby.ui.theme.NavigateHeight
 import com.kanyandula.discovernearby.ui.theme.NavigateIconGap
 import com.kanyandula.discovernearby.ui.theme.NavigateIconSize
 import com.kanyandula.discovernearby.ui.theme.NavigateRadius
+import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
 import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
@@ -68,18 +71,33 @@ fun PlaceDetailsScreen(
     val openingSummary = (state as? PlaceDetailsUiState.Content)?.details?.openingSummary
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
         ScreenHeader(title = state.summary.name, onBack = onBack)
-        Row(
-            modifier = Modifier.weight(1f).padding(start = DetailsInset),
-            horizontalArrangement = Arrangement.spacedBy(DetailsColumnGap),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Facts(state.summary, distanceMeters, openingSummary)
-                if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
+        if (state is PlaceDetailsUiState.NavigationUnavailable) {
+            // docs/02 §14, design 11: Back is the only action, and it leaves the destination like the header's.
+            MessageState(NavigationUnavailableMessage, R.string.back, onBack = onBack, modifier = Modifier.weight(1f))
+        } else {
+            Row(
+                modifier = Modifier.weight(1f).padding(start = DetailsInset),
+                horizontalArrangement = Arrangement.spacedBy(DetailsColumnGap),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Facts(state.summary, distanceMeters, openingSummary)
+                    if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
+                }
+                NavigateButton(
+                    onClick = onNavigate,
+                    modifier = Modifier.width(ActionColumnWidth).align(Alignment.Bottom),
+                )
             }
-            NavigateButton(onClick = onNavigate, modifier = Modifier.width(ActionColumnWidth).align(Alignment.Bottom))
         }
     }
 }
+
+private val NavigationUnavailableMessage = Message(
+    R.drawable.ic_navigate_off,
+    OnSurfaceVariant,
+    R.string.navigation_unavailable_title,
+    R.string.navigation_unavailable_body,
+)
 
 /** Distance; then rating and opening state; then amenities. Each only when known, with dividers between. */
 @Composable
