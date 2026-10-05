@@ -50,6 +50,8 @@
 4. **A day/night switch after a second hand-off** still shows the latest destination. Robolectric's `ActivityController.recreate()` re-attaches the controller's original intent, not the activity's `setIntent` one, so it cannot test this. Pinned by emulator Task 3 Step 4 (`cmd uimode night`).
 5. **Opened without a destination** (`am start -n`): no crash, and the screen says so. Pinned by `StubNavigationActivityTest.openedWithoutADestinationSaysSo` (Task 2).
 
+> **After the simplify pass:** `StubManifestContractTest` was replaced. Its pins are now `StubNavigationActivityTest.anImplicitGeoViewIntentResolvesToTheStub` and `.showsWhileDrivingAndKeepsOneInstance`, which check the merged manifest through Robolectric's PackageManager. Each manifest mutation fails one of them.
+
 ---
 
 ## File Structure
