@@ -98,6 +98,8 @@ adb emu geo fix -9.0568 53.2707    # Location C — Galway city
 
 Coordinates live in test configuration (Engineering Plan §7) and are not re-typed per run.
 
+A new fix reaches apps on their next location request. Before re-querying, give it about 10 s: in the M0 check, a request 2 s after a new fix still returned the previous place once. `dumpsys location` shows a stale "last location" until some app requests location, so check a fix through the app, not `dumpsys`.
+
 ### Simulating Park / Drive
 
 Use Extended controls → Car data (VHAL properties):
@@ -402,6 +404,17 @@ The hard requirements are:
 
 ## 10. Functional Test Checklist
 
+### M0 smoke (DN-M0-007)
+
+Run on the §2 configuration, from a known state: app and stub installed from the build under test, `pm clear --user 10`, location on for user 10, Location A, parked. Record what each step shows.
+
+1. **Launch** — the Discover grid appears; no block screen.
+2. **Core flow (touch)** — Coffee → Recommendations (location granted through the app's own flow on first use) → first row → Place Details; Navigate is shown.
+3. **Stub** — the stub navigation app answers the `geo:` query (§2) and an adb hand-off shows on it (§2 "Stub navigation app setup", step 3). The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
+4. **Rotary (V7)** — without touch: rotate through the grid, select, then rotate on Recommendations and Place Details and Back twice (Scenario F). Record against the docs/05 §9 V7 row.
+5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash.
+6. **Deepest path and Back** — in Drive: Discover → Recommendations → Place Details → Back → Back ends on Discover, and Back on Discover leaves the app (Scenario T).
+
 ### Setup
 
 - [ ] Emulator configuration recorded (§2)
@@ -480,7 +493,7 @@ Automated tests have two layers: JVM unit tests, and Compose UI tests run locall
 - Navigate starts `ACTION_VIEW` with the expected `geo:` URI, asserted with Robolectric's `shadowOf(application).nextStartedActivity`
 - Grant is hidden while `distractionOptimizationRequired` is true and shown when it is false (fake `DrivingRestrictions`)
 
-These run as local tests with no emulator, using NyasaPlayer's setup (delivery plan V2). One M0 smoke test verifies the project configuration. Rotary, focus and Park/Drive on the real platform are covered by the emulator scenarios.
+These run as local tests with no emulator, using NyasaPlayer's setup (delivery plan V2). One M0 smoke test verifies the project configuration: `DiscoverScreenTest` renders `DiscoverScreen` in `testDebugUnitTest`, which CI runs on every PR. Rotary, focus and Park/Drive on the real platform are covered by the emulator scenarios.
 
 ### RecommendationEngine (fixture-based; assert order, not individual weights)
 
