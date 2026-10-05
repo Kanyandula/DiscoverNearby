@@ -6,6 +6,9 @@
 
     <application android:label="CAL rotary probe">
 
+        <meta-data
+            android:name="com.android.automotive"
+            android:resource="@xml/automotive_app_desc" />
         <meta-data android:name="androidx.car.app.minCarApiLevel" android:value="1" />
 
         <service
