@@ -24,4 +24,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Discover Nearby"
 include(":app")
+// Emulator stand-in for a navigation app (docs/03 §11); built, linted and tested with the app.
+include(":stub-navigation")
+project(":stub-navigation").projectDir = file("tools/stub-navigation")
  

@@ -1,12 +1,12 @@
-// Single source for the compile SDK; the android.car.jar path below derives from it.
-val compileApi = 37
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization)
 }
+
+// The project's one compile SDK (gradle/libs.versions.toml); the android.car.jar path below derives from it.
+val compileApi = libs.versions.android.compileSdk.get().toInt()
 
 android {
     namespace = "com.kanyandula.discovernearby"

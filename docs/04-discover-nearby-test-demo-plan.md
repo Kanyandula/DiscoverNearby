@@ -138,7 +138,7 @@ Use Extended controls → Car rotary (rotate, nudge, select, Back). Rotary verif
 
 ### Stub navigation app setup
 
-1. Build and install `tools/stub-navigation`.
+1. Build and install `tools/stub-navigation`: `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug`.
 2. Confirm it appears in the navigation-intent query above.
 3. Optional sanity check, independent of Discover Nearby: send a navigation intent from adb and confirm the stub displays it.
 4. During tests, read the received destination on the stub screen or in logcat:

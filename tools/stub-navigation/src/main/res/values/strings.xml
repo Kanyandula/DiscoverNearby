@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Stub navigation</string>
+    <string name="received_destination">Received destination</string>
+    <string name="no_destination">No destination received</string>
+</resources>

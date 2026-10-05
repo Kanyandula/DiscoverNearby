@@ -602,6 +602,8 @@ A minimal separate APK in `tools/stub-navigation/`. Its only jobs are to:
 
 This makes “correct destination handed off” observable and repeatable without a production navigation app.
 
+It is the Gradle module `:stub-navigation` in the root build (`projectDir = tools/stub-navigation`), so CI builds, lints and tests it with the app; it shares the project's one compile SDK (`android-compileSdk` in the version catalog). Install: `./gradlew :stub-navigation:installDebug`.
+
 Verify in M3 that the system resolves the `geo:` intent to the stub on the chosen image. If another handler exists, record whether a chooser appears.
 
 ### Out of scope

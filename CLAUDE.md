@@ -10,8 +10,8 @@ structural work. If code and docs disagree, stop and ask.
 
 ## Current state of the code (read this first)
 Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
-`distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `compileApi` value in
-`app/build.gradle.kts`, which also derives the `android.car.jar` path), targetSdk 36, minSdk 29.
+`distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `android-compileSdk` in
+`gradle/libs.versions.toml`; the app derives its `android.car.jar` path from it), targetSdk 36, minSdk 29.
 No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
 Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
 SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost`, in-app Back
@@ -26,6 +26,8 @@ launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows op
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
 (DN-M0-011): 4 dp focus ring on the tiles, `RotaryContractTest`; V7 **Not workable** after in-app navigation —
 the UI stack waits on ADR-002 (Compose vs Car App Library). Check docs/05 §9 V7 before rotary work.
+Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
+(`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
 Next: ADR-002 decision (Product Lead) before more UI work.
 
 ## Stack (Revision 4)
@@ -81,6 +83,8 @@ Next: ADR-002 decision (Product Lead) before more UI work.
 - Unit + Robolectric/Compose tests: `./gradlew testDebugUnitTest` (release host tests are disabled).
 - Lint: `./gradlew lintDebug`
 - Detekt: `./gradlew detekt` (1.23.8, defaults + `config/detekt/detekt.yml`, `maxIssues: 0`).
+- Stub navigation app: `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug`; watch hand-offs with
+  `adb -s emulator-5554 logcat -s StubNav` (a cold start of the debug APK can take ~10 s on the emulator).
 - CI runs `./gradlew detekt lintDebug testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
 - Repo git hooks do NOT run on this machine (global `core.hooksPath`); run checks yourself.
 - Before saying a task is done: detekt, test, build and lint must pass.
@@ -94,7 +98,8 @@ Next: ADR-002 decision (Product Lead) before more UI work.
 - Never `adb reboot`; kill and relaunch the emulator instead.
 
 ## Secrets
-Provider keys live in `local.properties` → BuildConfig. Never commit or log keys or raw coordinates.
+Provider keys live in `local.properties` → BuildConfig. Never commit or log keys or raw coordinates
+(except the stub navigation app's `StubNav` log, which docs/03 §11 requires).
 
 ## Ticket workflow
 
