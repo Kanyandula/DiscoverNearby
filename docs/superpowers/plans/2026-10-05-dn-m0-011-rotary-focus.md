@@ -46,6 +46,18 @@ All on `AAOS_AOSP_33_userdebug` (emulator-5554), with `com.android.car.rotary/.R
 - `uiautomator dump`'s `focused` attribute lags Compose focus; trust RotaryService `dumpsys` (`focusedNode` bounds) and screenshots instead.
 - Tile bounds on the emulator (px): Coffee `[48,156][344,380]`, Food `[364,156][660,380]`, Outdoors `[680,156][976,380]`, Family `[48,400][344,624]`, Scenic `[364,400][660,624]`, Explore `[680,400][976,624]`.
 
+## Outcome (2026-10-05): V7 Not workable
+
+- **Pass criteria revised.** The full journey (Discover → Recommendations → Place Details → Navigate) and its Back path must work by rotary (UX spec §16). Failures on Recommendations and Details count against V7; they are not follow-ups, as Task 4 Step 3 first assumed.
+- **Task 3 dropped.** Restoring focus to the originating tile left the rotary service unable to move after Back. Without it, Back focuses Coffee.
+- **Task 4.**
+  - Grid ends hold: Explore and Coffee, with no wrap.
+  - Nudges are no-ops, because the window is one implicit focus area.
+  - On Place Details, focus isn't visible, rotation is stuck and Navigate is unreachable.
+  - After Back twice, rotation is stuck on Discover.
+- **Cause and the three time-boxed workarounds:** see ADR-002. Each workaround varied from run to run.
+- **Shipped:** the focus ring (Task 2) and `RotaryContractTest` (Task 1). Escalated: [ADR-002](../../adr/0002-ui-stack-after-v7.md).
+
 ## File Structure
 
 | Path | Action | Responsibility |
