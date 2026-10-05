@@ -14,6 +14,8 @@ android {
         applicationId = "com.kanyandula.stubnavigation"
         minSdk = 29
         targetSdk = 36
+        // Unset, the version code is 0 and installs over an earlier stub fail as a downgrade.
+        versionCode = 1
     }
 
     compileOptions {
