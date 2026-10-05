@@ -14,8 +14,6 @@ android {
         applicationId = "com.kanyandula.stubnavigation"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
     }
 
     compileOptions {
@@ -39,8 +37,6 @@ detekt {
 }
 
 tasks.withType<Test>().configureEach {
-    // StubManifestContractTest reads the source manifest; without this a manifest-only change leaves it UP-TO-DATE.
-    inputs.file("src/main/AndroidManifest.xml")
     // Robolectric at SDK 36 (Android 16) touches jdk.internal.access on JDK 21.
     jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }
