@@ -31,24 +31,24 @@ If provisionally selected: risk accepted by [Product Lead name] on [date]; licen
 
 ## One-sheet comparison
 
-| Question | TomTom | HERE | OSM option |
+| Question | TomTom | HERE | Geoapify Places (OSM-based) |
 | --- | --- | --- | --- |
-| AAOS / embedded vehicle use permitted? | → Legal. Terms page not readable as text; search-index text says the licence excludes "Automotive Usage or Navigation Functionality" without a separate written agreement (unverified) [T1]. POI Details is "Automotive only" [T4][T6]. | → Legal. Platform Terms §6.3(a) (effective 18 Sep 2023) restricts integrating HERE Materials into "a … vehicle system or any component thereof, including … windshield or display screens installed in the vehicle"; a phone projecting to the vehicle screen "is not an integration" [H1] |  |
-| Evidence / contractual source | Developer Portal Terms and conditions [T1] (no version or date readable); POI Details conditions [T4]; Pricing [T6] | HERE Platform Terms, effective 18 September 2023: §6.3, §6.4(j), §6.4(m), §13.1, Exhibit 2 §1.3 [H1] |  |
-| REST POI search | Yes: Search API `nearbySearch` (GET) [T2] | Yes: Geocoding & Search v7 `/browse` (GET) [H2] |  |
-| Nearby / category search | `lat`, `lon`, `radius`, `categorySet`, `openingHours`, `limit` ≤ 100 [T2] | `at`, `in=circle:…` (≤ 250 km), `categories` (levels 1–3), `foodTypes`, `limit` [H2] |  |
-| Along-route capability | Search API `searchAlongRoute` (POST, `maxDetourTime` ≤ 3600 s, `categorySet`) [T5] | `/browse` with the `route` parameter [H2] |  |
-| Coffee coverage | Pending the live matrix | Pending the live matrix |  |
-| Family coverage | Pending the live matrix | Pending the live matrix |  |
-| Scenic coverage | Pending the live matrix | Pending the live matrix |  |
-| Rating / count | Not in Search results [T2]. POI Details API: `value`, `totalRatings` — "Automotive only", Tripadvisor conditions [T4], "Contact Sales" [T6] | Not in the documented response [H2]; `show=tripadvisor` adds ratings — "BETA, RESTRICTED", Tripadvisor branding rules [H4] |  |
-| Opening hours | `openingHours=nextSevenDays` → `poi.openingHours` time ranges [T2] | `openingHours` on response items (structure not detailed on the page) [H2] |  |
-| Useful amenities | No parking or toilet fields in the Nearby response [T2]. Family categories: zoos, amusement parks, leisure centres; no playground code [T3] | No parking or toilet fields documented [H2][H4]. Family categories: zoo, amusement park, water park, children's museum; no playground [H3] |  |
-| Attribution | "© TomTom. All rights reserved…" (+ OSM ODbL notice for Orbis Maps), on a website or the app's About screen; not stated for Search results [T7] | Keep all HERE Marks and copyright notices in Results "in accordance with HERE brand guidance" (§13.1) [H1] |  |
-| Caching restrictions | Not documented in fetchable pages; terms not readable [T1][T9] → Legal | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days"; Exhibit 2 §1.3: only "as explicitly allowed by the caching headers" [H1] |  |
-| Authentication model | API key; restrict by domain (CORS) and product; mobile apps: proxy server recommended, obfuscate, rotate by remote config; no app/package restriction documented [T8] | API key (`apiKey`) or OAuth 2.0 bearer tokens; trusted domains (≤ 20); rotate by adding a second key; no app/package restriction documented [H5][H6] |  |
-| POC cost | "Start for free": Search API "Free 2.5K monthly"; POI Details only via "Contact Sales" [T6]; rate limits by plan [T9] | Not established: pricing page shows no figures as text [H7] |  |
-| Production path plausible | Documented: "Pay as you grow", "Enterprise"; automotive-only products via Contact Sales [T6] | Not established from readable pages [H7] |  |
+| AAOS / embedded vehicle use permitted? | → Legal. Terms page not readable as text; search-index text says the licence excludes "Automotive Usage or Navigation Functionality" without a separate written agreement (unverified) [T1]. POI Details is "Automotive only" [T4][T6]. | → Legal. Platform Terms §6.3(a) (effective 18 Sep 2023) restricts integrating HERE Materials into "a … vehicle system or any component thereof, including … windshield or display screens installed in the vehicle"; a phone projecting to the vehicle screen "is not an integration" [H1] | → Legal. Terms (Version 5, 2 Feb 2024) contain no clause on vehicles, automotive, embedded or navigation use; absence is not a permission [G3] |
+| Evidence / contractual source | Developer Portal Terms and conditions [T1] (no version or date readable); POI Details conditions [T4]; Pricing [T6] | HERE Platform Terms, effective 18 September 2023: §6.3, §6.4(j), §6.4(m), §13.1, Exhibit 2 §1.3 [H1] | Terms and Conditions, Version 5, 2 February 2024 (KEPTAGO LTD, Cyprus law) [G3]; Places product page [G2]; Pricing [G4]; data licence: OpenStreetMap ODbL [G5] |
+| REST POI search | Yes: Search API `nearbySearch` (GET) [T2] | Yes: Geocoding & Search v7 `/browse` (GET) [H2] | Yes: Places API `GET /v2/places` [G1] |
+| Nearby / category search | `lat`, `lon`, `radius`, `categorySet`, `openingHours`, `limit` ≤ 100 [T2] | `at`, `in=circle:…` (≤ 250 km), `categories` (levels 1–3), `foodTypes`, `limit` [H2] | `categories` (required), `filter=circle:lon,lat,radiusMeters`, `bias`, `conditions`, `limit`, `offset`, `lang` [G1] |
+| Along-route capability | Search API `searchAlongRoute` (POST, `maxDetourTime` ≤ 3600 s, `categorySet`) [T5] | `/browse` with the `route` parameter [H2] | Not documented on the Places API reference [G1] |
+| Coffee coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
+| Family coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
+| Scenic coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
+| Rating / count | Not in Search results [T2]. POI Details API: `value`, `totalRatings` — "Automotive only", Tripadvisor conditions [T4], "Contact Sales" [T6] | Not in the documented response [H2]; `show=tripadvisor` adds ratings — "BETA, RESTRICTED", Tripadvisor branding rules [H4] | Not documented [G1][G2] |
+| Opening hours | `openingHours=nextSevenDays` → `poi.openingHours` time ranges [T2] | `openingHours` on response items (structure not detailed on the page) [H2] | Listed among result details on the product page [G2]; not in the API reference's field list [G1] |
+| Useful amenities | No parking or toilet fields in the Nearby response [T2]. Family categories: zoos, amusement parks, leisure centres; no playground code [T3] | No parking or toilet fields documented [H2][H4]. Family categories: zoo, amusement park, water park, children's museum; no playground [H3] | `conditions` filter for accessibility/amenities [G1]; facilities such as wheelchair, internet access, dogs [G2]; `leisure.playground` category exists [G1] |
+| Attribution | "© TomTom. All rights reserved…" (+ OSM ODbL notice for Orbis Maps), on a website or the app's About screen; not stated for Search results [T7] | Keep all HERE Marks and copyright notices in Results "in accordance with HERE brand guidance" (§13.1) [H1] | OpenStreetMap attribution always; Geoapify attribution on the Free plan [G3]; "Powered by Geoapify" link plus data-source attribution [G4]; ODbL notice [G5] |
+| Caching restrictions | Not documented in fetchable pages; terms not readable [T1][T9] → Legal | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days"; Exhibit 2 §1.3: only "as explicitly allowed by the caching headers" [H1] | → Legal. Product page: "allowed to cache, store, and redistribute the results … without any additional limits or restrictions" [G2]; Terms say nothing on caching [G3]; ODbL share-alike for derived databases [G5] |
+| Authentication model | API key; restrict by domain (CORS) and product; mobile apps: proxy server recommended, obfuscate, rotate by remote config; no app/package restriction documented [T8] | API key (`apiKey`) or OAuth 2.0 bearer tokens; trusted domains (≤ 20); rotate by adding a second key; no app/package restriction documented [H5][H6] | API key (`apiKey` query parameter) [G1]; key restriction options not documented on the pages read |
+| POC cost | "Start for free": Search API "Free 2.5K monthly"; POI Details only via "Contact Sales" [T6]; rate limits by plan [T9] | Not established: pricing page shows no figures as text [H7] | Free: "3,000 credits / day", no credit card; Places costs 1 credit per request [G2][G4] |
+| Production path plausible | Documented: "Pay as you grow", "Enterprise"; automotive-only products via Contact Sales [T6] | Not established from readable pages [H7] | Paid plans API 10 ($59/month) to API 250 ($609), Custom from $860 [G4]; Free plan in production "with some limitations" [G3] |
 
 Cells cite the provider's own pages ([T…] TomTom, [H…] HERE, [G…] Geoapify) listed under Evidence. Licence rows quote and point to Legal; they never answer yes or no (docs/05 §4: engineering does not interpret licence language). Coverage rows wait for the live matrix.
 
@@ -121,6 +121,32 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
 
 ### Geoapify
 
+Named at kickoff (2026-10-05) as the OSM-backed candidate, **for evaluation only**.
+
+- **[G1]** Places API reference. <https://apidocs.geoapify.com/docs/places/>.
+  - `GET https://api.geoapify.com/v2/places` with `apiKey`, `categories` (required), `filter` (`circle:lon,lat,radiusMeters`, `rect:…`, `place:…`), `bias`, `conditions` ("Additional filters such as accessibility or amenities"), `limit`, `offset`, `lang`.
+  - Response: `name`, `lat`, `lon`, `place_id`, `distance` ("to the biased location"), `categories`.
+  - Categories: `catering.cafe`, `catering.cafe.coffee`, `catering.restaurant`, `leisure.park`, `leisure.playground`, `entertainment.zoo`, `entertainment.theme_park`, `tourism.attraction.viewpoint`, `entertainment.museum`, `natural.beach`, `natural.mountain.peak`.
+  - No along-route filter and no rating fields on the page.
+- **[G2]** Places API product page. <https://www.geoapify.com/places-api/>.
+  - "you are allowed to cache, store, and redistribute the results obtained from the API without any additional limits or restrictions".
+  - Results carry opening hours and facilities (for example "wheelchair accessibility", "internet access", "dogs"), and a `datasource` with "sourcename: openstreetmap" and "attribution: © OpenStreetMap contributors".
+  - OpenStreetMap is the "primary data source".
+  - "For each request made to the Places API, you will be charged 1 credit".
+- **[G3]** Terms and Conditions, "2 February 2024 (Version 5)", KEPTAGO LTD (Cyprus law). <https://www.geoapify.com/terms-and-conditions/>.
+  - **No clause** on vehicles, automotive, embedded devices or navigation use, and **no clause** on caching or storing results. That absence is not a permission. **→ Legal.**
+  - Verbatim: "When using the Services, you must always provide OpenStreetMap attribution."; "Geoapify attribution is mandatory when using Free subscription plan."; "Different APIs may require additional attribution…".
+  - On the Free plan: "The commercial use of the Free-package is allowed in the development and, with some limitations, in the production phase."
+- **[G4]** Pricing. <https://www.geoapify.com/pricing/>.
+  - Free: "3,000 credits / day", "No credit card required"; "You can use the Free plan for commercial websites, apps, and business projects, including in production."
+  - Paid, monthly: API 10 $59, API 25 $109, API 50 $179, API 100 $299, API 250 $609; Custom "from $860".
+  - Attribution: "Powered by Geoapify" link plus data-source attribution.
+  - Note: the production wording differs from [G3] ("with some limitations").
+- **[G5]** Data licence: OpenStreetMap copyright and licence. <https://www.openstreetmap.org/copyright>.
+  - "Open Data Commons Open Database License (ODbL)"; "Provide credit to OpenStreetMap by displaying our attribution notice" and "Make clear that the data is available under the Open Database License".
+  - Share-alike: "If you alter or build upon our data, you may distribute the result only under the same license."
+  - This is the data licence, separate from Geoapify's service terms [G3].
+
 ## Test matrix (selected provider, and each candidate tested)
 
 | Category | Greystones | Dublin | Galway | Notes |
@@ -150,12 +176,12 @@ Per query, record: place ID, name, coordinates, place types, distance, rating, r
 
 | Category | TomTom | HERE | Geoapify |
 | --- | --- | --- | --- |
-| Coffee | CAFE_PUB ("café", "coffee shop") [T3] | 100-1100-0010 Coffee Shop (100-1100 Coffee-Tea) [H3] |  |
-| Food | RESTAURANT [T3] | 100-1000 Restaurant [H3] |  |
-| Outdoors | PARK_RECREATION_AREA, BEACH [T3] | 550-5510-0202 Park-Recreation Area, 550-5510-0205 Beach, 350-3522-0239 Forest… [H3] |  |
-| Family | ZOOS_ARBORETA_BOTANICAL_GARDEN, AMUSEMENT_PARK, LEISURE_CENTER; no playground code [T3] | 550-5520-0208 Zoo, 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum; no playground [H3] |  |
-| Scenic | SCENIC_PANORAMIC_VIEW ("scenic/panoramic view", "observation point") [T3] | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks [H3] |  |
-| Explore | IMPORTANT_TOURIST_ATTRACTION, MUSEUM [T3] | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum [H3] |  |
+| Coffee | CAFE_PUB ("café", "coffee shop") [T3] | 100-1100-0010 Coffee Shop (100-1100 Coffee-Tea) [H3] | `catering.cafe`, `catering.cafe.coffee` [G1] |
+| Food | RESTAURANT [T3] | 100-1000 Restaurant [H3] | `catering.restaurant` [G1] |
+| Outdoors | PARK_RECREATION_AREA, BEACH [T3] | 550-5510-0202 Park-Recreation Area, 550-5510-0205 Beach, 350-3522-0239 Forest… [H3] | `leisure.park`, `natural.beach` [G1] |
+| Family | ZOOS_ARBORETA_BOTANICAL_GARDEN, AMUSEMENT_PARK, LEISURE_CENTER; no playground code [T3] | 550-5520-0208 Zoo, 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum; no playground [H3] | `leisure.playground`, `entertainment.zoo`, `entertainment.theme_park` [G1] |
+| Scenic | SCENIC_PANORAMIC_VIEW ("scenic/panoramic view", "observation point") [T3] | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks [H3] | `tourism.attraction.viewpoint`, `natural.mountain.peak` [G1] |
+| Explore | IMPORTANT_TOURIST_ATTRACTION, MUSEUM [T3] | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum [H3] | `entertainment.museum`; `tourism.attraction` family (parent of viewpoint) [G1] |
 
 ### Selected provider
 
