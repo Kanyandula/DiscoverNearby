@@ -65,10 +65,12 @@ class StubNavigationActivityTest {
     // A second hand-off while the stub is still open replaces the first, on screen and in the log.
     @Test
     fun aLaterHandOffReplacesTheFirst() {
-        launch(GREYSTONES).newIntent(intent(WICKLOW))
+        val stub = launch(GREYSTONES).newIntent(intent(WICKLOW))
         rule.onNodeWithText(WICKLOW).assertIsDisplayed()
         rule.onNodeWithText(GREYSTONES).assertDoesNotExist()
         assertEquals(listOf("received $GREYSTONES", "received $WICKLOW"), logged())
+        // A day/night relaunch rebuilds from the activity's intent, so it must be the latest hand-off.
+        assertEquals(WICKLOW, stub.get().intent.dataString)
     }
 
     @Test
