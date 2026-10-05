@@ -76,12 +76,59 @@ Source references:
   - `performActionHelper` returns false for a node id that is no longer in the tree.
   - `findFocus(FOCUS_INPUT)` returns a node only once that node's info has been fetched.
 
+### Car App Library rotary probe (DN-SP-002, 2026-10-05)
+
+Option A's premise, that templates give rotary a working journey, was tested on the same reference image.
+
+**The probe**
+- [`tools/cal-rotary-probe/`](../../tools/cal-rotary-probe/README.md): a throwaway, standalone build, not in the root build or CI.
+- Car App Library 1.7.0. Template host 1.007 on the image; it negotiated Car API level 7.
+- Grid, list and pane templates with static data, and a Navigate action. The manifest follows the AAOS guide, including `automotive_app_desc` (`<uses name="template"/>`).
+- Driven with the same `cmd car_service inject-rotary` / `inject-key` as V7.
+
+**Result: did not pass.** The journey (grid → list → details → Navigate → Back) could not be completed by rotary in any run.
+
+| Launch | Rotary entered the probe? | What happened |
+| --- | --- | --- |
+| The first launch of the session (just after the first install) | Yes, once | Grid order Coffee → Food → Outdoors → Family → Scenic → Explore, host-drawn ring visible, stops at the end; the header icon never takes focus ([5](0002/5-cal-grid-focus.png)). **Not reproduced**, not even after uninstall and a fresh install. |
+| Relaunch after force-stop; Home then reopen; reinstall then start; touch reset then start; uninstall then fresh install; return from another app | No (all 6) | The first turn focused a system-bar button (the top bar's "Driver", or the bottom bar) and stayed there ([6](0002/6-cal-focus-outside.png)). Nudges up/down moved between the system bars and skipped the probe. Select then drove system UI: the Dialer, the profile switcher, Settings ([7](0002/7-cal-select-drives-system-ui.png)) |
+| After the review: `automotive_app_desc` added; entering from the Compose app with the grid rendered and a 30 s wait | No (3 of 3) | The ring was already on "Driver" before any turn. Turn 1 went to "Driver" twice, and once to the probe's whole window rather than a tile |
+| The same entry test with Car App Library **1.4.0** | No (3 of 3) | Same as above |
+| Exception, outside the launch tests | Yes | Once, after Back from a Settings screen, focus landed on the probe's Coffee tile |
+| Same stuck state, then the **Compose** app launched | (Compose) Yes | The first turn focused Coffee, the next Food |
+
+RotaryController log for the probe's window, trimmed:
+
+```text
+Failed to find focused node in … Rect(0, 0 - 1024, 768) android.widget.FrameLayout
+Restored focus in root failed
+Initialize focus inside the window: … type=TYPE_SYSTEM …
+onAccessibilityEvent: EventType: TYPE_VIEW_FOCUSED; PackageName: com.google.android.apps.automotive.templates.host
+event source: … Rect(136, 188 - 324, 394)          ← the probe's first tile
+Ignoring focus event because focus has since moved
+```
+
+The service knows the host and the probe (`hostApp=com.google.android.apps.automotive.templates.host`, `clientApps=[com.kanyandula.calprobe]`).
+
+A first scripted run was discarded: it turned before the probe had rendered (a cold start takes 15–20 s). It showed the same symptom: focus went to the bottom bar's Phone button.
+
+**Reading.** On entry, RotaryController looks for a focus target inside the template app's window synchronously, finds none, and initialises focus in a system bar. The template host then focuses the app's first tile asynchronously, but the service has already moved on and ignores that event. This matches the AOSP `android13-release` RotaryService source: `initFocus` → `restoreDefaultFocusInRoot`, then `handleViewFocusedEvent` drops focus events it isn't waiting for.
+
+This is a race. Once it was lost in these runs, rotation and nudges did not bring focus back into the app, with the one exception above. Adding `automotive_app_desc` and switching library versions did not change the result. The race's client half (`CarAppActivity`) ships inside the app as Car App Library code.
+
+The list, details, Navigate and Back steps were never reached by rotary, so templates' behaviour there is unknown.
+
+**Not tested** (any of these could change the picture):
+- a freshly started rotary service or a cold-booted emulator, the condition of the one success;
+- a newer AAOS image or template host;
+- Car App Library 1.9.0, still alpha.
+
 ## Options
 
 ### A. Car App Library templates
 
-The host renders the templates and owns focus and rotary, so V7 becomes the platform's problem. Templates also
-give a Play route (V8).
+The premise: the host renders the templates and owns focus and rotary, so V7 would become the platform's problem.
+The probe below tested this premise. Templates also give a Play route (V8).
 
 - **Cost:** the `ui/` layer is rebuilt as templates (grid, list and pane for Discover, Recommendations and Place
   Details), and the docs go back to their pre-Revision 4 UI decisions. That reopens V1 (Car App API level) and V2
@@ -89,6 +136,7 @@ give a Play route (V8).
 - **Available:** the reference image ships the template host (`com.google.android.apps.automotive.templates.host`).
 - **Unaffected:** `discovery/`, `model/`, `places/`, `location/` and `car/` already keep Compose out, by rule.
 - **Trade-off:** the visual spec (`docs/design/`) is constrained to what the templates allow.
+- **Rotary probe: did not pass** (DN-SP-002, Evidence above). On the reference image, rotary entered the template app on one launch, the first of the session, and in none of 12 later launches. Focus stayed in the system bars instead. As tested, the template path (Car App Library 1.7.0 / 1.4.0, host 1.007) showed its own entry failure on this image, so the premise that templates make V7 "the platform's problem" was not confirmed. No engineering recommendation for Option A follows from the probe.
 
 ### B. Keep Compose
 

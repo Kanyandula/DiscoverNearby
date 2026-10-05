@@ -31,6 +31,8 @@ Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-naviga
 (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
 Smoke baseline (DN-M0-007): reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it when
 the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
+Car App Library rotary probe (DN-SP-002): `tools/cal-rotary-probe/`, a standalone build (not in the root build or CI),
+evidence for ADR-002 (it did not pass; see ADR-002 Evidence); delete it if ADR-002 chooses Compose.
 Next: ADR-002 decision (Product Lead) before more UI work.
 
 ## Stack (Revision 4)
