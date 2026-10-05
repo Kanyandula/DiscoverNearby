@@ -1,9 +1,9 @@
 # ADR-001: POI Provider
 
-**Status:** Proposed — spike not yet run  
+**Status:** Proposed — documentation phase complete (2026-10-05); live matrix pending dev-only keys and an assigned licensing owner  
 *(Outcome at end of the 3-day spike, exactly one of: **Selected** · **Provisionally selected, pending licensing confirmation** · **No viable provider**)*  
-**Date:** [DATE]  
-**Deciders:** Android/Tech Lead (technical) · Product Lead (data quality) · [Product/Legal/Business owner] (licensing)
+**Date:** 2026-10-05 (documentation phase)  
+**Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; not yet assigned)
 
 ---
 
@@ -148,6 +148,8 @@ Named at kickoff (2026-10-05) as the OSM-backed candidate, **for evaluation only
   - This is the data licence, separate from Geoapify's service terms [G3].
 
 ## Test matrix (selected provider, and each candidate tested)
+
+Pending the gate: 9 queries per provider (27 in total) once dev-only keys are in `local.properties` and the licensing owner is assigned. No responses are stored until the terms allow (V6b).
 
 | Category | Greystones | Dublin | Galway | Notes |
 | --- | --- | --- | --- | --- |
