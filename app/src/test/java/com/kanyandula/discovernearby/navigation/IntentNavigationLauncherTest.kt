@@ -2,7 +2,6 @@ package com.kanyandula.discovernearby.navigation
 
 import android.content.ContextWrapper
 import android.content.Intent
-import com.kanyandula.discovernearby.model.GeoPoint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -11,8 +10,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
-
-private val HARBOUR_ROASTERS = GeoPoint(53.148, -6.0603)
 
 @RunWith(RobolectricTestRunner::class)
 class IntentNavigationLauncherTest {
