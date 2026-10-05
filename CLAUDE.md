@@ -21,7 +21,8 @@ apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004):
 `DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
 launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows open
 `PlaceDetailsRoute(place, distanceMeters)` (JSON route via `JsonNavType`), `PlaceDetailsViewModel` falls back to the summary,
-`NavigationLauncher` is a fake until DN-M3-001. Location (DN-M0-006): `AndroidLocationProvider` (GPS/network,
+Navigate hands off through `IntentNavigationLauncher` (DN-M3-001:
+`ACTION_VIEW geo:`, failure → `NavigationUnavailable`). Location (DN-M0-006): `AndroidLocationProvider` (GPS/network,
 8 s fix timeout; approximate-only uses the platform's recent coarse fix), Grant only while restrictions allow it,
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
 (DN-M0-011): 4 dp focus ring on the tiles, `RotaryContractTest`; V7 **Not workable** after in-app navigation —
