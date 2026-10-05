@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <!--
+            The emulator's stand-in for a navigation app (docs/03 §11): any app's ACTION_VIEW geo: intent
+            resolves here. singleTask, so a later hand-off reaches the open stub instead of being dropped.
+        -->
+        <activity
+            android:name=".StubNavigationActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+
+            <!-- Shown while driving, like a real navigation app. -->
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="geo" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

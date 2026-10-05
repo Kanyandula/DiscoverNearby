@@ -26,11 +26,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      # compileSdk and the android.car.jar compileOnly path both come from compileApi in app/build.gradle.kts.
+      # compileSdk for every module (and the app's android.car.jar path) comes from gradle/libs.versions.toml.
       - name: Install Android SDK platform
         run: |
-          api=$(sed -n 's/^val compileApi = \([0-9][0-9]*\)$/\1/p' app/build.gradle.kts)
-          test -n "$api" || { echo "compileApi not found in app/build.gradle.kts"; exit 1; }
+          api=$(sed -n 's/^android-compileSdk = "\([0-9][0-9]*\)"$/\1/p' gradle/libs.versions.toml)
+          test -n "$api" || { echo "android-compileSdk not found in gradle/libs.versions.toml"; exit 1; }
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$api.0" > /dev/null
 
       - name: Detekt, lint, unit tests, debug build
