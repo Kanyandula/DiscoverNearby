@@ -45,7 +45,7 @@ class PlaceDetailsViewModel(
         }
     }
 
-    // Navigate never waits for details (docs/02 §7). Any hand-off failure shows NavigationUnavailable (docs/03 §20).
+    // Navigate never waits for details (docs/02 §7). Any hand-off failure shows NavigationUnavailable (docs/03 §16).
     fun navigate() {
         navigation.navigateTo(place.location).onFailure {
             state.value = PlaceDetailsUiState.NavigationUnavailable(state.value.summary)

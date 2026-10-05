@@ -85,7 +85,7 @@ class PlaceDetailsViewModelTest {
         assertEquals(place.location, launcher.lastDestination)
     }
 
-    // docs/03 §20: any hand-off failure becomes NavigationUnavailable, keeping the place for the header.
+    // docs/03 §16: any hand-off failure becomes NavigationUnavailable, keeping the place for the header.
     @Test
     fun aFailedHandOffShowsNavigationUnavailable() = runTest {
         places.details = { loaded }
