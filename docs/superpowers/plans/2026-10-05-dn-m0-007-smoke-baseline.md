@@ -46,6 +46,17 @@
    - parked;
    - stub installed.
 
+## Outcome (2026-10-05)
+
+Read with the PR and ticket notes. Where the run differed from this plan:
+- `DiscoverScreenTest` has 4 tests, not 6.
+- SLOW Coffee ends in the timeout message, not a list. Its 10 s delay outlasts the 8 s provider timeout (Scenario O).
+- Leaving the app lands on `com.android.car.mapsplaceholder`.
+- `D="adb … shell"` doesn't word-split in zsh, so a function was used instead.
+- `dumpsys location` is stale until an app requests location, so location was checked through the app.
+- The image ships Play services and the Play Store.
+- The smoke found a regression from DN-M0-008: the stub had no `versionCode`, so installs failed as a downgrade. It is fixed in this branch.
+
 ## Review Focus
 
 1. **The wrong configuration gets recorded,** for example from another running emulator, an arm image or a `user` build. Expect values read from the running device (`getprop`) and the AVD's `config.ini`, not from the plan's "Planned" column. Pinned by Task 1 Step 1.

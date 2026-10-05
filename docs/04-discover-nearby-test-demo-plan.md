@@ -48,7 +48,7 @@ All scenarios run on one recorded configuration so results are repeatable. Fill 
 | Android Studio version | Current stable | Android Studio Quail 2026.1 (AI-261.23567.138.2611.15483818); emulator 36.4.9.0 |
 | Compose BOM version | Pinned at M0 | `2026.09.00` |
 | `geo:` handler installed by default? | Record it | No. With the stub installed, `query-activities` (users 0 and 10) finds only the stub |
-| Stub navigation app | `tools/stub-navigation` APK installed | Installed with `./gradlew :stub-navigation:installDebug` (DN-M0-008) |
+| Stub navigation app | `tools/stub-navigation` APK installed | Installed with `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug` (DN-M0-008) |
 
 **Why this AVD (proven on NyasaPlayer):** NyasaPlayer's `docs/AAOS_DRIVING_STATE_TESTING.md` established that:
 
@@ -98,7 +98,7 @@ adb emu geo fix -9.0568 53.2707    # Location C — Galway city
 
 Coordinates live in test configuration (Engineering Plan §7) and are not re-typed per run.
 
-A new fix reaches apps on their next location request. Before re-querying, give it about 10 s: in the M0 check, a request 2 s after a new fix still returned the previous place once. `dumpsys location` shows a stale "last location" until some app requests location, so check a fix through the app, not `dumpsys`.
+A new fix reaches apps on their next location request. Before re-querying, give it at least 12 s: in the M0 check, a request 2 s after a new fix still returned the previous place once, and one 12 s later returned the new place. `dumpsys location` shows a stale "last location" until some app requests location, so check a fix through the app, not `dumpsys`.
 
 ### Simulating Park / Drive
 
@@ -130,7 +130,7 @@ adb -s emulator-5554 shell cmd car_service get-do-activities <applicationId>    
 Notes from NyasaPlayer:
 
 - **Idling is not moving.** Idling reports only `NO_VIDEO`, while moving reports `UxR: 255`. Run Drive scenarios in the **moving** state, using continuous speed events.
-- **Gear dominates.** Speed 0 in Drive still counts as moving.
+- **Gear dominates.** Speed 0 in Drive still counts as moving. (Not what the M0 check saw on this AVD: after a single speed event decayed, Drive read idling, `1`. Hold moving with continuous events.)
 - **If the `Port:` timestamp doesn't change,** your input never reached the platform.
 - **Don't use `adb reboot`.** It wedges the emulator's VHAL bridge. Kill and relaunch instead: `adb -s emulator-5554 emu kill`.
 
@@ -142,7 +142,7 @@ Use Extended controls → Car rotary (rotate, nudge, select, Back). Rotary verif
 
 1. Build and install `tools/stub-navigation`: `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug`.
 2. Confirm it appears in the navigation-intent query above.
-3. Optional sanity check, independent of Discover Nearby: send a navigation intent from adb and confirm the stub displays it.
+3. Optional sanity check, independent of Discover Nearby: send a navigation intent from adb (`adb -s emulator-5554 shell am start -W -a android.intent.action.VIEW -d "geo:53.1440,-6.0633"`) and confirm the stub displays it.
 4. During tests, read the received destination on the stub screen or in logcat:
 
 ```bash
@@ -406,13 +406,13 @@ The hard requirements are:
 
 ### M0 smoke (DN-M0-007)
 
-Run on the §2 configuration, from a known state: app and stub installed from the build under test, `pm clear --user 10`, location on for user 10, Location A, parked. Record what each step shows.
+Run on the §2 configuration, from a known state: app and stub installed from the build under test (`ANDROID_SERIAL=emulator-5554 ./gradlew :app:installDebug :stub-navigation:installDebug`), `adb -s emulator-5554 shell pm clear --user 10 com.kanyandula.discovernearby`, location on for user 10 (`adb -s emulator-5554 shell cmd location set-location-enabled true --user 10`), Location A, parked. Record what each step shows.
 
 1. **Launch** — the Discover grid appears; no block screen.
 2. **Core flow (touch)** — Coffee → Recommendations (location granted through the app's own flow on first use) → first row → Place Details; Navigate is shown.
-3. **Stub** — the stub navigation app answers the `geo:` query (§2) and an adb hand-off shows on it (§2 "Stub navigation app setup", step 3). The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
+3. **Stub** — the stub navigation app answers the `geo:` query (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a android.intent.action.VIEW -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
 4. **Rotary (V7)** — without touch: rotate through the grid, select, then rotate on Recommendations and Place Details and Back twice (Scenario F). Record against the docs/05 §9 V7 row.
-5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash.
+5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash. SLOW (10 s) outlasts the 8 s provider timeout, so that load ends in the timeout message with Try Again (Scenario O); a load that completes after a gear change is not covered.
 6. **Deepest path and Back** — in Drive: Discover → Recommendations → Place Details → Back → Back ends on Discover, and Back on Discover leaves the app (Scenario T).
 
 ### Setup
