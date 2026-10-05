@@ -37,3 +37,6 @@ val NavigateRadius = 20.dp
 val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
 val InfoIconGap = 12.dp
+
+// Rotary focus (docs/02 §16): a 4 px primary outline on the focused element.
+val FocusRingWidth = 4.dp
