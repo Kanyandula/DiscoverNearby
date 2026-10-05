@@ -362,7 +362,7 @@ Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
 | ID | Decision / item | Status | Owner | Blocks |
 | --- | --- | --- | --- | --- |
-| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🔴 **Open** — provider spike (§4) | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
+| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🔴 **Open** — provider spike (§4): documentation phase recorded in ADR-001 (2026-10-05); live matrix and licensing pending keys and a licensing owner | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
