@@ -8,8 +8,8 @@ import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
 import com.kanyandula.discovernearby.discovery.DiscoverUseCase
 import com.kanyandula.discovernearby.location.AndroidLocationProvider
 import com.kanyandula.discovernearby.location.LocationProvider
+import com.kanyandula.discovernearby.navigation.IntentNavigationLauncher
 import com.kanyandula.discovernearby.navigation.NavigationLauncher
-import com.kanyandula.discovernearby.navigation.fake.FakeNavigationLauncher
 import com.kanyandula.discovernearby.places.PlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakeScenario
@@ -30,8 +30,7 @@ class AppContainer(context: Context) {
     val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
 
-    // ponytail: DN-M3-001 swaps in IntentNavigationLauncher (geo: intent, application Context).
-    val navigationLauncher: NavigationLauncher = FakeNavigationLauncher()
+    val navigationLauncher: NavigationLauncher = IntentNavigationLauncher(context.applicationContext)
     val discoverUseCase = DiscoverUseCase(placesRepository, locationProvider, BasicRecommendationEngine())
 
     /** Debug builds only: serve the named [FakeScenario], for the docs/04 §7 emulator scenarios. */
