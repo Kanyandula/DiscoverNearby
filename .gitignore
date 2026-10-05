@@ -13,6 +13,14 @@ local.properties
 /.idea/shelf
 /.idea/tasks.xml
 /.idea/usage.statistics.xml
+# IDE-generated project state (DN-M0-013): not shared
+/.idea/.name
+/.idea/AndroidProjectSystem.xml
+/.idea/appInsightsSettings.xml
+/.idea/compiler.xml
+/.idea/gradle.xml
+/.idea/misc.xml
+/.idea/runConfigurations.xml
 .DS_Store
 build/
 /captures

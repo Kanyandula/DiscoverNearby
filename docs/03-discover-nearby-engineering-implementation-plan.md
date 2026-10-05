@@ -382,7 +382,13 @@ The screen collects it with `collectAsStateWithLifecycle()` and recomposes on ch
 
 ### Location source
 
-Use `LocationManager` with `ACCESS_FINE_LOCATION`. In M0, check whether Fused Location Provider is available on the chosen emulator image. Use it only if it is present and offers a clear benefit.
+Use `LocationManager`: GPS first, then network where the car has one. Location is read only when discovery asks (docs/01 §14). Either location permission is enough, so an approximate-only grant still finds places (DN-M0-006):
+
+- **Precise (fine granted):** a fresh fix, waiting up to 8 s (`LOCATION_TIMEOUT_MILLIS`); failing that, a cached fix at most 2 minutes old.
+- **Approximate only:** the platform's cached coarse fix, at most 15 minutes old. A fresh request would not help: the platform turns it into a low-power request that GPS never serves, and it refreshes an approximate-only app's fix only about every 10 minutes.
+- **No fix:** `Unavailable`.
+
+The reference image has a Play-services fused provider, but for a single fix it adds nothing, so it isn't used.
 
 ```kotlin
 sealed interface LocationResult {
@@ -398,9 +404,9 @@ interface LocationProvider {
 
 ### Permission flow
 
-- Permission is requested with `rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission())`.
+- Permission is requested with `rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions())`, fine and coarse together in one dialog; either grant counts.
 - Grant is offered **only when `distractionOptimizationRequired` is false** (in practice, Park on the reference emulator). Templates enforced this with `ParkedOnlyOnClickListener`; in Compose the app enforces it, from `DrivingRestrictions`.
-- `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired)` as a message state. `canRequest` updates live when the restrictions change.
+- `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired, denied)` as a message state. `canRequest` updates live when the restrictions change; `denied` switches to the denied copy after the user declines.
 - On grant, discovery continues for the selected category. On denial, show the denied message with Grant and Back.
 
 ### Test locations
@@ -702,7 +708,7 @@ sealed interface RecommendationsUiState {
         val recommendations: List<Recommendation>,
     ) : RecommendationsUiState
     data object Empty : RecommendationsUiState
-    data class PermissionRequired(val canRequest: Boolean) : RecommendationsUiState
+    data class PermissionRequired(val canRequest: Boolean, val denied: Boolean = false) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 
