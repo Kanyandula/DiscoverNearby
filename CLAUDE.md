@@ -26,6 +26,7 @@ launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows op
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
 (DN-M0-011): 4 dp focus ring on the tiles, `RotaryContractTest`; V7 **Not workable** after in-app navigation —
 the UI stack waits on ADR-002 (Compose vs Car App Library). Check docs/05 §9 V7 before rotary work.
+Next: ADR-002 decision (Product Lead) before more UI work.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -69,7 +70,8 @@ the UI stack waits on ADR-002 (Compose vs Car App Library). Check docs/05 §9 V7
   Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX
   restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per
-  UX spec §16, initial focus on first item, focus restored after Back (V7 failed — ADR-002).
+  UX spec §16, initial focus on first item. Don't restore focus in-app after Back: it trapped rotation
+  (DN-M0-011). V7 failed, see ADR-002.
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).
