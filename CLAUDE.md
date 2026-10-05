@@ -98,7 +98,8 @@ Next: ADR-002 decision (Product Lead) before more UI work.
 - Never `adb reboot`; kill and relaunch the emulator instead.
 
 ## Secrets
-Provider keys live in `local.properties` → BuildConfig. Never commit or log keys or raw coordinates.
+Provider keys live in `local.properties` → BuildConfig. Never commit or log keys or raw coordinates
+(except the stub navigation app's `StubNav` log, which docs/03 §11 requires).
 
 ## Ticket workflow
 
