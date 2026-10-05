@@ -33,22 +33,22 @@ If provisionally selected: risk accepted by [Product Lead name] on [date]; licen
 
 | Question | TomTom | HERE | OSM option |
 | --- | --- | --- | --- |
-| AAOS / embedded vehicle use permitted? | → Legal. Terms page not readable as text; search-index text says the licence excludes "Automotive Usage or Navigation Functionality" without a separate written agreement (unverified) [T1]. POI Details is "Automotive only" [T4][T6]. |  |  |
-| Evidence / contractual source | Developer Portal Terms and conditions [T1] (no version or date readable); POI Details conditions [T4]; Pricing [T6] |  |  |
-| REST POI search | Yes: Search API `nearbySearch` (GET) [T2] |  |  |
-| Nearby / category search | `lat`, `lon`, `radius`, `categorySet`, `openingHours`, `limit` ≤ 100 [T2] |  |  |
-| Along-route capability | Search API `searchAlongRoute` (POST, `maxDetourTime` ≤ 3600 s, `categorySet`) [T5] |  |  |
-| Coffee coverage | Pending the live matrix |  |  |
-| Family coverage | Pending the live matrix |  |  |
-| Scenic coverage | Pending the live matrix |  |  |
-| Rating / count | Not in Search results [T2]. POI Details API: `value`, `totalRatings` — "Automotive only", Tripadvisor conditions [T4], "Contact Sales" [T6] |  |  |
-| Opening hours | `openingHours=nextSevenDays` → `poi.openingHours` time ranges [T2] |  |  |
-| Useful amenities | No parking or toilet fields in the Nearby response [T2]. Family categories: zoos, amusement parks, leisure centres; no playground code [T3] |  |  |
-| Attribution | "© TomTom. All rights reserved…" (+ OSM ODbL notice for Orbis Maps), on a website or the app's About screen; not stated for Search results [T7] |  |  |
-| Caching restrictions | Not documented in fetchable pages; terms not readable [T1][T9] → Legal |  |  |
-| Authentication model | API key; restrict by domain (CORS) and product; mobile apps: proxy server recommended, obfuscate, rotate by remote config; no app/package restriction documented [T8] |  |  |
-| POC cost | "Start for free": Search API "Free 2.5K monthly"; POI Details only via "Contact Sales" [T6]; rate limits by plan [T9] |  |  |
-| Production path plausible | Documented: "Pay as you grow", "Enterprise"; automotive-only products via Contact Sales [T6] |  |  |
+| AAOS / embedded vehicle use permitted? | → Legal. Terms page not readable as text; search-index text says the licence excludes "Automotive Usage or Navigation Functionality" without a separate written agreement (unverified) [T1]. POI Details is "Automotive only" [T4][T6]. | → Legal. Platform Terms §6.3(a) (effective 18 Sep 2023) restricts integrating HERE Materials into "a … vehicle system or any component thereof, including … windshield or display screens installed in the vehicle"; a phone projecting to the vehicle screen "is not an integration" [H1] |  |
+| Evidence / contractual source | Developer Portal Terms and conditions [T1] (no version or date readable); POI Details conditions [T4]; Pricing [T6] | HERE Platform Terms, effective 18 September 2023: §6.3, §6.4(j), §6.4(m), §13.1, Exhibit 2 §1.3 [H1] |  |
+| REST POI search | Yes: Search API `nearbySearch` (GET) [T2] | Yes: Geocoding & Search v7 `/browse` (GET) [H2] |  |
+| Nearby / category search | `lat`, `lon`, `radius`, `categorySet`, `openingHours`, `limit` ≤ 100 [T2] | `at`, `in=circle:…` (≤ 250 km), `categories` (levels 1–3), `foodTypes`, `limit` [H2] |  |
+| Along-route capability | Search API `searchAlongRoute` (POST, `maxDetourTime` ≤ 3600 s, `categorySet`) [T5] | `/browse` with the `route` parameter [H2] |  |
+| Coffee coverage | Pending the live matrix | Pending the live matrix |  |
+| Family coverage | Pending the live matrix | Pending the live matrix |  |
+| Scenic coverage | Pending the live matrix | Pending the live matrix |  |
+| Rating / count | Not in Search results [T2]. POI Details API: `value`, `totalRatings` — "Automotive only", Tripadvisor conditions [T4], "Contact Sales" [T6] | Not in the documented response [H2]; `show=tripadvisor` adds ratings — "BETA, RESTRICTED", Tripadvisor branding rules [H4] |  |
+| Opening hours | `openingHours=nextSevenDays` → `poi.openingHours` time ranges [T2] | `openingHours` on response items (structure not detailed on the page) [H2] |  |
+| Useful amenities | No parking or toilet fields in the Nearby response [T2]. Family categories: zoos, amusement parks, leisure centres; no playground code [T3] | No parking or toilet fields documented [H2][H4]. Family categories: zoo, amusement park, water park, children's museum; no playground [H3] |  |
+| Attribution | "© TomTom. All rights reserved…" (+ OSM ODbL notice for Orbis Maps), on a website or the app's About screen; not stated for Search results [T7] | Keep all HERE Marks and copyright notices in Results "in accordance with HERE brand guidance" (§13.1) [H1] |  |
+| Caching restrictions | Not documented in fetchable pages; terms not readable [T1][T9] → Legal | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days"; Exhibit 2 §1.3: only "as explicitly allowed by the caching headers" [H1] |  |
+| Authentication model | API key; restrict by domain (CORS) and product; mobile apps: proxy server recommended, obfuscate, rotate by remote config; no app/package restriction documented [T8] | API key (`apiKey`) or OAuth 2.0 bearer tokens; trusted domains (≤ 20); rotate by adding a second key; no app/package restriction documented [H5][H6] |  |
+| POC cost | "Start for free": Search API "Free 2.5K monthly"; POI Details only via "Contact Sales" [T6]; rate limits by plan [T9] | Not established: pricing page shows no figures as text [H7] |  |
+| Production path plausible | Documented: "Pay as you grow", "Enterprise"; automotive-only products via Contact Sales [T6] | Not established from readable pages [H7] |  |
 
 Cells cite the provider's own pages ([T…] TomTom, [H…] HERE, [G…] Geoapify) listed under Evidence. Licence rows quote and point to Legal; they never answer yes or no (docs/05 §4: engineering does not interpret licence language). Coverage rows wait for the live matrix.
 
@@ -89,6 +89,36 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
 
 ### HERE
 
+- **[H1]** HERE Platform Terms, effective "Monday, 18 September, 2023". <https://www.here.com/en-gb/terms/here-platform-terms-september-2023> (the canonical <https://legal.here.com/en-gb/terms/here-platform-terms> redirects here). Verbatim:
+  - **§6.3(a), restricts:** "Integrate HERE Materials into a ground, aerial, manned, or unmanned vehicle system or any component thereof, including vehicle positioning sensors (for example, GPS, triangulation, odometer, compass, gyroscope, or accelerometer), navigation terminals or black boxes, and windshield or display screens installed in the vehicle."
+  - **§6.3(a), exception:** "a mobile device that is connected to a vehicle for the purpose of projecting on the vehicle's windshield or display screen the visual information that is displayed on the mobile device screen is not an integration".
+  - **§6.3(b):** no use "for or in connection with any systems or functions for automatic or autonomous control of … vehicle behavior…".
+  - **§6.4(j):** no "Cache or store outside of the Platform any Results that include anything from the use of HERE Content or Location Services for more than 30 days…".
+  - **Exhibit 2 §1.3:** "you may not use HERE Materials in a manner that pre-fetches, caches, or stores data or Results, except as explicitly allowed by the caching headers (HTTP/1.1 standard) returned by HERE Location Services".
+  - **§13.1:** "You may not remove or obfuscate any HERE Marks or copyright notices affixed to or included in HERE Materials or Results. You will ensure that all HERE Marks and copyright notices are present in the HERE Materials and Result in accordance with HERE brand guidance".
+  - **§6.4(m):** no "incorrect attribution of any information derived from the Platform".
+
+  **→ Legal.**
+- **[H2]** Geocoding & Search v7, Browse. <https://docs.here.com/geocoding-and-search/docs/endpoint-browse-brief>.
+  - `GET https://browse.search.hereapi.com/v1/browse` with `at`, `in=circle:…` (up to 250 km), `categories` (levels 1–3), `foodTypes`, `limit`, `lang`, and `route` ("search along the route").
+  - Response items: `title`, `categories`, `distance`, `foodTypes`, `chains`. `openingHours`, `contacts` and `references` are mentioned without detail.
+  - No rating field.
+- **[H3]** Geocoding & Search v7, Places category system. <https://docs.here.com/geocoding-and-search/docs/places-category-system-full>.
+  - 100-1100-0010 Coffee Shop (100-1100 Coffee-Tea); 100-1000 Restaurant.
+  - 550-5510-0202 Park-Recreation Area; 550-5510-0205 Beach; 350-3522-0239 Forest, Heath or Other Vegetation.
+  - 550-5520-0208 Zoo; 550-5520-0207 Amusement Park; 550-5520-0357 Water Park; 300-3100-0027 Children's Museum.
+  - 550-5510-0242 Scenic Point; 350-3510-0238 Mountain Peaks.
+  - 300-3000-0023 Tourist Attraction; 300-3000 Landmark-Attraction; 300-3100 Museum.
+  - No playground category is listed.
+- **[H4]** Geocoding & Search v7, Response enrichment. <https://docs.here.com/geocoding-and-search/docs/response-enrichment>. `show=tripadvisor` "Adds available Tripadvisor rich attributes (image, ratings, editorials)". It is marked "BETA, RESTRICTED". Apps must "comply with the Tripadvisor Branding Guidelines", and mobile apps must render a "Find out more" link.
+- **[H5]** Identity & Access Management, API keys. <https://docs.here.com/identity-and-access-management/docs/plat-using-apikeys>.
+  - The key is passed as `apiKey`.
+  - "Trusted domains" limit a key to "designated sites" (up to 20).
+  - Rotation: create a second key, then delete the original.
+  - No app/package restriction is documented.
+- **[H6]** Identity & Access Management, OAuth 2.0. <https://docs.here.com/identity-and-access-management/docs/how-to-authorize-with-oauth-20>. OAuth 2.0 bearer tokens are offered as an alternative (page title and URL from the index; page not fetched).
+- **[H7]** Pricing. <https://www.here.com/get-started/pricing>. The page text shows no figures (rendered by script). Free allowance and prices are unknown without an account or a browser. A 2018 HERE press release (<https://www.here.com/about/press-releases/2018-01-08>) announced a freemium plan; treat it as dated.
+
 ### Geoapify
 
 ## Test matrix (selected provider, and each candidate tested)
@@ -120,12 +150,12 @@ Per query, record: place ID, name, coordinates, place types, distance, rating, r
 
 | Category | TomTom | HERE | Geoapify |
 | --- | --- | --- | --- |
-| Coffee | CAFE_PUB ("café", "coffee shop") [T3] |  |  |
-| Food | RESTAURANT [T3] |  |  |
-| Outdoors | PARK_RECREATION_AREA, BEACH [T3] |  |  |
-| Family | ZOOS_ARBORETA_BOTANICAL_GARDEN, AMUSEMENT_PARK, LEISURE_CENTER; no playground code [T3] |  |  |
-| Scenic | SCENIC_PANORAMIC_VIEW ("scenic/panoramic view", "observation point") [T3] |  |  |
-| Explore | IMPORTANT_TOURIST_ATTRACTION, MUSEUM [T3] |  |  |
+| Coffee | CAFE_PUB ("café", "coffee shop") [T3] | 100-1100-0010 Coffee Shop (100-1100 Coffee-Tea) [H3] |  |
+| Food | RESTAURANT [T3] | 100-1000 Restaurant [H3] |  |
+| Outdoors | PARK_RECREATION_AREA, BEACH [T3] | 550-5510-0202 Park-Recreation Area, 550-5510-0205 Beach, 350-3522-0239 Forest… [H3] |  |
+| Family | ZOOS_ARBORETA_BOTANICAL_GARDEN, AMUSEMENT_PARK, LEISURE_CENTER; no playground code [T3] | 550-5520-0208 Zoo, 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum; no playground [H3] |  |
+| Scenic | SCENIC_PANORAMIC_VIEW ("scenic/panoramic view", "observation point") [T3] | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks [H3] |  |
+| Explore | IMPORTANT_TOURIST_ATTRACTION, MUSEUM [T3] | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum [H3] |  |
 
 ### Selected provider
 
