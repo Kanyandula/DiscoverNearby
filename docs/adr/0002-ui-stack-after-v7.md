@@ -19,18 +19,18 @@ The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below
 >   Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee.
 > - **The rule fixed before the run** needs all four runs to pass every condition.
 >
-> **Update 2026-10-06**
-> - **Decision:** Compose for the emulator POC this iteration ([Decision](#decision)). Production distribution
->   and its UI requirements stay open.
+> **Historical snapshot before the bounded fix (2026-10-06; superseded by the re-test above).**
+> - **Product's decision at that point:** Compose for the emulator POC this iteration ([Decision](#decision)).
+>   The re-test above failed, so ADR-002 is reopened. Production distribution and its UI requirements stay open.
 > - **E1 (DN-SP-003):** its pre-registered classification was inconclusive. The run pattern strongly implicates
 >   launch-time `uiautomator` polling rather than wait duration: no-poll arms passed 20/20, launch-poll arms
 >   failed 14/19, and the mid-journey dump arm passed 9/9. This is diagnostic evidence, not proof of the
 >   underlying cause ([E1](#e1-harness-or-timing-dn-sp-003-2026-10-06)).
-> - **V7 is still not passed.** Before the bounded fix, two gate conditions failed:
+> - **At that point V7 had not passed.** Before the bounded fix, two gate conditions failed:
 >   - a turn is lost after Back to Recommendations;
 >   - focus on rows, header Back and Navigate is only a faint tint.
 >
->   One bounded Compose fix covers both (DN-M0-011), followed by a clean re-test.
+>   Product allowed one bounded Compose fix to cover both (DN-M0-011); the clean re-test is recorded above and failed.
 > - **The Car App Library probe's entry failure is real.** It reproduced without `uiautomator`
 >   ([Cold-boot comparison](#cold-boot-comparison-dn-sp-003-2026-10-06)).
 
@@ -359,7 +359,7 @@ The visual spec stays as designed, and the work done so far is kept.
 
 ## Decision
 
-**B, keep Compose, for the emulator POC this iteration.** Decided by the Product Lead on 2026-10-06.
+**Prior decision (now reopened): B, keep Compose for the emulator POC this iteration.** The Product Lead decided this on 2026-10-06; V7 then failed its clean re-test, returning the choice to Product.
 
 - **Scope.**
   - The decision covers the emulator POC only. Production distribution and its UI requirements remain open.
@@ -376,7 +376,7 @@ The visual spec stays as designed, and the work done so far is kept.
   2026-10-06).
 - **Evidence rules.**
   - E1's behavioural runs are free of `uiautomator`; the `uiautomator` control is reported separately.
-  - The manual Extended Controls run is recorded separately from the adb-driven E1 results.
+  - The manual Extended Controls run is recorded separately from adb-driven rotary runs.
 - **If E1 exposes a reproducible input trap:**
   - one bounded Compose fix is allowed, then a re-test;
   - if V7 still fails, record it as failed and reopen this ADR;

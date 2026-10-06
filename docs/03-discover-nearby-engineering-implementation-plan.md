@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix (2026-10-06), and ADR-002 is reopened; it had kept Compose for the emulator POC. The approved [DN-M0-011 implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) are the current references.
+> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix, and ADR-002 is reopened; it had kept Compose for the emulator POC. The [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) records the attempt, while the [re-test record](adr/0002/v7-retest-2026-10-06/results.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) give the current outcome and gate.
 
 ---
 

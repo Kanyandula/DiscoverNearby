@@ -18,14 +18,12 @@ The pack is deliberately scoped for an **emulator-first proof of concept**, not 
   lost turn after Back to Recommendations and made focus visible on every control. But in one of four clean runs,
   Back to Discover left the rotary service on the host, so the next turn jumped to Coffee. See
   [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06).
-- **V7 before the fix:** **open: one bounded Compose fix, then a clean re-test.** E1's pre-registered classification was
-  inconclusive, but the results strongly implicate `uiautomator` polling at launch: the no-poll arms passed 20/20,
-  the launch-poll arms failed 14/19, and the mid-journey dump arm passed 9/9. E1 is diagnostic; it does not
-  establish the underlying cause or pass V7. The clean journeys still fail two gate conditions: a turn is lost
-  after Back to Recommendations, and focus on rows, header Back and Navigate is only a faint tint. The approved
-  [bounded-fix plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) addresses both, followed by a
-  clean re-test. If the re-test fails, V7 fails and ADR-002 reopens. See
-  [the verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and
+- **Before the V7 re-test (historical):** Product allowed one bounded Compose fix after E1. E1's pre-registered
+  classification was inconclusive, though its pattern strongly implicated launch-time `uiautomator` polling
+  (no-poll 20/20; launch-poll failures 14/19; mid-journey dump 9/9). It did not establish the cause or pass V7.
+  The bounded fix and clean re-test are complete; the re-test failed, as recorded above. See the
+  [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md),
+  [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and
   [ADR-002](adr/0002-ui-stack-after-v7.md).
 - **Current gates:** V7 (failed; ADR-002 reopened) blocks M0 exit. The provider decision V4 blocks M1. V8 does not block the POC.
 
