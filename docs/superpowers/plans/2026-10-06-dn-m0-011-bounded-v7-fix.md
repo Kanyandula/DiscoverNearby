@@ -2,6 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Execution status (2026-10-06):** The bounded fix and clean re-test were run. Final `ReturnFocus` waits 250 ms
+> (the initial plan used one frame); details are in [the re-test record](../../adr/0002/v7-retest-2026-10-06/results.md).
+> V7 **failed** because after Back to Discover, the rotary service stayed on the host and the next turn jumped to the first tile in 1 of 4 behavioural runs, so ADR-002 is reopened.
+> This was the one bounded attempt; do not make another UI fix until Product decides. The manual Extended Controls
+> run and branch closeout review remain pending. The checkboxes below were authored as an implementation plan and
+> were not maintained as a live progress tracker; the re-test record and ADR-002 hold the actual outcome.
+
 **Goal:** Make the Compose UI meet the V7 gate on the reference emulator with one bounded fix: a visible
 focus ring on every actionable control, and no lost turn after Back. Then re-test cleanly and record the
 result, pass or fail.
@@ -9,8 +16,9 @@ result, pass or fail.
 **Architecture:** Two small helpers in `ui/`:
 - **`Modifier.focusRing(shape, color)`:** draws the existing 4 dp ring while its element has focus. It replaces
   the tile's private ring and goes on rows, header Back, Navigate and the message buttons.
-- **`ReturnFocus`:** remembers the item selected by rotary and requests focus on it one frame after its screen
-  returns.
+- **`ReturnFocus`:** remembers the item selected by rotary and requests focus on it after a short delay when its
+  screen returns. The first implementation used one frame; the final bounded fix waits 250 ms after semantics
+  snapshot investigation (see the re-test record).
 
 The lost turn happens because, after Back to Recommendations, Compose focuses the header Back in the screen's
 first frame without reporting it, so the rotary service keeps the ComposeView host. Moving focus one frame
@@ -336,7 +344,7 @@ git commit -m "Show the rotary focus ring on every actionable control"
 
 ---
 
-### Task 2: Return rotary focus after Back, one frame late
+### Task 2: Return rotary focus after Back, with a semantics-snapshot delay
 
 **Files:**
 - Create: `app/src/main/java/com/kanyandula/discovernearby/ui/ReturnFocus.kt`

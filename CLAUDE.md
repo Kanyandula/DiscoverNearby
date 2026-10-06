@@ -39,7 +39,8 @@ V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
   Recommendations.
 - In 1 of 4 runs, after Back to Discover, the service stayed on the host and the turn jumped to Coffee.
 
-E1 had traced the 2026-10-05 Not workable result to launch-time `uiautomator` polling. The gate stays: rotation
+E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time
+`uiautomator` polling but did not prove the underlying cause. The gate stays: rotation
 reaches Navigate, select activates the focused control, Back loses no turn, visible focus on every actionable
 control; controller rotation on Android 13 only. The decision is the Product Lead's; no further fix without it.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.

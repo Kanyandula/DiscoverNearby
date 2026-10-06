@@ -385,7 +385,7 @@ The visual spec stays as designed, and the work done so far is kept.
 > **Reopened 2026-10-06:** V7 failed the clean re-test after the one bounded fix (see the re-test above). The
 > decision below is kept as history; the Product Lead decides again.
 
-**After E1.** The clean journeys fail two gate conditions (E1 above). Product scoped the one bounded fix to
+**After E1 (decision before the re-test; historical).** The clean journeys failed two gate conditions (E1 above). Product scoped the one bounded fix to
 cover both:
 - the turn lost after Back to Recommendations;
 - visible focus on rows, header Back and Navigate.

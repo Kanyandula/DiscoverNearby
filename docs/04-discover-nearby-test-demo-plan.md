@@ -253,7 +253,7 @@ Without touch: navigate the categories → select → navigate the recommendatio
 
 **Expected:** the journey completes with rotary only. Verify the app's focus handling against the V7 gate (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Record where focus lands after Back; it is not gated. Controller rotation only; nudging is not a POC requirement.
 
-Current V7 status and gate: docs/05 §9 and ADR-002. The approved [DN-M0-011 bounded-fix plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) has the implementation and re-test procedure. Record this hand-driven Extended Controls journey separately from adb-driven runs (such as DN-SP-003's E1). Keep `uiautomator` out of behavioural rotary runs; intentional `uiautomator` controls are diagnostic and reported separately because launch-time polling strongly correlates with the observed failure.
+Current V7 status and gate: docs/05 §9 and ADR-002. The 2026-10-06 adb-driven re-test after the bounded Compose fix **failed**: in one of four runs, after Back to Discover, the rotary service stayed on the host and the next turn jumped to the first tile, so ADR-002 is reopened for a Product decision. Record the hand-driven Extended Controls journey separately; it remains pending and is not included in that result. The bounded-fix plan and detailed re-test evidence are linked from ADR-002. Keep `uiautomator` out of behavioural rotary runs; intentional controls are reported separately. E1's pre-registered classification was inconclusive, though its run pattern strongly implicates launch-time polling.
 
 ### G — Touch Interaction
 
