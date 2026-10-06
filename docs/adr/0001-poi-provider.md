@@ -1,9 +1,9 @@
 # ADR-001: POI Provider
 
-**Status:** Proposed — documentation phase complete (2026-10-05); live matrix pending dev-only keys and an assigned licensing owner  
+**Status:** Proposed — documentation phase complete (2026-10-05); product evaluation owner assigned (the Product Lead, 2026-10-06; Legal sign-off on provider terms separate); live matrix pending the permitted evaluations, the terms and dev-only keys  
 *(Outcome at end of the 3-day spike, exactly one of: **Selected** · **Provisionally selected, pending licensing confirmation** · **No viable provider**)*  
 **Date:** 2026-10-05 (documentation phase)  
-**Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; not yet assigned)
+**Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; product evaluation owner: the Product Lead, 2026-10-06; Legal sign-off on terms separate)
 
 ---
 

@@ -7,7 +7,7 @@
 **Owners:** Product Lead + Android/Tech Lead  
 **Last Updated:** 2026-10-06
 
-> **Current gates (2026-10-06):** **V7 failed its clean re-test after the one bounded Compose fix, and ADR-002 is reopened** (the decision returns to the Product Lead). V7 blocks M0 exit. Before the re-test, ADR-002 had chosen Compose for the emulator POC. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. The provider decision V4 blocks M1. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
+> **Current gates (2026-10-06):** **ADR-002 is decided: stay on Compose for the emulator POC, with a product waiver.** V7 failed its clean re-test after the one bounded Compose fix and stays recorded as failed; Product waives the focus jump after Back to Discover for this iteration, so **M0 exits under the waiver**. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. The provider decision V4 blocks M1. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
 >
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
@@ -21,7 +21,7 @@
 
 The decisions below record the original kickoff baseline. Their current status and owners are in §9; use that register rather than this historical kickoff wording to determine active blockers.
 
-1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 had kept Compose for the emulator POC (2026-10-06). It is reopened after V7 failed its clean re-test, and the stack decision is back with the Product Lead. Production distribution stays open.
+1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 keeps Compose for the emulator POC (2026-10-06, after the V7 re-test, with a product waiver). Production distribution and OEM validation stay open.
 2. Use **fake POI data** for M0 while the provider spike runs.
 3. The **Android/Tech Lead** owns the provider spike. **Product** owns data-quality approval. **Licensing** is confirmed by a Product/Legal/Business owner, not by engineering alone.
 4. The test baseline is **Compose UI tests (Robolectric) + unit tests + emulator validation**.
@@ -36,7 +36,7 @@ The decisions below record the original kickoff baseline. Their current status a
 | Area | Decision |
 | --- | --- |
 | Minimum Android SDK (automotive app) | API 29 |
-| UI | Current implementation: Jetpack Compose (Compose BOM, Material 3), `activity-compose`, `navigation-compose`, `lifecycle-viewmodel-compose`. Product previously kept Compose for the emulator POC; ADR-002 is reopened after V7 failed its clean re-test, and the current stack decision awaits Product. |
+| UI | Current implementation: Jetpack Compose (Compose BOM, Material 3), `activity-compose`, `navigation-compose`, `lifecycle-viewmodel-compose`. Kept for the emulator POC by ADR-002 (2026-10-06, with a product waiver after the failed V7 re-test). |
 | Car API | `android.car` (`optional/android.car.jar`, `compileOnly`) for `CarUxRestrictionsManager`, as in NyasaPlayer |
 | Testing | JUnit + coroutines-test + Robolectric + Compose UI test (`ui-test-junit4`). The project uses Robolectric 4.17 and `testOptions.unitTests { isIncludeAndroidResources = true; isReturnDefaultValues = true }` |
 | Emulator | `AAOS_AOSP_33_userdebug` AVD, as used for NyasaPlayer (Test & Demo Plan §2) |
@@ -332,11 +332,11 @@ flowchart TD
     start([Start]) --> m0[M0 AAOS implementation]
     start --> spike[Provider spike and licensing gate]
     m0 --> e1[E1 harness and timing investigation — done]
-    e1 --> adr2[ADR-002: Compose for the POC — decided, then reopened]
+    e1 --> adr2[ADR-002: Compose for the POC]
     adr2 --> uiwork[One bounded Compose fix — DN-M0-011, done]
     uiwork --> v7[Clean re-test against the V7 gate — failed]
-    v7 -->|failed| reopen[V7 failed; ADR-002 reopened — Product decides]
-    v7 --> m0exit[M0 exit]
+    v7 -->|failed| waiver[ADR-002 decided: Compose with a product waiver]
+    waiver --> m0exit[M0 exit — under the waiver]
     spike --> adr1[ADR-001 provider decision]
     adr1 --> m1[M1 Live POI Discovery]
     m1 --> m2[M2 Categories, ranking, benchmark]
@@ -348,24 +348,24 @@ flowchart TD
     go -->|optional after GO| m5[M5 Along Route]
 ```
 
-M0's implementation is largely complete. E1 is done; V7 failed its clean re-test after the one bounded fix, so ADR-002 is reopened and M0 exit waits on the Product Lead's decision. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
+M0's implementation is largely complete. E1 is done; V7 failed its clean re-test after the one bounded fix, and ADR-002 keeps Compose with a product waiver, so M0 exits under the waiver. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
 
 ---
 
 ## 9. Verification Register
 
-**Current milestone gates:** V7 blocks M0 exit. It failed its clean re-test after the one bounded fix (2026-10-06), and ADR-002 is reopened. V4 blocks M1. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates:** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. V4 blocks M1. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
 | ID | Decision / item | Status | Owner | Blocks |
 | --- | --- | --- | --- | --- |
-| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🔴 **Open** — provider spike (§4): documentation phase recorded in ADR-001 (2026-10-05); live matrix and licensing pending keys and a licensing owner | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
+| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🔴 **Open** — provider spike (§4): documentation phase recorded in ADR-001 (2026-10-05); product evaluation owner assigned (the Product Lead, 2026-10-06; Legal sign-off on provider terms separate); live matrix pending the permitted evaluations, the terms and dev-only keys | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
 | V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. Until then: dev-only key (§2a). | Tech Lead | M1 integration |
-| V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Failed (clean re-test, 2026-10-06); ADR-002 reopened.** After one bounded Compose fix (DN-M0-011: a focus ring on every actionable control; rotary focus returned to the selected item after Back), four behavioural runs (3 parked, 1 in Drive; adb-injected, no `uiautomator`): Navigate reached and activated 4/4; visible focus on every control; Back to Details and to Recommendations without a lost turn 4/4, fixing E1's lost turn. Back to Discover failed in 1 of 4 runs: the ring was restored on Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee. The rule fixed before the run needs all four runs to pass. The `uiautomator` control is reported separately; the manual Extended Controls run is pending and recorded separately. Details: [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06). Earlier E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time polling but did not prove the underlying cause. | Product Lead (disposition); Android Engineer (only if approved) | M0 exit; GO ("AAOS flow works") |
+| V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Failed (clean re-test, 2026-10-06); waived by Product for this iteration** ([ADR-002](adr/0002-ui-stack-after-v7.md#decision)): the focus jump after Back to Discover is a known limitation of the emulator POC; the record stays failed. After one bounded Compose fix (DN-M0-011: a focus ring on every actionable control; rotary focus returned to the selected item after Back), four behavioural runs (3 parked, 1 in Drive; adb-injected, no `uiautomator`): Navigate reached and activated 4/4; visible focus on every control; Back to Details and to Recommendations without a lost turn 4/4, fixing E1's lost turn. Back to Discover failed in 1 of 4 runs: the ring was restored on Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee. The rule fixed before the run needs all four runs to pass. The `uiautomator` control is reported separately; the manual Extended Controls run is pending and recorded separately. Details: [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06). Earlier E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time polling but did not prove the underlying cause. | Product Lead (waiver) | M0 exit (waived, 2026-10-06); GO ("AAOS flow works") |
 | V8 | Production distribution path. **Constraint confirmed (2026-10-02):** Play permits `distractionOptimized` only on the Car App Library's `CarAppActivity`; a Compose POI UI therefore needs a compatible template UI for Play or a supported alternate route such as OEM preinstall ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). | 🟡 Constraint captured; production route undecided and outside this POC. Product must choose before production planning; OEM preinstall needs OEM confirmation. Not blocking POC work. | Product Lead | Production planning |
 | V1 | `minCarApiLevel = 4` supports AAOS | 🟢 Closed for the current Compose baseline (Rev 4; no Car App API level required). Reopens only if ADR-002 reopens and chooses Car App Library templates. | — | Revisit if ADR-002 reopens |
 | V2 | How automated UI tests run | 🟢 Resolved for the current Compose baseline: Compose UI tests under Robolectric, as on NyasaPlayer; one M0 smoke test checks project configuration; rotary and Park/Drive stay emulator-tested. Reopens only if ADR-002 reopens and chooses templates. | — | Revisit if ADR-002 reopens |

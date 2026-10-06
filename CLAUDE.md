@@ -14,7 +14,8 @@ structural work. If code and docs disagree, stop and ask.
 Single Compose `:app` module (DN-M0-009): the M0 fake-data flow is implemented across Discover, Recommendations,
 Place Details and the `geo:` navigation handoff; location permission and UX-restriction handling are also in place.
 The stub navigation app is separate. Every actionable control shows the rotary focus ring (`focusRing`); V7 failed
-its clean re-test (2026-10-06) and ADR-002 is reopened. See docs/05 §9 and the active DN-M0-011 ticket for current acceptance and status. The activity is declared
+its clean re-test (2026-10-06); ADR-002 keeps Compose with a product waiver, and M0 exited under it
+(docs/05 §9). The activity is declared
 `distractionOptimized`, with `ManifestContractTest`. compileSdk 37 (one `android-compileSdk` in
 `gradle/libs.versions.toml`; the app derives its `android.car.jar` path from it), targetSdk 36, minSdk 29.
 No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
@@ -32,7 +33,8 @@ Navigate hands off through `IntentNavigationLauncher` (DN-M3-001:
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
 (DN-M0-011): `focusRing` on every actionable control, `ReturnFocus` (after Back, rotary focus returns to the item
 selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's semantics
-snapshot), `RotaryContractTest`. ADR-002 had chosen **Compose for the emulator POC**; it is now **reopened**.
+snapshot), `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for the emulator
+POC, with a product waiver**.
 
 V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
 - Navigate reached and activated 4/4; visible focus everywhere; no lost turn after Back to Details or Back to
@@ -42,16 +44,17 @@ V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
 E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time
 `uiautomator` polling but did not prove the underlying cause. The gate stays: rotation
 reaches Navigate, select activates the focused control, Back loses no turn, visible focus on every actionable
-control; controller rotation on Android 13 only. The decision is the Product Lead's; no further fix without it.
+control; controller rotation on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to Discover
+jump as a known limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
 (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
 Smoke baseline (DN-M0-007): reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it when
 the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
-Car App Library rotary probe (DN-SP-002): `tools/cal-rotary-probe/`, a standalone build (not in the root build or CI),
-evidence for ADR-002 (it did not pass; on cold boots it completed the journey, but rotary entry failed after
-the first few launches); keep it, because ADR-002 is reopened.
-Current work: none on the UI. Waiting for the Product Lead's ADR-002 decision. DN-UX-001 waits on it.
+Car App Library rotary probe (DN-SP-002): removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
+`docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
+Next: DN-UX-001 (UI follow-ups on Compose) is ready. DN-SP-001 phase 2 waits on the permitted evaluations, the
+terms and dev-only keys (product evaluation owner: the Product Lead; Legal sign-off separate).
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -96,8 +99,8 @@ Current work: none on the UI. Waiting for the Product Lead's ADR-002 decision. D
   restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per
   UX spec §16, initial focus on first item. Rotary focus after Back goes through `ReturnFocus` only. Its
-  Discover restore was not always reported to the rotary service in the re-test, so don't change it without the
-  Product Lead's ADR-002 decision. Where focus lands after Back is recorded, not gated (ADR-002).
+  Discover restore was not always reported to the rotary service in the re-test (waived for this iteration, ADR-002);
+  don't change it without a new Product decision. Where focus lands after Back is recorded, not gated.
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).

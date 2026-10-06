@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix, and ADR-002 is reopened; it had kept Compose for the emulator POC. The [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) records the attempt, while the [re-test record](adr/0002/v7-retest-2026-10-06/results.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) give the current outcome and gate.
+> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix; ADR-002 keeps Compose for the emulator POC with a product waiver (the focus jump after Back to Discover is a known limitation), and M0 exits under it. The [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) records the attempt, while the [re-test record](adr/0002/v7-retest-2026-10-06/results.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) give the current outcome and gate.
 
 ---
 
@@ -789,7 +789,7 @@ With a Compose UI, **the app owns rotary support**. On the Android 13 POC image,
 - keep the focused row scrolled into view in lists
 - **verify** with the emulator rotary control that focus order is sensible, focus is visible, Back restores a sensible target, nothing is unreachable, and there are no traps
 
-How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement). It failed its clean re-test after one bounded Compose fix (2026-10-06), and ADR-002 is reopened.
+How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement). It failed its clean re-test after one bounded Compose fix (2026-10-06); ADR-002 keeps Compose with a product waiver for this iteration.
 
 ---
 
