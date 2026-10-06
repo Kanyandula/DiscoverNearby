@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owners:** Engineering + Product  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-02
+**Last Updated:** 2026-10-06
 
 > **Revision 2:** This revision defines a reproducible emulator configuration and verifies navigation handoff with a stub navigation app. It adds a relevance benchmark, plus permission, timeout, stale-response, sparse-data, details-failure and deepest-path scenarios. Performance is now recorded as observations rather than used as a gate.
 >
@@ -251,7 +251,9 @@ Open a place and select **Navigate**.
 
 Without touch: navigate the categories → select → navigate the recommendations → open → focus Navigate → activate → Back.
 
-**Expected:** the journey completes with rotary only. Verify the app's focus handling: focus is visible, nothing is unreachable, Back lands on a sensible element, and there are no traps.
+**Expected:** the journey completes with rotary only. Verify the app's focus handling against the V7 gate (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Record where focus lands after Back; it is not gated. Controller rotation only; nudging is not a POC requirement.
+
+Current V7 status: docs/05 §9 and ADR-002. Record this hand-driven Extended Controls journey separately from adb-driven runs (such as DN-SP-003's E1). Never run `uiautomator` during a rotary run: polling it while the app launches reproduces V7's failure.
 
 ### G — Touch Interaction
 

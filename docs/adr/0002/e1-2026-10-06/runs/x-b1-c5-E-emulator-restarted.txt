@@ -1,0 +1,19 @@
+arm E run b1-c5-E 2026-10-06 12:53:32
+uiautomator wait: 38.1 s
+first turn at: 40.2 s after launch
+01 start          none                         com.android.car.carlauncher
+02 discover       none                         com.android.car.carlauncher
+03 recs-open      Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+04 recs-1         Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+05 recs-2         Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+06 details-open   Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+07 details-1      Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+08 details-2      Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+09 navigate       Rect(142, 537 - 246, 641)    com.android.car.carlauncher
+10 back-1         none                         com.android.car.mapsplaceholder
+11 back-1-turn    Rect(142, 537 - 246, 641)    com.android.car.mapsplaceholder
+12 back-2         Rect(142, 537 - 246, 641)    com.android.car.mapsplaceholder
+13 back-2-turn    Rect(142, 537 - 246, 641)    com.android.car.mapsplaceholder
+14 back-3         Rect(142, 537 - 246, 641)    com.android.car.mapsplaceholder
+15 back-3-turn    Rect(142, 537 - 246, 641)    com.android.car.mapsplaceholder
+stub received: 0

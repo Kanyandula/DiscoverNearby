@@ -1,8 +1,10 @@
 # DN-M0-011 Rotary Focus Proof (V7) Implementation Plan
 
-> **Superseded in part — read [Outcome (2026-10-05)](#outcome-2026-10-05-v7-not-workable) first.** The emulator
-> disproved the investigation's premise (the ComposeView was already in the accessibility tree; the "stuck"
-> baseline was a uiautomator artefact), Task 3 was dropped and V7 is Not workable.
+> **Historical implementation plan. Current interpretation updated 2026-10-06:** the 2026-10-05 run recorded
+> V7 as “Not workable”. Every run block below starts with a `uiautomator` wait (`waitfor.sh`), and E1
+> (DN-SP-003) traced the failure to `uiautomator` polling while the app launches. Without it, the journey
+> completed 20 of 20 runs. Current V7 status:
+> [the register](../../05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](../../adr/0002-ui-stack-after-v7.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -50,7 +52,7 @@ All on `AAOS_AOSP_33_userdebug` (emulator-5554), with `com.android.car.rotary/.R
 - `uiautomator dump`'s `focused` attribute lags Compose focus; trust RotaryService `dumpsys` (`focusedNode` bounds) and screenshots instead.
 - Tile bounds on the emulator (px): Coffee `[48,156][344,380]`, Food `[364,156][660,380]`, Outdoors `[680,156][976,380]`, Family `[48,400][344,624]`, Scenic `[364,400][660,624]`, Explore `[680,400][976,624]`.
 
-## Outcome (2026-10-05): V7 Not workable
+## Outcome (2026-10-05 run): V7 recorded as Not workable at the time
 
 - **Pass criteria revised.** The full journey (Discover → Recommendations → Place Details → Navigate) and its Back path must work by rotary (UX spec §16). Failures on Recommendations and Details count against V7; they are not follow-ups, as Task 4 Step 3 first assumed.
 - **Task 1: no production change.** Compose's root already qualifies for the rotary service, so MainActivity is unchanged; `RotaryContractTest` pins that precondition. Open decision 1 and the Architecture line about marking the ComposeView no longer apply.
@@ -61,7 +63,7 @@ All on `AAOS_AOSP_33_userdebug` (emulator-5554), with `com.android.car.rotary/.R
   - Nudges are no-ops, because the window is one implicit focus area.
   - On Place Details, focus isn't visible, rotation is stuck and Navigate is unreachable.
   - After Back twice, rotation is stuck on Discover.
-- **Cause and the three time-boxed workarounds:** see ADR-002. Each workaround varied from run to run.
+- **Observed failure mechanism in this run and the three time-boxed workarounds:** see ADR-002. Each workaround varied from run to run.
 - **Shipped:** the focus ring (Task 2) and `RotaryContractTest` (Task 1). Escalated: [ADR-002](../../adr/0002-ui-stack-after-v7.md).
 
 ## File Structure

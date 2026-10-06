@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owner:** Engineering  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-02
+**Last Updated:** 2026-10-06
 
 > **Revision 2:** The plan no longer assumes a provider; a provider spike and ADR now come before live POI integration. It names the templates and documents the template-step budget, and makes navigation handoff explicit via `ACTION_NAVIGATE`, verified with a stub navigation app. It adds a permission flow, timeout, stale-request protection, attribute provenance and the `PlaceSummary` / `PlaceDetails` split. Ranking now works with whatever data the provider has, and `RouteRepository` is deferred to M5.
 >
@@ -14,6 +14,8 @@
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. This revision replaces the Car App Library layer with a Compose UI (§3, §6): `MainActivity` + Navigation Compose, a `ViewModel` per screen, `AppContainer` as the wiring point, driving restrictions from `CarUxRestrictionsManager` (NyasaPlayer pattern), `ACTION_VIEW` + `geo:` handoff, app-built rotary focus (§17) and Compose UI tests under Robolectric (§20). The template-step budget is gone. Domain, provider, ranking and state model are unchanged.
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
+
+> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. ADR-002 (2026-10-06) keeps Compose for the emulator POC. V7 is open: one bounded Compose fix, then a clean re-test; see [the verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md).
 
 ---
 
@@ -305,7 +307,7 @@ Candidates may include TomTom, HERE, Foursquare, OpenStreetMap-based data, or an
 | UI | Jetpack Compose (Compose BOM, Material 3), `activity-compose`, `navigation-compose`, `lifecycle-viewmodel-compose`. Versions pinned to current stable at M0. |
 | Car API | `android.car` from the SDK's `optional/android.car.jar`, `compileOnly` (provided by AAOS at runtime), as in NyasaPlayer |
 | State | A Jetpack `ViewModel` per content screen, exposing `StateFlow` |
-| Testing | JUnit, coroutines-test, Robolectric 4.14.x, Compose UI test (`ui-test-junit4`) |
+| Testing | JUnit, coroutines-test, Robolectric 4.17, Compose UI test (`ui-test-junit4`) |
 | Kotlin / async | Kotlin, Coroutines |
 | HTTP / JSON | **REST only:** OkHttp + kotlinx.serialization through our own provider client. No provider SDK in M1–M4 (V5 closed); any SDK need in M5 gets its own ADR. |
 | DI | Manual constructor injection; no framework |
@@ -783,11 +785,11 @@ With a Compose UI, **the app owns rotary support**. AAOS's rotary service turns 
 
 - make every actionable element focusable (buttons, clickable rows), with a clearly visible focus indicator
 - match the focus order in the UX spec (§16), and put initial focus on the first item of each screen
-- restore focus to the originating item after Back
+- after Back, return to a usable screen without losing a turn (V7 gate). Where focus lands is recorded, not gated (ADR-002, 2026-10-06). The in-app `FocusRequester` restore that "trapped rotary" on 2026-10-05 was tested under the `uiautomator`-waited harness; re-test it cleanly before relying on that result
 - keep the focused row scrolled into view in lists
 - **verify** with the emulator rotary control that focus order is sensible, focus is visible, Back restores a sensible target, nothing is unreachable, and there are no traps
 
-How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). Prove it in M0 on the Discover grid before building the other screens. Issues found are app defects.
+How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement), one bounded Compose fix, then a clean re-test.
 
 ---
 

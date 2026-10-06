@@ -1,0 +1,59 @@
+b1-c1-A      PASS  complete=True  first= 14.5s wait=    -  ignored=-  longest=0  host=back-2
+b1-c1-B      FAIL  complete=False first= 14.0s wait=  4.2  ignored=recs-1,recs-2,back-3-turn  longest=2  host=-  SELECT-WENT-BACK
+b1-c1-C      PASS  complete=True  first=  6.6s wait=    -  ignored=-  longest=0  host=back-2
+b1-c1-D      PASS  complete=True  first= 14.4s wait=    -  ignored=-  longest=0  host=back-2
+b1-c1-E      FAIL  complete=False first=  6.1s wait=  4.1  ignored=details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=5  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b1-c2-A      PASS  complete=True  first= 14.5s wait=    -  ignored=-  longest=0  host=back-2
+b1-c2-B      FAIL  complete=False first= 14.0s wait=  3.7  ignored=recs-2,details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=6  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b1-c2-C      PASS  complete=True  first=  8.7s wait=    -  ignored=-  longest=0  host=back-2
+b1-c2-D      PASS  complete=True  first= 14.9s wait=    -  ignored=-  longest=0  host=back-2
+b1-c2-E      PASS  complete=True  first= 10.4s wait=  8.4  ignored=-  longest=0  host=back-2
+b1-c3-A      PASS  complete=True  first= 15.6s wait=    -  ignored=-  longest=0  host=recs-open,back-2
+b1-c3-B      PASS  complete=True  first= 14.0s wait= 12.8  ignored=-  longest=0  host=-
+b1-c3-C      PASS  complete=True  first= 16.8s wait=    -  ignored=-  longest=0  host=details-open
+b1-c3-D      PASS  complete=True  first= 15.6s wait=    -  ignored=-  longest=0  host=back-2
+b1-c3-E      FAIL  complete=False first= 21.9s wait= 19.9  ignored=recs-2,back-3-turn  longest=1  host=recs-1,recs-2,details-open,navigate,back-1  misfire=details-open
+b1-c4-A      PASS  complete=True  first= 16.5s wait=    -  ignored=-  longest=0  host=back-2
+b1-c4-B      FAIL  complete=False first= 15.8s wait= 15.8  ignored=details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=5  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b1-c4-C      PASS  complete=True  first= 20.9s wait=    -  ignored=-  longest=0  host=details-open,back-2
+b1-c4-D      PASS  complete=True  first= 15.4s wait=    -  ignored=-  longest=0  host=back-2
+b1-c4-E      FAIL  complete=False first= 17.3s wait= 15.3  ignored=recs-1,recs-2,back-3-turn  longest=2  host=recs-open,recs-1,recs-2,details-open,navigate,back-1  misfire=details-open
+b1-c5-A      PASS  complete=True  first= 14.4s wait=    -  ignored=-  longest=0  host=back-2
+b1-c5-B      FAIL  complete=False first= 14.1s wait=  3.8  ignored=recs-2,details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=6  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b1-c5-C      PASS  complete=True  first=  6.3s wait=    -  ignored=-  longest=0  host=back-2
+b2-c1-A      PASS  complete=True  first= 14.6s wait=    -  ignored=-  longest=0  host=back-2
+b2-c1-B      PASS  complete=True  first= 14.1s wait=  4.1  ignored=-  longest=0  host=back-2
+b2-c1-C      PASS  complete=True  first=  6.5s wait=    -  ignored=-  longest=0  host=back-2
+b2-c1-D      PASS  complete=True  first= 14.5s wait=    -  ignored=-  longest=0  host=back-2
+b2-c1-E      FAIL  complete=False first= 14.6s wait= 12.6  ignored=recs-1,recs-2,back-3-turn  longest=2  host=-
+b2-c2-A      PASS  complete=True  first= 14.6s wait=    -  ignored=-  longest=0  host=back-2
+b2-c2-B      FAIL  complete=False first= 14.0s wait=  3.6  ignored=recs-1,recs-2,back-2-turn,back-3-turn  longest=2  host=recs-open,recs-1,recs-2,details-open,navigate,back-1  misfire=details-open
+b2-c2-C      PASS  complete=True  first=  6.7s wait=    -  ignored=-  longest=0  host=back-2
+b2-c2-D      PASS  complete=True  first= 15.0s wait=    -  ignored=-  longest=0  host=back-2
+b2-c2-E      PASS  complete=True  first= 11.6s wait=  9.6  ignored=-  longest=0  host=back-2
+b2-c3-A      PASS  complete=True  first= 15.4s wait=    -  ignored=recs-1  longest=1  host=back-2
+b2-c3-B      FAIL  complete=False first= 15.8s wait= 15.8  ignored=recs-1,recs-2,back-2-turn,back-3-turn  longest=2  host=recs-open,recs-1,recs-2,details-open,navigate,back-1  misfire=details-open
+b2-c3-C      PASS  complete=True  first= 19.8s wait=    -  ignored=-  longest=0  host=back-2
+b2-c3-D      PASS  complete=True  first= 15.4s wait=    -  ignored=-  longest=0  host=-
+b2-c3-E      PASS  complete=True  first= 16.1s wait= 14.0  ignored=-  longest=0  host=back-2
+b2-c4-A      PASS  complete=True  first= 14.4s wait=    -  ignored=-  longest=0  host=back-2
+b2-c4-B      FAIL  complete=False first= 14.0s wait=  3.8  ignored=details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=5  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b2-c4-C      PASS  complete=True  first=  6.2s wait=    -  ignored=-  longest=0  host=back-2
+b2-c4-D      PASS  complete=True  first= 14.4s wait=    -  ignored=-  longest=0  host=back-2
+b2-c4-E      FAIL  complete=False first=  5.7s wait=  3.7  ignored=details-1,details-2,back-1-turn,back-2-turn,back-3-turn  longest=5  host=recs-open,details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b2-c5-A      PASS  complete=True  first= 14.4s wait=    -  ignored=-  longest=0  host=back-2
+b2-c5-B      FAIL  complete=False first= 14.0s wait=  3.7  ignored=details-1,details-2,back-1-turn,back-3-turn  longest=3  host=details-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+b2-c5-C      PASS  complete=True  first=  8.1s wait=    -  ignored=-  longest=0  host=back-2
+b2-c5-D      PASS  complete=True  first= 15.8s wait=    -  ignored=-  longest=0  host=back-2
+b2-c5-E      FAIL  complete=False first= 19.2s wait= 17.2  ignored=details-2,back-1-turn,back-2-turn,back-3-turn  longest=4  host=recs-open,details-1,details-2,navigate,back-1,back-1-turn  misfire=navigate
+
+b1 A: 5 of 5 pass
+b1 B: 1 of 5 pass
+b1 C: 5 of 5 pass
+b1 D: 4 of 4 pass
+b1 E: 1 of 4 pass
+b2 A: 5 of 5 pass
+b2 B: 1 of 5 pass
+b2 C: 5 of 5 pass
+b2 D: 5 of 5 pass
+b2 E: 2 of 5 pass
