@@ -52,6 +52,7 @@ fun RecommendationsScreen(
     onBack: () -> Unit,
     onPlaceSelected: (Recommendation) -> Unit,
     onGrant: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val returnFocus = rememberReturnFocus()
@@ -93,26 +94,41 @@ fun RecommendationsScreen(
                     onPrimary = onRetry,
                     primaryLabel = R.string.try_again,
                 )
-            // Grant only while restrictions allow a permission dialog; otherwise ask the user to park (docs/02 §10).
-            is RecommendationsUiState.PermissionRequired -> MessageState(
-                message = Message(
-                    icon = R.drawable.ic_location,
-                    tint = Highlight,
-                    title = R.string.permission_title,
-                    body = when {
-                        !state.canRequest -> R.string.permission_body_restricted
-                        state.denied -> R.string.permission_body_denied
-                        else -> R.string.permission_body
-                    },
-                ),
-                backLabel = R.string.back,
-                onBack = onBack,
-                modifier = body,
-                onPrimary = onGrant.takeIf { state.canRequest },
-                primaryLabel = R.string.grant_permission,
-            )
+            is RecommendationsUiState.PermissionRequired ->
+                PermissionMessage(state, onBack = onBack, onGrant = onGrant, onOpenSettings = onOpenSettings, body)
         }
     }
+}
+
+// Grant only while restrictions allow a permission dialog; otherwise ask the user to park (docs/02 §10). After a
+// permanent refusal, Android shows no dialog, so Settings takes Grant's place, under the same rule (DN-UX-001).
+@Composable
+private fun PermissionMessage(
+    state: RecommendationsUiState.PermissionRequired,
+    onBack: () -> Unit,
+    onGrant: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val settings = state.permanentlyDenied
+    MessageState(
+        message = Message(
+            icon = R.drawable.ic_location,
+            tint = Highlight,
+            title = R.string.permission_title,
+            body = when {
+                !state.canRequest -> R.string.permission_body_restricted
+                settings -> R.string.permission_body_settings
+                state.denied -> R.string.permission_body_denied
+                else -> R.string.permission_body
+            },
+        ),
+        backLabel = R.string.back,
+        onBack = onBack,
+        modifier = modifier,
+        onPrimary = (if (settings) onOpenSettings else onGrant).takeIf { state.canRequest },
+        primaryLabel = if (settings) R.string.open_settings else R.string.grant_permission,
+    )
 }
 
 @Composable

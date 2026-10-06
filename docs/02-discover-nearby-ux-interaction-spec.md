@@ -389,6 +389,22 @@ location access.
 [Grant Permission]   [Back]
 ```
 
+### Permission denied permanently
+
+After the user has refused twice, Android no longer shows the permission dialog. While parked, Settings takes
+Grant's place (DN-UX-001):
+
+```text
+Location permission required
+
+Location access is off for Discover Nearby.
+Turn it on in Settings.
+
+[Open Settings]   [Back]
+```
+
+While driving, the park-first copy is shown, with Back only. Back from Settings searches again.
+
 When permission is granted, discovery continues for the selected category.
 
 ---

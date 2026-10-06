@@ -410,6 +410,8 @@ interface LocationProvider {
 - Grant is offered **only when `distractionOptimizationRequired` is false** (in practice, Park on the reference emulator). Templates enforced this with `ParkedOnlyOnClickListener`; in Compose the app enforces it, from `DrivingRestrictions`.
 - `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired, denied)` as a message state. `canRequest` updates live when the restrictions change; `denied` switches to the denied copy after the user declines.
 - On grant, discovery continues for the selected category. On denial, show the denied message with Grant and Back.
+- After a permanent refusal (no rationale for either permission), offer Open Settings instead of Grant, only while
+  `distractionOptimizationRequired` is false; return from Settings searches again (DN-UX-001).
 
 ### Test locations
 
@@ -711,7 +713,11 @@ sealed interface RecommendationsUiState {
     ) : RecommendationsUiState
     data object Empty : RecommendationsUiState
     data object ParkToSee : RecommendationsUiState // the driving list limit allows none (docs/02 §17)
-    data class PermissionRequired(val canRequest: Boolean, val denied: Boolean = false) : RecommendationsUiState
+    data class PermissionRequired(
+        val canRequest: Boolean,
+        val denied: Boolean = false,
+        val permanentlyDenied: Boolean = false,
+    ) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 

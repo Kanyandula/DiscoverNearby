@@ -30,6 +30,8 @@ sealed interface RecommendationsUiState {
     data class PermissionRequired(
         val canRequest: Boolean,
         val denied: Boolean = false,
+        /** Android won't ask again; only Settings can allow location (docs/02 §10). */
+        val permanentlyDenied: Boolean = false,
     ) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
@@ -43,13 +45,13 @@ class RecommendationsViewModel(
     private val result = MutableStateFlow<DiscoverResult?>(null) // null while a request runs
     private var requestId = 0L
     private var request: Job? = null
-    private val permissionDenied = MutableStateFlow(false)
+    private val denial = MutableStateFlow(Denial.NONE)
 
     // The driving state is combined in, not read, so the restrictions connection is open only while the
     // screen collects, and a change re-trims the list without a new request (docs/03 §6). No stop timeout
     // here: the shared restrictions flow already keeps its connection through a quick restart.
     val uiState: StateFlow<RecommendationsUiState> =
-        combine(result, drivingRestrictions.state, permissionDenied, ::toUiState).stateIn(
+        combine(result, drivingRestrictions.state, denial, ::toUiState).stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = RecommendationsUiState.Loading,
@@ -61,9 +63,13 @@ class RecommendationsViewModel(
 
     fun retry() = load()
 
-    /** The answer to the location permission request: a grant resumes discovery. */
-    fun onPermissionResult(granted: Boolean) {
-        permissionDenied.value = !granted
+    /** The answer to the location permission request: a grant resumes discovery; [permanent] means no dialog again. */
+    fun onPermissionResult(granted: Boolean, permanent: Boolean = false) {
+        denial.value = when {
+            granted -> Denial.NONE
+            permanent -> Denial.PERMANENT
+            else -> Denial.ONCE
+        }
         if (granted) load()
     }
 
@@ -79,7 +85,7 @@ class RecommendationsViewModel(
     private fun toUiState(
         result: DiscoverResult?,
         driving: DrivingState,
-        denied: Boolean,
+        denial: Denial,
     ): RecommendationsUiState = when (result) {
         null -> RecommendationsUiState.Loading
         is DiscoverResult.Success -> {
@@ -92,7 +98,8 @@ class RecommendationsViewModel(
         }
         DiscoverResult.PermissionRequired -> RecommendationsUiState.PermissionRequired(
             canRequest = !driving.distractionOptimizationRequired,
-            denied = denied,
+            denied = denial != Denial.NONE,
+            permanentlyDenied = denial == Denial.PERMANENT,
         )
         is DiscoverResult.Failure -> RecommendationsUiState.Error(result.error)
     }
@@ -101,3 +108,6 @@ class RecommendationsViewModel(
     private fun visibleCount(driving: DrivingState) =
         minOf(CategoryConfigs.getValue(category).desiredResults, driving.listLimit ?: Int.MAX_VALUE)
 }
+
+/** How the location permission was last refused (docs/02 §10). */
+private enum class Denial { NONE, ONCE, PERMANENT }

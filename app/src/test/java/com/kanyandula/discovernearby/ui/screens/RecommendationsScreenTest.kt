@@ -53,6 +53,7 @@ class RecommendationsScreenTest {
     private var backs = 0
     private var selected: Recommendation? = null
     private var grants = 0
+    private var settings = 0
 
     @Before
     fun setUp() {
@@ -65,6 +66,7 @@ class RecommendationsScreenTest {
                     onBack = { backs++ },
                     onPlaceSelected = { selected = it },
                     onGrant = { grants++ },
+                    onOpenSettings = { settings++ },
                 )
             }
         }
@@ -190,6 +192,20 @@ class RecommendationsScreenTest {
         state = PermissionRequired(canRequest = false, denied = true)
         rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertDoesNotExist()
+    }
+
+    // DN-UX-001: after a permanent refusal, Settings replaces Grant, but only while requests are allowed (parked).
+    @Test
+    fun permanentRefusalOffersSettingsOnlyWhileRequestsAreAllowed() {
+        state = PermissionRequired(canRequest = true, denied = true, permanentlyDenied = true)
+        rule.onNodeWithText("Location access is off for Discover Nearby. Turn it on in Settings.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").assertDoesNotExist()
+        rule.onNodeWithText("Open Settings").performClick()
+        assertEquals(1, settings)
+
+        state = PermissionRequired(canRequest = false, denied = true, permanentlyDenied = true)
+        rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
+        rule.onNodeWithText("Open Settings").assertDoesNotExist()
     }
 
     @Test

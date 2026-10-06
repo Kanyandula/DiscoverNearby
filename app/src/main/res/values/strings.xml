@@ -56,4 +56,6 @@
     <string name="navigation_unavailable_body">No compatible navigation app could open this destination.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="permission_body_denied">Discover Nearby can\'t find places without location access.</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="permission_body_settings">Location access is off for Discover Nearby. Turn it on in Settings.</string>
 </resources>
