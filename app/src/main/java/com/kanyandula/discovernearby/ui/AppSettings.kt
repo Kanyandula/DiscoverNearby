@@ -17,8 +17,10 @@ internal fun openAppSettings(context: Context): Boolean =
     runCatching { context.startActivity(appSettingsIntent(context.packageName)) }.isSuccess
 
 /**
- * After a refusal: whether Android will no longer show the permission dialog. It stops after two refusals, and
- * then offers no rationale for either location permission.
+ * Whether [result] is a refusal Android won't ask about again: nothing granted, and no rationale offered for either
+ * location permission (Android stops asking after two refusals). An empty result is a cancelled or overlapping
+ * request, not a refusal.
  */
-internal fun neverAsksAgain(activity: Activity) =
-    LOCATION_PERMISSIONS.none { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
+internal fun refusedForGood(activity: Activity, result: Map<String, Boolean>) =
+    result.isNotEmpty() && true !in result.values &&
+        LOCATION_PERMISSIONS.none { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }

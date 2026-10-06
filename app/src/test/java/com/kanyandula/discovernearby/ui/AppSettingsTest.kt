@@ -3,6 +3,7 @@ package com.kanyandula.discovernearby.ui
 import android.Manifest
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -34,10 +35,27 @@ class AppSettingsTest {
     }
 
     @Test
-    fun neverAsksAgainWhenNoRationaleIsOffered() {
-        assertTrue(neverAsksAgain(activity))
+    fun aRefusalWithNoRationaleIsForGood() {
+        assertTrue(refusedForGood(activity, refused))
         shadowOf(activity.packageManager)
             .setShouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION, true)
-        assertFalse(neverAsksAgain(activity))
+        assertFalse(refusedForGood(activity, refused))
     }
+
+    @Test
+    fun anApproximateGrantIsNotARefusal() {
+        val result = mapOf(
+            Manifest.permission.ACCESS_FINE_LOCATION to false,
+            Manifest.permission.ACCESS_COARSE_LOCATION to true,
+        )
+        assertFalse(refusedForGood(activity, result))
+    }
+
+    // Final review: a cancelled or overlapping request (Grant pressed twice) comes back empty; it isn't a refusal.
+    @Test
+    fun anEmptyResultIsNotARefusal() {
+        assertFalse(refusedForGood(activity, emptyMap()))
+    }
+
+    private val refused = LOCATION_PERMISSIONS.associateWith { false }
 }

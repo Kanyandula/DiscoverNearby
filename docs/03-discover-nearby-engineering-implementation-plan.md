@@ -411,7 +411,9 @@ interface LocationProvider {
 - `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired, denied)` as a message state. `canRequest` updates live when the restrictions change; `denied` switches to the denied copy after the user declines.
 - On grant, discovery continues for the selected category. On denial, show the denied message with Grant and Back.
 - After a permanent refusal (no rationale for either permission), offer Open Settings instead of Grant, only while
-  `distractionOptimizationRequired` is false; return from Settings searches again (DN-UX-001).
+  `distractionOptimizationRequired` is false; return from Settings searches again (DN-UX-001). An empty result
+  (a cancelled or overlapping request) is not a refusal. Known limit: on Android 11+, dismissing the first dialog
+  without answering also leaves no rationale, so it shows Open Settings where Grant would still work.
 
 ### Test locations
 

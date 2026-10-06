@@ -125,9 +125,8 @@ private class LocationActions(val grant: () -> Unit, val openSettings: () -> Uni
 private fun rememberLocationActions(viewModel: RecommendationsViewModel): LocationActions {
     val activity = LocalActivity.current
     val permissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        val granted = true in it.values
-        val permanent = !granted && activity != null && neverAsksAgain(activity)
-        viewModel.onPermissionResult(granted, permanent)
+        val permanent = activity != null && refusedForGood(activity, it)
+        viewModel.onPermissionResult(granted = true in it.values, permanent = permanent)
     }
     val context = LocalContext.current
     var openedSettings by rememberSaveable { mutableStateOf(false) }
