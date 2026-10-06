@@ -8,18 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.test.requestFocus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,11 +50,7 @@ class ReturnFocusTest {
         }
     }
 
-    private fun rotarySelect(text: String) {
-        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
-        rule.onNodeWithText(text).requestFocus()
-        rule.onNodeWithText(text).performKeyInput { pressKey(Key.DirectionCenter) }
-    }
+    private fun rotarySelect(text: String) = rule.rotarySelect(rule.onNodeWithText(text), inputModes)
 
     private fun leaveAndReturn(newKeys: List<String> = keys) {
         rule.runOnIdle { shown = false }

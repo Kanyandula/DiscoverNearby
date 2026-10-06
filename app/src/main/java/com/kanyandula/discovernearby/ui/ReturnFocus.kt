@@ -12,11 +12,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import kotlinx.coroutines.delay
 
-// Working hypothesis (DN-M0-011 re-test, ADR-002): Compose reports a focus change to accessibility only for a node
-// already in its last semantics snapshot, refreshed at most every 100 ms (Compose UI 1.12.1,
-// AndroidComposeViewAccessibilityDelegateCompat). Waiting usually gets the restored focus reported; on Back to
-// Discover it was not always.
-private const val REPORT_AFTER_MS = 250L
+private const val REPORT_AFTER_MS = 250L // why: see ReturnFocus
 
 /**
  * Rotary focus after Back (docs/02 §16, V7). Remembers the item last selected by rotary and gives it focus again
@@ -24,7 +20,10 @@ private const val REPORT_AFTER_MS = 250L
  *
  * Why not at once: in the 2026-10-06 developer checks (ADR-002), a focus change made one frame after a screen
  * returned was not reported to the rotary service on Back to Discover. The service kept the ComposeView host, and
- * the next turn jumped to the first tile. Waiting longer usually gets the change reported.
+ * the next turn jumped to the first tile. Working hypothesis: Compose reports a focus change to accessibility only
+ * for a node already in its last semantics snapshot, refreshed at most every 100 ms (Compose UI 1.12.1,
+ * AndroidComposeViewAccessibilityDelegateCompat). Waiting [REPORT_AFTER_MS] usually gets the change reported; in
+ * the V7 re-test, on Back to Discover, it did not always.
  *
  * Only an item that had focus when selected is remembered: rotary selects the focused item, while a touch never
  * focuses one, so touch never leaves a ring behind.

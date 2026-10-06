@@ -7,6 +7,7 @@ import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.useRotaryInput
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
 import com.kanyandula.discovernearby.ui.theme.Highlight
@@ -16,7 +17,6 @@ import org.robolectric.annotation.Config
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -57,7 +57,6 @@ class FocusRingTest {
 
     @Test
     fun focusedTileShowsTheRing() {
-        lateinit var inputModes: InputModeManager
         rule.setContent {
             inputModes = LocalInputModeManager.current
             DiscoverNearbyTheme {
@@ -65,9 +64,9 @@ class FocusRingTest {
             }
         }
         val tile = rule.onNodeWithText("Coffee")
+        // Checked before rotary input starts: switching to keyboard mode can move focus onto the tile by itself.
         assertArrayEquals(SurfaceVariant.rgb(), tile.edgePixel().rgb(), TOLERANCE)
-        // Touch never focuses a clickable; rotary puts Compose in keyboard mode, where it does.
-        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
+        rule.useRotaryInput(inputModes)
         tile.requestFocus()
         assertArrayEquals(Accent.rgb(), tile.edgePixel().rgb(), TOLERANCE)
     }
@@ -87,13 +86,13 @@ class FocusRingTest {
 
     private lateinit var inputModes: InputModeManager
 
-    /** Rotary puts Compose in keyboard mode, where a clickable takes focus; touch never focuses one. */
+    /** Content under rotary (keyboard-mode) input. */
     private fun show(content: @Composable () -> Unit) {
         rule.setContent {
             inputModes = LocalInputModeManager.current
             DiscoverNearbyTheme { content() }
         }
-        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
+        rule.useRotaryInput(inputModes)
     }
 
     private fun text(id: Int) = RuntimeEnvironment.getApplication().getString(id)

@@ -2,9 +2,7 @@ package com.kanyandula.discovernearby.ui
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -17,9 +15,6 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.test.requestFocus
 import com.kanyandula.discovernearby.location.deviceAt
 import com.kanyandula.discovernearby.places.fake.TestLocation
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
@@ -63,11 +58,9 @@ class DiscoverNavigationTest {
 
     private lateinit var inputModes: InputModeManager
 
-    /** A rotary select: keyboard mode, focus on the node, then the centre key, as RotaryService injects it. */
+    /** A rotary select, then long enough for the navigation it starts. */
     private fun rotarySelect(node: SemanticsNodeInteraction) {
-        rule.runOnIdle { inputModes.requestInputMode(InputMode.Keyboard) }
-        node.requestFocus()
-        node.performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.rotarySelect(node, inputModes)
         rule.mainClock.advanceTimeBy(SETTLE_MS)
     }
 
