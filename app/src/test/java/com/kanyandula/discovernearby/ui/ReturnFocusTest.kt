@@ -68,6 +68,12 @@ class ReturnFocusTest {
             shown = true
         }
         rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(SETTLE_MS) // past ReturnFocus's wait for Compose's semantics snapshot
+        rule.waitForIdle()
+    }
+
+    private companion object {
+        const val SETTLE_MS = 1_000L
     }
 
     @Test
