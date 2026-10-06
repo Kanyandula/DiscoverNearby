@@ -710,6 +710,7 @@ sealed interface RecommendationsUiState {
         val recommendations: List<Recommendation>,
     ) : RecommendationsUiState
     data object Empty : RecommendationsUiState
+    data object ParkToSee : RecommendationsUiState // the driving list limit allows none (docs/02 §17)
     data class PermissionRequired(val canRequest: Boolean, val denied: Boolean = false) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }

@@ -22,6 +22,7 @@ import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Empty
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Error
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Loading
+import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.ParkToSee
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.PermissionRequired
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -115,6 +116,51 @@ class RecommendationsViewModelTest {
         limitTo(2)
         advanceTimeBy(1_001)
         assertEquals(2, vm.shown.size)
+    }
+
+    // DN-UX-001: places were found, but the driving list limit allows none, so ask to park. Parking shows them
+    // without a new request.
+    @Test
+    fun listLimitZeroAsksToParkAndParkingShowsTheResults() = runTest {
+        limitTo(0)
+        places.reply = { cafes(7) }
+        val vm = collected()
+        assertEquals(ParkToSee, vm.uiState.value)
+        limitTo(null)
+        runCurrent()
+        assertEquals(CategoryConfigs.getValue(COFFEE).desiredResults, vm.shown.size)
+        assertEquals(1, places.searches)
+    }
+
+    // Review Focus 2: no places at all is still the Empty message, whatever the limit.
+    @Test
+    fun noPlacesUnderALimitOfZeroIsEmpty() = runTest {
+        limitTo(0)
+        places.reply = { emptyList() }
+        assertEquals(Empty, collected().uiState.value)
+    }
+
+    // Ticket AC: Try Again works once parked.
+    @Test
+    fun retryOnceParkedShowsTheResults() = runTest {
+        limitTo(0)
+        places.reply = { cafes(3) }
+        val vm = collected()
+        limitTo(null)
+        vm.retry()
+        runCurrent()
+        assertEquals(listOf("p0", "p1", "p2"), vm.shown)
+    }
+
+    @Test
+    fun retryWhileTheLimitIsStillZeroAsksToParkAgain() = runTest {
+        limitTo(0)
+        places.reply = { cafes(3) }
+        val vm = collected()
+        vm.retry()
+        runCurrent()
+        assertEquals(ParkToSee, vm.uiState.value)
+        assertEquals(2, places.searches)
     }
 
     @Test

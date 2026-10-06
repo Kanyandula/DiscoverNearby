@@ -22,6 +22,8 @@
     <string name="load_failed_body">Check your connection and try again.</string>
     <string name="timeout_title">Taking longer than expected</string>
     <string name="timeout_body">Please try again.</string>
+    <string name="park_to_see_title">Park to see places</string>
+    <string name="park_to_see_body">Results can\'t be shown while driving. Park the vehicle, then try again.</string>
     <string name="no_location_title">Location unavailable</string>
     <string name="no_location_body">Discover Nearby needs a location to find places around you.</string>
     <string name="permission_title">Location permission required</string>

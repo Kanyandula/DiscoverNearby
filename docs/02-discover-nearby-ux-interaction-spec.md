@@ -502,6 +502,18 @@ Differences the user may see:
 
 - The location permission prompt is only available while parked (§10).
 - The number of visible recommendations may be lower if the driving restrictions lower the list limit.
+- If the limit allows no results at all, the list is replaced by a message (DN-UX-001):
+
+  ```text
+  Park to see places
+
+  Results can't be shown while driving.
+  Park the vehicle, then try again.
+
+  [Try Again]   [Back]
+  ```
+
+  Parking shows the places on its own; Try Again searches again.
 
 The POC validates that the flow remains stable when the vehicle state changes, including while results are loading.
 

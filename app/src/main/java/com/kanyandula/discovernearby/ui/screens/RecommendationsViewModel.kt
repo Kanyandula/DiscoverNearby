@@ -23,6 +23,10 @@ sealed interface RecommendationsUiState {
     data object Loading : RecommendationsUiState
     data class Content(val requestId: Long, val recommendations: List<Recommendation>) : RecommendationsUiState
     data object Empty : RecommendationsUiState
+
+    /** Places were found, but the driving list limit allows none to be shown (docs/02 §17). */
+    data object ParkToSee : RecommendationsUiState
+
     data class PermissionRequired(
         val canRequest: Boolean,
         val denied: Boolean = false,
@@ -78,13 +82,13 @@ class RecommendationsViewModel(
         denied: Boolean,
     ): RecommendationsUiState = when (result) {
         null -> RecommendationsUiState.Loading
-        is DiscoverResult.Success -> if (result.recommendations.isEmpty()) {
-            RecommendationsUiState.Empty
-        } else {
-            RecommendationsUiState.Content(
-                requestId = result.context.requestId,
-                recommendations = result.recommendations.take(visibleCount(driving)),
-            )
+        is DiscoverResult.Success -> {
+            val shown = result.recommendations.take(visibleCount(driving))
+            when {
+                result.recommendations.isEmpty() -> RecommendationsUiState.Empty
+                shown.isEmpty() -> RecommendationsUiState.ParkToSee
+                else -> RecommendationsUiState.Content(requestId = result.context.requestId, recommendations = shown)
+            }
         }
         DiscoverResult.PermissionRequired -> RecommendationsUiState.PermissionRequired(
             canRequest = !driving.distractionOptimizationRequired,

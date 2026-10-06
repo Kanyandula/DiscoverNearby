@@ -37,6 +37,8 @@ private val EmptyMessage = Message(R.drawable.ic_empty, Highlight, R.string.empt
 private val LoadFailedMessage =
     Message(R.drawable.ic_error_network, OnSurfaceVariant, R.string.load_failed_title, R.string.load_failed_body)
 private val TimeoutMessage = Message(R.drawable.ic_timeout, Highlight, R.string.timeout_title, R.string.timeout_body)
+private val ParkToSeeMessage =
+    Message(R.drawable.ic_info, Highlight, R.string.park_to_see_title, R.string.park_to_see_body)
 private val NoLocationMessage =
     Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.no_location_title, R.string.no_location_body)
 
@@ -73,6 +75,15 @@ fun RecommendationsScreen(
                 }
             RecommendationsUiState.Empty ->
                 MessageState(EmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)
+            // docs/02 §17: places were found, but the driving list limit allows none; parking shows them.
+            RecommendationsUiState.ParkToSee -> MessageState(
+                message = ParkToSeeMessage,
+                backLabel = R.string.back,
+                onBack = onBack,
+                modifier = body,
+                onPrimary = onRetry,
+                primaryLabel = R.string.try_again,
+            )
             is RecommendationsUiState.Error ->
                 MessageState(
                     message = state.type.message,

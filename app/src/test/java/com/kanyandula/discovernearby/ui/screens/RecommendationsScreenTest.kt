@@ -27,6 +27,7 @@ import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Empty
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Error
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Loading
+import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.ParkToSee
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.PermissionRequired
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
@@ -118,6 +119,18 @@ class RecommendationsScreenTest {
         rule.onNodeWithText("Try Again").assertDoesNotExist()
         rule.onNodeWithText("Back to Discover").performClick()
         assertEquals(1, backs)
+    }
+
+    // DN-UX-001: a list limit of 0 shows a park-first message with Try Again and Back.
+    @Test
+    fun listLimitZeroAsksToPark() {
+        state = ParkToSee
+        rule.onNodeWithText("Park to see places").assertIsDisplayed()
+        rule.onNodeWithText("Results can't be shown while driving. Park the vehicle, then try again.")
+            .assertIsDisplayed()
+        rule.onNodeWithText("Try Again").performClick()
+        assertEquals(1, retries)
+        rule.onNodeWithText("Back").assertIsDisplayed()
     }
 
     @Test
