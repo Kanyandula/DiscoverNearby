@@ -1,5 +1,10 @@
 # DN-M0-007 Automated and Emulator Smoke Baseline Implementation Plan
 
+> **Historical run note (2026-10-06):** The rotary observations below are from the 2026-10-05 smoke and remain
+> a record of that run. Its rotary runs used the `uiautomator`-waited harness that E1 (DN-SP-003) later
+> found reproduces V7's failure. Current V7 status:
+> [the register](../../05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](../../adr/0002-ui-stack-after-v7.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Establish M0's test baseline:
@@ -34,7 +39,7 @@
 
 ## Open decisions (recorded here, in the ticket and the PR)
 
-1. **Rotary is covered, not passed.** The ticket depends on DN-M0-011, which is **blocked** on ADR-002 (V7 Not workable).
+1. **Rotary is covered, not passed.** At the time of this 2026-10-05 smoke, DN-M0-011 was **blocked** on ADR-002 after V7 was recorded Not workable. For the current V7 disposition, see the note above.
    - The smoke re-runs DN-M0-011's rotary checks on the current build and records the result next to V7, whether it matches or differs.
    - M0 exit stays blocked by V7 (docs/05 §9) whatever this ticket shows. The ticket can be `done` (baseline established) while M0 stays open. That is the user's call at merge time.
 2. **No new Robolectric test.** `DiscoverScreenTest` already renders `DiscoverScreen` (6 tests) in `testDebugUnitTest`, which CI runs. A dedicated "smoke" test would duplicate it. The plan names it as the M0 smoke test in docs/04 §11.

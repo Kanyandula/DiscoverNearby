@@ -1,5 +1,10 @@
 # DN-SP-002 Car App Library Rotary Probe Implementation Plan
 
+> **Completed investigation; current interpretation updated 2026-10-06:** DN-SP-002 did not establish that
+> templates solve rotary. Cold boots showed two successful first-launch journeys and a repeatable entry
+> failure on later launches. See [ADR-002](../../adr/0002-ui-stack-after-v7.md) for the full evidence and
+> current comparison with Compose. This plan's conditional “if it passes” steps were not taken.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Answer, on the reference emulator, the question ADR-002's Option A rests on: does a Car App Library template app give rotary a working grid → list → details → Navigate → Back journey where the Compose app failed V7? Record the result in ADR-002. If it passes, add an engineering recommendation for templates; the decision itself stays with the Product Lead.

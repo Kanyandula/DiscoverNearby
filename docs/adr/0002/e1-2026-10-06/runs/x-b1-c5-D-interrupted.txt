@@ -1,0 +1,18 @@
+arm D run b1-c5-D 2026-10-06 12:51:27
+first turn at: 14.5 s after launch
+01 start          Rect(142, 537 - 246, 641)    com.kanyandula.discovernearby
+02 discover       Rect(48, 156 - 344, 380)     com.kanyandula.discovernearby
+03 recs-open      Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+04 dumped         none                         com.kanyandula.discovernearby
+05 recs-1         Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+06 recs-2         Rect(48, 246 - 976, 382)     com.kanyandula.discovernearby
+07 details-open   Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+08 details-1      Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+09 details-2      Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+10 navigate       Rect(576, 536 - 976, 624)    com.kanyandula.stubnavigation
+11 back-1         Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+12 back-1-turn    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+13 back-2         none                         
+14 back-2-turn    none                         
+15 back-3         none                         
+16 back-3-turn    none                         

@@ -1,0 +1,2 @@
+Ruling (analysis): first Discover turn onto Coffee from a stale Coffee start reading is not an ignored turn (no ring drawn at start, b2-c1-D 01-start.png).
+Ruling (analysis): a turn during Recommendations' loading state (only header Back focusable, b2-c3-A 03-recs-open.png) is an end-of-list case, not an ignored turn.

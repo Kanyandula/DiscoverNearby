@@ -1,0 +1,31 @@
+v7bar v7-park1 (park) 2026-10-06 13:34:50
+01 start          Rect(142, 537 - 246, 641)    com.kanyandula.discovernearby
+02 discover-cw1   Rect(48, 156 - 344, 380)     com.kanyandula.discovernearby
+03 discover-cw2   Rect(364, 156 - 660, 380)    com.kanyandula.discovernearby
+04 discover-cw3   Rect(680, 156 - 976, 380)    com.kanyandula.discovernearby
+05 discover-cw4   Rect(48, 400 - 344, 624)     com.kanyandula.discovernearby
+06 discover-cw5   Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+07 discover-cw6   Rect(680, 400 - 976, 624)    com.kanyandula.discovernearby
+08 discover-cw7   Rect(680, 400 - 976, 624)    com.kanyandula.discovernearby
+09 discover-ccw1  Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+10 discover-ccw2  Rect(48, 400 - 344, 624)     com.kanyandula.discovernearby
+11 recs-open      Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+12 recs-cw1       Rect(48, 246 - 976, 382)     com.kanyandula.discovernearby
+13 recs-cw2       Rect(48, 396 - 976, 532)     com.kanyandula.discovernearby
+14 recs-cw3       Rect(48, 546 - 976, 624)     com.kanyandula.discovernearby
+15 recs-cw4       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+16 recs-cw5       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+17 recs-cw6       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+18 details-open   Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+19 details-cw1    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+20 details-cw2    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+21 details-ccw1   Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+22 details-cw3    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+23 navigate       Rect(576, 536 - 976, 624)    com.kanyandula.stubnavigation
+24 back-1         Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+25 back-1-turn    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+26 back-2         Rect(0, 76 - 1024, 672)      com.kanyandula.discovernearby
+27 back-2-turn    Rect(48, 156 - 124, 222)     com.kanyandula.discovernearby
+28 back-3         Rect(48, 156 - 344, 380)     com.kanyandula.discovernearby
+29 back-3-turn    Rect(364, 156 - 660, 380)    com.kanyandula.discovernearby
+stub received: 1

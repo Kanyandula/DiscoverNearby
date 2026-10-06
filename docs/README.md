@@ -6,6 +6,24 @@ This folder contains the product and engineering documentation for the Discover 
 
 The pack is deliberately scoped for an **emulator-first proof of concept**, not a production AAOS release.
 
+## Current Status (2026-10-06)
+
+- **POC target:** a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator.
+- **Production distribution:** undecided and outside this POC. Product must choose a supported route before
+  production planning; any OEM-preinstall route needs OEM confirmation.
+- **UI stack:** ADR-002 (2026-10-06, Product Lead) keeps **Compose for the emulator POC**. Production
+  distribution and its UI requirements stay open; the stack is revisited if Play is chosen.
+- **V7:** **open: one bounded Compose fix, then a clean re-test.** E1 traced the 2026-10-05 "Not workable"
+  failure to the test harness (`uiautomator` polling at launch). The clean journeys still fail two gate
+  conditions: a turn is lost after Back to Recommendations, and focus on rows, header Back and Navigate is only
+  a faint tint. If the re-test fails, V7 fails and ADR-002 reopens. See
+  [the verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and
+  [ADR-002](adr/0002-ui-stack-after-v7.md).
+- **Current gates:** V7 blocks M0 exit. The provider decision V4 blocks M1. V8 does not block the POC.
+
+The verification register and ADRs are the status sources. Older implementation plans and revision summaries
+record what was true when those tasks ran; they are historical evidence, not current status.
+
 ## Documents
 
 1. **01-discover-nearby-poc-brief.md**  
@@ -23,8 +41,9 @@ The pack is deliberately scoped for an **emulator-first proof of concept**, not 
 5. **05-discover-nearby-delivery-plan.md**  
    Kickoff decisions, build baseline, test baseline, provider spike bounds, ownership, go/iterate/stop, timeline and the verification register.
 
-6. **adr/0001-poi-provider.md**  
-   ADR-001 template, completed by the provider spike.
+6. **adr/0001-poi-provider.md** — ADR-001 provider comparison and open licensing gate.
+
+7. **adr/0002-ui-stack-after-v7.md** and **adr/0002/** — ADR-002 and its rotary evidence, screenshots, run record, and retained harness scripts.
 
 `archive/rev1/`, `archive/rev2/` and `archive/rev3/` hold earlier revisions for reference.
 
@@ -49,7 +68,7 @@ Delivery Plan
 Two corrections to Revision 4; no scope change.
 
 - **UX restrictions, not driving state.** `DrivingState.isParked` is renamed `distractionOptimizationRequired` and maps directly to `CarUxRestrictions.isRequiresDistractionOptimization()`. Grant is offered when it is `false`. AOSP tells apps to monitor UX restrictions "and not an absolute driving state" ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)); `false` means "an app can safely run any activity", not that the car is in Park. UX copy still says "park" because that is the driver's action. Changed: 02 §10, §17; 03 §6, §7, §20, M4; 04 §11; 05 §2, §3.
-- **V8 confirmed.** The AAOS developer guide allows `distractionOptimized` only on `CarAppActivity`: "No other activities should be marked as distraction optimized - if one is, your app will be rejected when submitted to the Google Play Store." ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). Changed: 03 §2, §6; 05 §9.
+- **V8 confirmed.** The AAOS developer guide allows `distractionOptimized` only on `CarAppActivity`: "No other activities should be marked as distraction optimized - if one is, your app will be rejected when submitted to the Google Play Store." ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). Changed: 03 §2, §6; 05 §2, §9. The production route remains a Product decision.
 
 ---
 
@@ -72,10 +91,10 @@ Revision 4 changes one decision: **the UI is built in Kotlin + Jetpack Compose**
 | --- | --- |
 | V1 | 🟢 **Closed:** no Car App Library, so no Car App API level. |
 | V2 | 🟢 **Restated:** automated UI tests are Compose UI tests under Robolectric. |
-| V7 | 🔴 **New, open:** rotary focus in Compose on the reference AAOS image. Prove in M0 on the Discover grid. |
-| V8 | 🟡 **New, not blocking the POC:** distribution path. Confirmed in Revision 4.1: Play rejects `distractionOptimized` on any activity other than `CarAppActivity`, so a Compose POI app needs an OEM/preinstall route or a template layer for Play. Feeds go/no-go. |
+| V7 | At Revision 4 adoption: new, open. Current disposition: see docs/05 §9. |
+| V8 | At Revision 4 adoption: constraint confirmed, route open. Current target and production scope: see Current Status above and docs/05 §2/§9. |
 
-V4 (provider gate) is still the only decision that blocks a milestone after M0.
+At the time Revision 4 was adopted, V4 was the only decision identified as blocking a post-M0 milestone. Current gates are in docs/05 §9.
 
 *The Revision 3 summary below is kept as history. Its Car App Library baseline (1.7.0, `minCarApiLevel = 4`, `app-testing`) is superseded by Revision 4.*
 

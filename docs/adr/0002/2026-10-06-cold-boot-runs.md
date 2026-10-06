@@ -232,7 +232,7 @@ events: 15                               events: 12
 
 | | With a `uiautomator` wait or dump | Without |
 | --- | --- | --- |
-| Compose journey | 0 of 3 completed (Boot 1 run 1, D, F), plus Boot 1 run 2 lost a select | 4 of 4 completed (Boot 1 run 3, Boot 2, E, G). Navigate was selected in 2 runs and focused in the other 2 |
+| Compose rotary sequence | 0 of 3 completed (Boot 1 run 1, D, F), plus Boot 1 run 2 lost a select | 4 of 4 reached Navigate (Boot 1 run 3, Boot 2, E, G). Handoff was confirmed in 2; the other 2 only recorded focus at Navigate because the script did not select it. |
 | Probe entry (Boot 2) | C1 ✓, C2 ✗, C3 ✗; B ✓ | p2 ✓, A ✓, then H1–H3, A2–A3, I1–I2 ✗ |
 
 - **Probe full journey:** 2 of 2, both on the first launch after a cold boot.
