@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. ADR-002 (2026-10-06) keeps Compose for the emulator POC. V7 is open: one bounded Compose fix, then a clean re-test; see [the verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md).
+> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix (2026-10-06), and ADR-002 is reopened; it had kept Compose for the emulator POC. The approved [DN-M0-011 implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) are the current references.
 
 ---
 
@@ -781,7 +781,7 @@ Every failure state exposes a recovery path (Retry, Grant, or Back).
 
 ## 17. Rotary and Focus
 
-With a Compose UI, **the app owns rotary support**. AAOS's rotary service turns controller rotation and nudges into focus movement; Compose has to cooperate. Engineering's job is to:
+With a Compose UI, **the app owns rotary support**. On the Android 13 POC image, controller rotation needs app-side support; nudging is not a POC requirement. Engineering's job is to:
 
 - make every actionable element focusable (buttons, clickable rows), with a clearly visible focus indicator
 - match the focus order in the UX spec (§16), and put initial focus on the first item of each screen

@@ -1,8 +1,8 @@
 # DN-M0-007 Automated and Emulator Smoke Baseline Implementation Plan
 
 > **Historical run note (2026-10-06):** The rotary observations below are from the 2026-10-05 smoke and remain
-> a record of that run. Its rotary runs used the `uiautomator`-waited harness that E1 (DN-SP-003) later
-> found reproduces V7's failure. Current V7 status:
+> a record of that run. Its rotary runs used the `uiautomator`-waited harness. E1 (DN-SP-003) later strongly
+> implicated launch-time polling, though its pre-registered classification was inconclusive. Current V7 status:
 > [the register](../../05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](../../adr/0002-ui-stack-after-v7.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

@@ -253,7 +253,7 @@ Without touch: navigate the categories → select → navigate the recommendatio
 
 **Expected:** the journey completes with rotary only. Verify the app's focus handling against the V7 gate (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Record where focus lands after Back; it is not gated. Controller rotation only; nudging is not a POC requirement.
 
-Current V7 status: docs/05 §9 and ADR-002. Record this hand-driven Extended Controls journey separately from adb-driven runs (such as DN-SP-003's E1). Never run `uiautomator` during a rotary run: polling it while the app launches reproduces V7's failure.
+Current V7 status and gate: docs/05 §9 and ADR-002. The approved [DN-M0-011 bounded-fix plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) has the implementation and re-test procedure. Record this hand-driven Extended Controls journey separately from adb-driven runs (such as DN-SP-003's E1). Keep `uiautomator` out of behavioural rotary runs; intentional `uiautomator` controls are diagnostic and reported separately because launch-time polling strongly correlates with the observed failure.
 
 ### G — Touch Interaction
 

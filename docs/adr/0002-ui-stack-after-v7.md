@@ -1,7 +1,8 @@
 # ADR-002: UI Stack After V7 — Compose or Car App Library
 
-**Status:** Accepted for the emulator POC: **B, Compose** (Product Lead, 2026-10-06). V7 is open, and the
-[Decision](#decision) sets its gate. If V7 still fails after one bounded Compose fix, this ADR reopens.
+**Status:** **Reopened (2026-10-06).** V7 failed its clean re-test after the one bounded Compose fix
+([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)). The decision returns to the Product Lead.
+The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below as history.
 
 **Date:** 2026-10-05
 
@@ -9,12 +10,22 @@
 
 **Deciders:** Product Lead · Android/Tech Lead
 
+> **Update 2026-10-06, after the re-test: V7 failed; this ADR is reopened.**
+> - **Fixed by the one bounded Compose fix (DN-M0-011), in all four behavioural runs:**
+>   - the turn lost after Back to Recommendations;
+>   - visible focus on every actionable control.
+> - **Navigate is reached and activated,** in Drive too.
+> - **"Back without losing a turn" failed in one of four runs.** After Back to Discover, the ring was restored on
+>   Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee.
+> - **The rule fixed before the run** needs all four runs to pass every condition.
+>
 > **Update 2026-10-06**
 > - **Decision:** Compose for the emulator POC this iteration ([Decision](#decision)). Production distribution
 >   and its UI requirements stay open.
-> - **E1 (DN-SP-003):** it traced the 2026-10-05 "Not workable" failure to the test harness. The failure
->   followed `uiautomator` polling while the app launched, not timing. The behavioural runs, without
->   `uiautomator`, completed 20 of 20 ([E1](#e1-harness-or-timing-dn-sp-003-2026-10-06)).
+> - **E1 (DN-SP-003):** its pre-registered classification was inconclusive. The run pattern strongly implicates
+>   launch-time `uiautomator` polling rather than wait duration: no-poll arms passed 20/20, launch-poll arms
+>   failed 14/19, and the mid-journey dump arm passed 9/9. This is diagnostic evidence, not proof of the
+>   underlying cause ([E1](#e1-harness-or-timing-dn-sp-003-2026-10-06)).
 > - **V7 is still not passed.** On current `main`, two gate conditions fail:
 >   - a turn is lost after Back to Recommendations;
 >   - focus on rows, header Back and Navigate is only a faint tint.
@@ -184,8 +195,9 @@ orders.
   - rows, header Back and Navigate show focus only as a faint tint ([8](0002/8-compose-row-focus-tint.png),
     [9](0002/9-compose-navigate-focus.png)); the 4 dp ring is on the tiles only
     ([11](0002/11-compose-discover-after-back.png));
-  - Back lands on Coffee, not the originating tile. In-app restore is off by rule, and that rule came from the
-    same `uiautomator`-waited harness.
+  - Back lands on Coffee, not the originating tile. The earlier in-app restore attempt was dropped after a run
+    with the `uiautomator`-waited harness; E1 makes that result inconclusive. The bounded-fix plan now tests a
+    controlled return-focus helper. The exact focus target after Back is recorded, not gated.
   - These were not counted as passing; E1 and the [Decision](#decision) settle how they are handled.
 - **Probe: the entry failure is not a harness artefact.**
   - It reproduced 11 minutes after a cold boot.
@@ -258,6 +270,43 @@ orders.
 
 **Limitation:** all E1 input was adb injection.
 
+### V7 re-test after the bounded fix (DN-M0-011, 2026-10-06)
+
+**Where the record is**
+- [`0002/v7-retest-2026-10-06/results.md`](0002/v7-retest-2026-10-06/results.md): scripts, every reading, logs,
+  key frames.
+- **The setup:** one cold boot, the branch build at `246b662`, rotary by adb injection, no `uiautomator` in the
+  behavioural runs.
+
+**What the fix changed**
+- **`focusRing`:** a 4 dp ring on every actionable control (`Accent`; light on the `Action`-blue buttons).
+- **`ReturnFocus`:**
+  - after Back, the item selected by rotary gets focus again once 250 ms have passed;
+  - the wait is because Compose reports a focus change only for a node already in its last semantics snapshot.
+
+| Gate condition | park1 | park2 | park3 | drive1 |
+| --- | --- | --- | --- | --- |
+| Rotary reaches Navigate | ✅ | ✅ | ✅ | ✅ |
+| Selection activates the focused control | ✅ | ✅ | ✅ | ✅ |
+| Back without losing a turn (Details / Recommendations / Discover) | ✅ / ✅ / ❌ | ✅ / ✅ / ✅ | ✅ / ✅ / ✅ | ✅ / ✅ / ✅ |
+| Visible focus on every actionable control | ✅ | ✅ | ✅ | ✅ |
+
+- **Visible focus** was checked by exact ring colour on a tile, a row, header Back, Navigate, and the network-error
+  state's Try Again and Back.
+- **park1, Back to Discover:** the ring is drawn on the restored Family, but the rotary service holds the
+  ComposeView host. Its turn goes to the first tile, Coffee.
+- **park2, Back to Discover:** the service held a stale node, but its turn still landed on Scenic.
+- **The `uiautomator` control** (reported separately) landed right after every Back.
+- **Where focus lands after Back** (recorded): Details: Navigate. Recommendations: the opened row. Discover:
+  Family is focused in Compose, but the service followed it in only park3 and drive1.
+
+**Reading**
+- **The fix removed the failure it targeted:** the lost turn after Back to Recommendations, in 4 of 4 runs.
+  Visible focus is fixed too.
+- **The remaining failure is in the Discover restore,** which the gate doesn't require (where focus lands is
+  recorded only). In E1, without the restore, Back to Discover kept Compose's own focus on Coffee and reported it.
+- **By Product's rule,** removing that restore or changing the wait would be a second fix. It was not tried.
+
 ### Manual Extended Controls run
 
 The hand-driven journey (Extended Controls → Car rotary, no touch) is recorded here, separately from the
@@ -318,6 +367,9 @@ The visual spec stays as designed, and the work done so far is kept.
   - if V7 still fails, record it as failed and reopen this ADR;
   - V7 is never marked complete, and the stack never switches to the Car App Library, on assumption.
 
+> **Reopened 2026-10-06:** V7 failed the clean re-test after the one bounded fix (see the re-test above). The
+> decision below is kept as history; the Product Lead decides again.
+
 **After E1.** The clean journeys fail two gate conditions (E1 above). Product scoped the one bounded fix to
 cover both:
 - the turn lost after Back to Recommendations;
@@ -327,6 +379,20 @@ The fix is done under DN-M0-011, followed by the clean V7-bar re-test.
 
 ## Consequences
 
+**Now (reopened, 2026-10-06):**
+- **V7 is recorded as failed.** M0 exit stays blocked; DN-M0-011 is blocked on this ADR.
+- **The Product Lead decides again,** with both options' evidence:
+  - Compose: the re-test above;
+  - templates: the probe's entry failure.
+- **The bounded fix's code is kept** (focus ring; restore after Back). It fixed the Recommendations lost turn and
+  visible focus.
+- **Options Product may weigh,** each a new decision:
+  - accept the gate result as it stands;
+  - allow a narrowed change (no restore on Discover) with another re-test;
+  - Option A.
+- **`tools/cal-rotary-probe/` stays.**
+
+**As decided before the re-test (history):**
 - **M0 exit waits on V7:**
   - DN-M0-011 delivers the one bounded fix, then the clean re-test, with the `uiautomator` control reported
     separately;
@@ -336,4 +402,5 @@ The fix is done under DN-M0-011, followed by the clean V7-bar re-test.
   - `tools/cal-rotary-probe/` can be deleted (DN-SP-002).
 - **If V7 still fails:** V7 is recorded as failed, and this ADR reopens with Option A's evidence as it stands.
   The probe stays until then.
-- **DN-UX-001 is unblocked.** It was waiting on this stack decision.
+- **DN-UX-001's stack decision is resolved.** Keep it ready, but start it only after V7 passes the bounded fix's
+  clean re-test; it changes the same screens as the rotary work.

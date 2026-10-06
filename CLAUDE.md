@@ -11,13 +11,16 @@ delivery plan, `docs/adr/`, `docs/design/` = visual spec). Read `docs/03-…` §
 structural work. If code and docs disagree, stop and ask.
 
 ## Current state of the code (read this first)
-Single Compose `:app` module (DN-M0-009): a placeholder `ui/MainActivity`, declared
-`distractionOptimized`, and `ManifestContractTest`. compileSdk 37 (one `android-compileSdk` in
+Single Compose `:app` module (DN-M0-009): the M0 fake-data flow is implemented across Discover, Recommendations,
+Place Details and the `geo:` navigation handoff; location permission and UX-restriction handling are also in place.
+The stub navigation app is separate. Every actionable control shows the rotary focus ring (`focusRing`); V7 failed
+its clean re-test (2026-10-06) and ADR-002 is reopened. See docs/05 §9 and the active DN-M0-011 ticket for current acceptance and status. The activity is declared
+`distractionOptimized`, with `ManifestContractTest`. compileSdk 37 (one `android-compileSdk` in
 `gradle/libs.versions.toml`; the app derives its `android.car.jar` path from it), targetSdk 36, minSdk 29.
 No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
 Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
-SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost`, in-app Back
-(AOSP car bar has none), Recommendations placeholder. Domain model, `CategoryConfigs` and fakes (DN-M0-003): `model/`,
+  SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost` and in-app Back
+  (AOSP car bar has none). The completed fake-data Recommendations flow is detailed below (DN-M0-004). Domain model, `CategoryConfigs` and fakes (DN-M0-003): `model/`,
 `places/` (+ `fake/`), `location/` (+ `fake/`), wired in `AppContainer`. UX restrictions via `CarDrivingRestrictions` (DN-M0-010; unknown = restrictions
 apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004): `RecommendationEngine`,
 `DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
@@ -27,21 +30,27 @@ Navigate hands off through `IntentNavigationLauncher` (DN-M3-001:
 `ACTION_VIEW geo:`, failure → `NavigationUnavailable`). Location (DN-M0-006): `AndroidLocationProvider` (GPS/network,
 8 s fix timeout; approximate-only uses the platform's recent coarse fix), Grant only while restrictions allow it,
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
-(DN-M0-011): 4 dp focus ring on the tiles, `RotaryContractTest`. ADR-002 (2026-10-06): **Compose for the
-emulator POC**; production distribution stays open. V7 is **open**: E1 (DN-SP-003) traced the 2026-10-05 Not
-workable result to the harness's `uiautomator` polling at launch. Gate: rotation reaches Navigate, select
-activates the focused control, Back loses no turn, visible focus on every actionable control; controller
-rotation on Android 13 only, no nudging. One bounded Compose fix (lost turn after Back + focus on rows, header
-Back, Navigate), then a clean re-test; if it fails, V7 fails and ADR-002 reopens. Check docs/05 §9 V7 before
-rotary work.
+(DN-M0-011): `focusRing` on every actionable control, `ReturnFocus` (after Back, rotary focus returns to the item
+selected by rotary once 250 ms have passed, because Compose reports focus only for nodes already in its semantics
+snapshot), `RotaryContractTest`. ADR-002 had chosen **Compose for the emulator POC**; it is now **reopened**.
+
+V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
+- Navigate reached and activated 4/4; visible focus everywhere; no lost turn after Back to Details or Back to
+  Recommendations.
+- In 1 of 4 runs, after Back to Discover, the service stayed on the host and the turn jumped to Coffee.
+
+E1 had traced the 2026-10-05 Not workable result to launch-time `uiautomator` polling. The gate stays: rotation
+reaches Navigate, select activates the focused control, Back loses no turn, visible focus on every actionable
+control; controller rotation on Android 13 only. The decision is the Product Lead's; no further fix without it.
+Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
 (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
 Smoke baseline (DN-M0-007): reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it when
 the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 Car App Library rotary probe (DN-SP-002): `tools/cal-rotary-probe/`, a standalone build (not in the root build or CI),
 evidence for ADR-002 (it did not pass; on cold boots it completed the journey, but rotary entry failed after
-the first few launches); keep it until V7 resolves, delete it if V7 passes (ADR-002 reopens if V7 fails).
-Next: the bounded V7 fix (DN-M0-011), then the clean re-test; DN-UX-001 is unblocked.
+the first few launches); keep it, because ADR-002 is reopened.
+Current work: none on the UI. Waiting for the Product Lead's ADR-002 decision. DN-UX-001 waits on it.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -85,9 +94,9 @@ Next: the bounded V7 fix (DN-M0-011), then the clean re-test; DN-UX-001 is unblo
   Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX
   restrictions, not the gear; never call it "parked" in code.
 - Rotary is the app's job: every actionable element focusable with visible focus, focus order per
-  UX spec §16, initial focus on first item. No in-app focus restore after Back for now: it "trapped rotation"
-  only in a `uiautomator`-waited run (DN-M0-011); re-test it cleanly before relying on either result. Where
-  focus lands after Back is recorded, not gated (ADR-002).
+  UX spec §16, initial focus on first item. Rotary focus after Back goes through `ReturnFocus` only. Its
+  Discover restore was not always reported to the rotary service in the re-test, so don't change it without the
+  Product Lead's ADR-002 decision. Where focus lands after Back is recorded, not gated (ADR-002).
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).
@@ -110,8 +119,9 @@ Next: the bounded V7 fix (DN-M0-011), then the clean re-test; DN-UX-001 is unblo
 - Check state: `adb -s emulator-5554 shell dumpsys car_service --services CarDrivingStateService`
 - Distraction-optimised check: `adb -s emulator-5554 shell cmd car_service get-do-activities com.kanyandula.discovernearby`
 - Never `adb reboot`; kill and relaunch the emulator instead.
-- Rotary runs: no `uiautomator` while the app is on screen (runs that waited with it reproduced V7's
-  failure; E1, DN-SP-003, tests why). Read focus from
+- Rotary behavioural runs: no `uiautomator` polling while the app launches. E1's preregistered classification
+  was inconclusive, but launch-time polling strongly correlated with failures; report intentional controls
+  separately. Read focus from
   `adb -s emulator-5554 shell dumpsys activity service com.android.car.rotary/.RotaryService` (`focusedNode`)
   and screenshots.
 
