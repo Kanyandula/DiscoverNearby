@@ -3,6 +3,7 @@ package com.kanyandula.discovernearby.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +26,7 @@ fun ScreenHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifie
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ContentGap),
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(MinTouchTarget)) {
+        IconButton(onClick = onBack, modifier = Modifier.focusRing(CircleShape).size(MinTouchTarget)) {
             Icon(painter = painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
         }
         Text(

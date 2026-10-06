@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. ADR-002 (2026-10-06) keeps Compose for the emulator POC. V7 is open: one bounded Compose fix, then a clean re-test; see [the verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md).
+> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix (2026-10-06), and ADR-002 is reopened; it had kept Compose for the emulator POC. The approved [DN-M0-011 implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) are the current references.
 
 ---
 
@@ -781,15 +781,15 @@ Every failure state exposes a recovery path (Retry, Grant, or Back).
 
 ## 17. Rotary and Focus
 
-With a Compose UI, **the app owns rotary support**. AAOS's rotary service turns controller rotation and nudges into focus movement; Compose has to cooperate. Engineering's job is to:
+With a Compose UI, **the app owns rotary support**. On the Android 13 POC image, controller rotation needs app-side support; nudging is not a POC requirement. Engineering's job is to:
 
 - make every actionable element focusable (buttons, clickable rows), with a clearly visible focus indicator
 - match the focus order in the UX spec (§16), and put initial focus on the first item of each screen
-- after Back, return to a usable screen without losing a turn (V7 gate). Where focus lands is recorded, not gated (ADR-002, 2026-10-06). The in-app `FocusRequester` restore that "trapped rotary" on 2026-10-05 was tested under the `uiautomator`-waited harness; re-test it cleanly before relying on that result
+- after Back, return to a usable screen without losing a turn (V7 gate). Where focus lands is recorded, not gated (ADR-002, 2026-10-06). Rotary focus after Back now returns through `ReturnFocus` (DN-M0-011), re-tested cleanly on 2026-10-06. On Back to Discover it was not always reported to the rotary service (ADR-002 re-test)
 - keep the focused row scrolled into view in lists
 - **verify** with the emulator rotary control that focus order is sensible, focus is visible, Back restores a sensible target, nothing is unreachable, and there are no traps
 
-How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement), one bounded Compose fix, then a clean re-test.
+How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement). It failed its clean re-test after one bounded Compose fix (2026-10-06), and ADR-002 is reopened.
 
 ---
 

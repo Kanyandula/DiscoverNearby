@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.kanyandula.discovernearby.R
+import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ButtonGap
 import com.kanyandula.discovernearby.ui.theme.ButtonMinWidth
@@ -30,6 +31,7 @@ import com.kanyandula.discovernearby.ui.theme.ButtonRadius
 import com.kanyandula.discovernearby.ui.theme.MessageGap
 import com.kanyandula.discovernearby.ui.theme.MessageIconSize
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
+import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.Raised
 
 /** A centred message with a Back action and, when [onPrimary] is given, a primary action first (docs/02 §9–§13). */
@@ -74,10 +76,14 @@ internal fun MessageState(
 
 @Composable
 private fun MessageButton(@StringRes label: Int, onClick: () -> Unit, container: Color, content: Color) {
+    val shape = RoundedCornerShape(ButtonRadius)
     Button(
         onClick = onClick,
-        modifier = Modifier.defaultMinSize(minWidth = ButtonMinWidth, minHeight = MinTouchTarget),
-        shape = RoundedCornerShape(ButtonRadius),
+        // A primary (Action blue) button gets a light ring; an Accent ring would barely show on it.
+        modifier = Modifier
+            .focusRing(shape, if (container == Action) OnSurface else Accent)
+            .defaultMinSize(minWidth = ButtonMinWidth, minHeight = MinTouchTarget),
+        shape = shape,
         colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = content),
     ) {
         Text(text = stringResource(label), style = MaterialTheme.typography.labelLarge)

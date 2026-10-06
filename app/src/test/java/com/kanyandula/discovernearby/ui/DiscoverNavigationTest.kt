@@ -2,10 +2,14 @@ package com.kanyandula.discovernearby.ui
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -36,7 +40,10 @@ class DiscoverNavigationTest {
     @Before
     fun setUp() {
         deviceAt(TestLocation.GREYSTONES.point) // the app reads the real location since DN-M0-006
-        rule.setContent { DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) } }
+        rule.setContent {
+            inputModes = LocalInputModeManager.current
+            DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) }
+        }
     }
 
     /**
@@ -46,6 +53,14 @@ class DiscoverNavigationTest {
     private fun systemBack() {
         rule.waitForIdle()
         rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
+        rule.mainClock.advanceTimeBy(SETTLE_MS)
+    }
+
+    private lateinit var inputModes: InputModeManager
+
+    /** A rotary select, then long enough for the navigation it starts. */
+    private fun rotarySelect(node: SemanticsNodeInteraction) {
+        rule.rotarySelect(node, inputModes)
         rule.mainClock.advanceTimeBy(SETTLE_MS)
     }
 
@@ -96,6 +111,31 @@ class DiscoverNavigationTest {
         rule.onNodeWithText("Adventure Playground, Greystones").assertIsDisplayed()
         systemBack()
         onDiscover()
+    }
+
+    // docs/02 §16, V7: after Back, rotary focus returns to the tile it left from.
+    @Test
+    fun rotaryFocusReturnsToTheOriginatingTile() {
+        rotarySelect(rule.onNodeWithText("Family"))
+        systemBack()
+        rule.onNodeWithText("Family").assertIsFocused()
+    }
+
+    // V7: after Back from Details, focus returns to the row, so the next turn moves on from it.
+    @Test
+    fun rotaryFocusReturnsToTheOriginatingRow() {
+        rotarySelect(rule.onNodeWithText("Family"))
+        rotarySelect(rule.onNodeWithText("Adventure Playground, Greystones"))
+        systemBack()
+        rule.onNodeWithText("Adventure Playground, Greystones").assertIsFocused()
+    }
+
+    // Review Focus 2: a touch selection leaves no focus, so no ring appears on return.
+    @Test
+    fun touchSelectionLeavesNoFocusBehind() {
+        rule.onNodeWithText("Family").performClick()
+        systemBack()
+        rule.onNodeWithText("Family").assertIsNotFocused()
     }
 
     @Test

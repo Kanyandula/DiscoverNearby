@@ -10,20 +10,25 @@ import androidx.compose.ui.Modifier
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.components.CategoryTile
 import com.kanyandula.discovernearby.ui.theme.GridGap
+import com.kanyandula.discovernearby.ui.rememberReturnFocus
 
 private const val GRID_COLUMNS = 3
 private val Rows = DiscoveryCategory.entries.chunked(GRID_COLUMNS)
 
 @Composable
 fun DiscoverScreen(onCategorySelected: (DiscoveryCategory) -> Unit, modifier: Modifier = Modifier) {
+    val returnFocus = rememberReturnFocus()
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(GridGap)) {
         Rows.forEach { row ->
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(GridGap)) {
                 row.forEach { category ->
                     CategoryTile(
                         category = category,
-                        onClick = { onCategorySelected(category) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        onClick = {
+                            returnFocus.selected(category.name)
+                            onCategorySelected(category)
+                        },
+                        modifier = Modifier.weight(1f).fillMaxHeight().then(returnFocus.item(category.name)),
                     )
                 }
             }

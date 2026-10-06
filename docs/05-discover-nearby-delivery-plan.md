@@ -7,7 +7,7 @@
 **Owners:** Product Lead + Android/Tech Lead  
 **Last Updated:** 2026-10-06
 
-> **Current gates (2026-10-06):** ADR-002 is decided: Compose for the emulator POC (Product Lead). V7 blocks M0 exit. E1 traced the earlier failure to the test harness; one bounded Compose fix is now allowed, then a clean re-test. If V7 still fails, it is recorded as failed and ADR-002 reopens. The provider decision V4 blocks M1. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
+> **Current gates (2026-10-06):** **V7 failed its clean re-test after the one bounded Compose fix, and ADR-002 is reopened** (the decision returns to the Product Lead). V7 blocks M0 exit. Before the re-test, ADR-002 had chosen Compose for the emulator POC. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. The provider decision V4 blocks M1. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
 >
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
@@ -21,7 +21,7 @@
 
 The decisions below record the original kickoff baseline. Their current status and owners are in §9; use that register rather than this historical kickoff wording to determine active blockers.
 
-1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 (2026-10-06) keeps Compose for the emulator POC; production distribution and its UI requirements stay open.
+1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 had kept Compose for the emulator POC (2026-10-06). It is reopened after V7 failed its clean re-test, and the stack decision is back with the Product Lead. Production distribution stays open.
 2. Use **fake POI data** for M0 while the provider spike runs.
 3. The **Android/Tech Lead** owns the provider spike. **Product** owns data-quality approval. **Licensing** is confirmed by a Product/Legal/Business owner, not by engineering alone.
 4. The test baseline is **Compose UI tests (Robolectric) + unit tests + emulator validation**.
@@ -332,10 +332,10 @@ flowchart TD
     start([Start]) --> m0[M0 AAOS implementation]
     start --> spike[Provider spike and licensing gate]
     m0 --> e1[E1 harness and timing investigation — done]
-    e1 --> adr2[ADR-002: Compose for the POC — decided]
-    adr2 --> uiwork[One bounded Compose fix — DN-M0-011]
-    uiwork --> v7[Clean re-test against the V7 gate]
-    v7 -->|still fails| reopen[V7 failed; ADR-002 reopens]
+    e1 --> adr2[ADR-002: Compose for the POC — decided, then reopened]
+    adr2 --> uiwork[One bounded Compose fix — DN-M0-011, done]
+    uiwork --> v7[Clean re-test against the V7 gate — failed]
+    v7 -->|failed| reopen[V7 failed; ADR-002 reopened — Product decides]
     v7 --> m0exit[M0 exit]
     spike --> adr1[ADR-001 provider decision]
     adr1 --> m1[M1 Live POI Discovery]
@@ -348,13 +348,13 @@ flowchart TD
     go -->|optional after GO| m5[M5 Along Route]
 ```
 
-M0's implementation is largely complete. E1 is done, and ADR-002 keeps Compose; M0 exit waits on the V7 gate after one bounded fix. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
+M0's implementation is largely complete. E1 is done; V7 failed its clean re-test after the one bounded fix, so ADR-002 is reopened and M0 exit waits on the Product Lead's decision. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
 
 ---
 
 ## 9. Verification Register
 
-**Current milestone gates:** V7 blocks M0 exit (ADR-002 sets its gate: one bounded Compose fix, then a clean re-test). V4 blocks M1. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates:** V7 blocks M0 exit. It failed its clean re-test after the one bounded fix (2026-10-06), and ADR-002 is reopened. V4 blocks M1. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
@@ -365,7 +365,7 @@ Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
 | V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. Until then: dev-only key (§2a). | Tech Lead | M1 integration |
-| V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Open: one bounded Compose fix, then a clean re-test** (DN-M0-011). E1 (DN-SP-003, 2026-10-06) traced the 2026-10-05 "Not workable" failure to the test harness: it followed `uiautomator` polling while the app launched, not timing. The behavioural runs, without `uiautomator`, completed 20 of 20; the `uiautomator` controls are reported separately. The clean V7-bar journeys (3 parked, 1 in Drive) reach and activate Navigate, but fail two gate conditions: a turn is lost after Back to Recommendations, and rows, header Back and Navigate show only a faint focus tint. If the fix's re-test still fails, V7 is recorded as failed and ADR-002 reopens. Input was adb-injected; the manual Extended Controls run is recorded separately (pending). Details: [ADR-002](adr/0002-ui-stack-after-v7.md#e1-harness-or-timing-dn-sp-003-2026-10-06). | Product Lead (gate); Android Engineer (fix) | M0 exit; GO ("AAOS flow works") |
+| V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Failed (clean re-test, 2026-10-06); ADR-002 reopened.** After one bounded Compose fix (DN-M0-011: a focus ring on every actionable control; rotary focus returned to the selected item after Back), four behavioural runs (3 parked, 1 in Drive; adb-injected, no `uiautomator`): Navigate reached and activated 4/4; visible focus on every control; Back to Details and to Recommendations without a lost turn 4/4, fixing E1's lost turn. Back to Discover failed in 1 of 4 runs: the ring was restored on Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee. The rule fixed before the run needs all four runs to pass. The `uiautomator` control is reported separately; the manual Extended Controls run is pending and recorded separately. Details: [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06). Earlier E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time polling but did not prove the underlying cause. | Product Lead (gate); Android Engineer (fix) | M0 exit; GO ("AAOS flow works") |
 | V8 | Production distribution path. **Constraint confirmed (2026-10-02):** Play permits `distractionOptimized` only on the Car App Library's `CarAppActivity`; a Compose POI UI therefore needs a compatible template UI for Play or a supported alternate route such as OEM preinstall ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). | 🟡 Constraint captured; production route undecided and outside this POC. Product must choose before production planning; OEM preinstall needs OEM confirmation. Not blocking POC work. | Product Lead | Production planning |
 | V1 | `minCarApiLevel = 4` supports AAOS | 🟢 Closed for the current Compose baseline (Rev 4; no Car App API level required). Reopens only if ADR-002 reopens and chooses Car App Library templates. | — | Revisit if ADR-002 reopens |
 | V2 | How automated UI tests run | 🟢 Resolved for the current Compose baseline: Compose UI tests under Robolectric, as on NyasaPlayer; one M0 smoke test checks project configuration; rotary and Park/Drive stay emulator-tested. Reopens only if ADR-002 reopens and chooses templates. | — | Revisit if ADR-002 reopens |

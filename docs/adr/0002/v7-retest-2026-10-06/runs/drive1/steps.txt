@@ -1,0 +1,35 @@
+v7gate drive1 (drive) 2026-10-06 16:27:36
+driving: 10-06 16:27:37 CarDrivingStateService: changed from 1 to 2
+01 start          Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+02 discover-cw1   Rect(48, 156 - 344, 380)     com.kanyandula.discovernearby
+03 discover-cw2   Rect(364, 156 - 660, 380)    com.kanyandula.discovernearby
+04 discover-cw3   Rect(680, 156 - 976, 380)    com.kanyandula.discovernearby
+05 discover-cw4   Rect(48, 400 - 344, 624)     com.kanyandula.discovernearby
+06 discover-cw5   Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+07 discover-cw6   Rect(680, 400 - 976, 624)    com.kanyandula.discovernearby
+08 discover-cw7   Rect(680, 400 - 976, 624)    com.kanyandula.discovernearby
+09 discover-ccw1  Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+10 discover-ccw2  Rect(48, 400 - 344, 624)     com.kanyandula.discovernearby
+11 recs-open      Rect(0, 76 - 1024, 672)      com.kanyandula.discovernearby
+12 recs-cw1       Rect(48, 246 - 976, 382)     com.kanyandula.discovernearby
+13 recs-cw2       Rect(48, 396 - 976, 532)     com.kanyandula.discovernearby
+14 recs-cw3       Rect(48, 546 - 976, 624)     com.kanyandula.discovernearby
+15 recs-cw4       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+16 recs-cw5       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+17 recs-cw6       Rect(48, 488 - 976, 624)     com.kanyandula.discovernearby
+18 recs-ccw1      Rect(48, 338 - 976, 474)     com.kanyandula.discovernearby
+19 recs-ccw2      Rect(48, 222 - 976, 324)     com.kanyandula.discovernearby
+20 details-open   Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+21 details-cw1    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+22 details-cw2    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+23 details-ccw1   Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+24 details-cw3    Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+25 navigate       Rect(576, 536 - 976, 624)    com.kanyandula.stubnavigation
+26 back-1         Rect(576, 536 - 976, 624)    com.kanyandula.discovernearby
+27 back-1-turn    Rect(48, 156 - 124, 232)     com.kanyandula.discovernearby
+28 back-2         Rect(48, 246 - 976, 382)     com.kanyandula.discovernearby
+29 back-2-turn    Rect(48, 396 - 976, 532)     com.kanyandula.discovernearby
+30 back-3         Rect(48, 400 - 344, 624)     com.kanyandula.discovernearby
+31 back-3-turn    Rect(364, 400 - 660, 624)    com.kanyandula.discovernearby
+stub received: 1
+driving at end: 10-06 16:27:37 CarDrivingStateService: changed from 1 to 2

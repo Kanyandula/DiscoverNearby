@@ -31,6 +31,7 @@ import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.SpinnerStroke
 import com.kanyandula.discovernearby.ui.visual
+import com.kanyandula.discovernearby.ui.rememberReturnFocus
 
 private val EmptyMessage = Message(R.drawable.ic_empty, Highlight, R.string.empty_title, R.string.empty_body)
 private val LoadFailedMessage =
@@ -51,6 +52,7 @@ fun RecommendationsScreen(
     onGrant: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val returnFocus = rememberReturnFocus()
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
         ScreenHeader(title = stringResource(category.visual.label), onBack = onBack)
         val body = Modifier.weight(1f)
@@ -59,7 +61,14 @@ fun RecommendationsScreen(
             is RecommendationsUiState.Content ->
                 LazyColumn(modifier = body, verticalArrangement = Arrangement.spacedBy(RowGap)) {
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
-                        RecommendationRow(recommendation, onClick = { onPlaceSelected(recommendation) })
+                        RecommendationRow(
+                            recommendation,
+                            onClick = {
+                                returnFocus.selected(recommendation.place.id)
+                                onPlaceSelected(recommendation)
+                            },
+                            modifier = returnFocus.item(recommendation.place.id),
+                        )
                     }
                 }
             RecommendationsUiState.Empty ->
