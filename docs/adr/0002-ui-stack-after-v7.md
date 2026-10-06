@@ -4,6 +4,13 @@
 **Date:** 2026-10-05  
 **Deciders:** Product Lead · Android/Tech Lead
 
+> **Update 2026-10-06 (DN-SP-003): V7 is confounded; clean E1 pending.** It is neither passed nor failed.
+> - **Compose:** on two cold boots, the Compose failure described below reproduced only when the test harness
+>   waited with `uiautomator`. Without it, the journey completed 4 of 4.
+> - **Probe:** its entry failure is real, and it still reproduced without `uiautomator`.
+>
+> See [Cold-boot comparison](#cold-boot-comparison-dn-sp-003-2026-10-06).
+
 ---
 
 ## Context
@@ -11,7 +18,8 @@
 Revision 4 replaced the Car App Library templates with a Jetpack Compose activity. That made rotary support
 the app's job (UX spec §16), and the delivery plan made it a check inside M0: V7.
 
-DN-M0-011 ran V7 on the reference image (`AAOS_AOSP_33_userdebug`, Extended Controls → rotary). The result is
+DN-M0-011 ran V7 on the reference image (`AAOS_AOSP_33_userdebug`). Rotary was injected with `cmd car_service
+inject-rotary` / `inject-key`, not driven by hand from Extended Controls. The result is
 **Not workable as built**:
 
 - **What works.** On a freshly opened Discover grid, rotation follows the UX order (Coffee → Food → Outdoors →
@@ -119,9 +127,61 @@ This is a race. Once it was lost in these runs, rotation and nudges did not brin
 The list, details, Navigate and Back steps were never reached by rotary, so templates' behaviour there is unknown.
 
 **Not tested** (any of these could change the picture):
-- a freshly started rotary service or a cold-booted emulator, the condition of the one success;
+- a freshly started rotary service or a cold-booted emulator, the condition of the one success (tested
+  2026-10-06, see below);
 - a newer AAOS image or template host;
 - Car App Library 1.9.0, still alpha.
+
+### Cold-boot comparison (DN-SP-003, 2026-10-06)
+
+Every earlier result came from one long-running emulator session. Two cold boots then ran both apps, in both
+orders.
+
+**Where the record is**
+- The full record is [2026-10-06-cold-boot-runs.md](0002/2026-10-06-cold-boot-runs.md): conditions, every
+  focus reading, and the scripts as run ([`harness-2026-10-06/`](0002/harness-2026-10-06/)).
+- Rotary was injected by adb, not driven by hand from Extended Controls.
+- RotaryController logs were not saved to files; only the quoted excerpts exist.
+
+| | Compose | Car App Library probe |
+| --- | --- | --- |
+| Full journey, no `uiautomator` | 4 of 4 completed. Navigate was selected (the stub received the URI) in 2 runs and focused in 2. | 2 of 2: the first launch after each boot ([13](0002/13-cal-navigate-focus.png)) |
+| Full journey, with a `uiautomator` wait or dump | 0 of 3. The host takes focus after navigation; on Recommendations the second turn is ignored; select then fires the header Back ([12](0002/12-compose-uiautomator-run-back-fired.png)). In one more run a select was lost: only `ACTION_UP` was injected. | Not run |
+| Entry by rotary | Every run | Boot 2: the first 4 entries; then 0 of 7, with or without `uiautomator`, and after restarting the template host process ([15](0002/15-cal-entry-two-rings.png)) |
+
+**Reading**
+- **Compose: the tool and the timing are not separated yet.**
+  - V7's failure reproduced only when the harness waited with `uiautomator`. Every run block in the
+    DN-M0-011 plan starts with that wait (`waitfor.sh Coffee 40`).
+  - Those runs also started turning sooner after launch than the clean ones.
+  - E1 (DN-SP-003) separates the two. Until then V7 is **confounded; clean E1 pending**.
+- **The clean Compose runs still miss V7's existing bar:**
+  - after Back to Recommendations, the service focuses the ComposeView host and the first turn is absorbed
+    ([10](0002/10-compose-back-host-focus.png));
+  - rows, header Back and Navigate show focus only as a faint tint ([8](0002/8-compose-row-focus-tint.png),
+    [9](0002/9-compose-navigate-focus.png)); the 4 dp ring is on the tiles only
+    ([11](0002/11-compose-discover-after-back.png));
+  - Back lands on Coffee, not the originating tile. In-app restore is off by rule, and that rule came from the
+    same `uiautomator`-waited harness.
+  - These need app work or an explicit Product decision. They are not counted as passing.
+- **Probe: the entry failure is not a harness artefact.**
+  - It reproduced 11 minutes after a cold boot.
+  - In the log, the turn first focuses the probe's tile; within 300 ms focus moves to a system bar.
+  - Once rotary is inside, the journey works.
+- **Probe, other findings on this emulator:**
+  - a select takes 10–14 s to render the next template; a select sent before then still counts, and stacks an
+    extra screen ([14](0002/14-cal-extra-screen-on-stack.png));
+  - Back on the root grid does not leave the app;
+  - after Back, focus goes to the first item.
+- **Platform guidance:**
+  - AAOS documents the limit on this release: "Android 12, Android 12L, and Android 13: AAOS provides limited
+    rotary support for Compose UIs. Controller rotation works with an app-side workaround. We don't support
+    nudging."
+  - And: "Android 14 and higher: AAOS provides basic built-in rotary support for Jetpack Compose user
+    interfaces, including controller rotation and nudging"
+    ([AAOS 25Q4 release notes](https://source.android.com/docs/automotive/start/releases/aaos-25q4), read
+    2026-10-06).
+  - Nudging was not tested.
 
 ## Options
 
@@ -137,17 +197,22 @@ The probe below tested this premise. Templates also give a Play route (V8).
 - **Unaffected:** `discovery/`, `model/`, `places/`, `location/` and `car/` already keep Compose out, by rule.
 - **Trade-off:** the visual spec (`docs/design/`) is constrained to what the templates allow.
 - **Rotary probe: did not pass** (DN-SP-002, Evidence above). On the reference image, rotary entered the template app on one launch, the first of the session, and in none of 12 later launches. Focus stayed in the system bars instead. As tested, the template path (Car App Library 1.7.0 / 1.4.0, host 1.007) showed its own entry failure on this image, so the premise that templates make V7 "the platform's problem" was not confirmed. No engineering recommendation for Option A follows from the probe.
+  - **Cold boots (2026-10-06):** the probe completed the journey on the first launch after each boot. Entry still failed from the fifth entry on, with or without `uiautomator`. Templates don't fix rotary by themselves on this image.
 
 ### B. Keep Compose
 
 The visual spec stays as designed, and the work done so far is kept.
 
-- **Gap:** rotary on the core path stays unreliable on the reference image, so UX spec §16 and V7 remain open.
+- **Gap:** V7 is confounded (2026-10-06), and UX spec §16 and V7 remain open. Even the clean runs miss V7's
+  existing bar in three places: focus visibility on rows, header Back and Navigate; the turn absorbed after Back;
+  and focus after Back.
 - **What it needs:** a fix that does not depend on run-to-run timing. Candidates were not evaluated in the time-box:
   - a different focus host per destination
   - changes upstream in Compose or the rotary service
 - **Diagnostic only:** a newer AAOS image or another Compose version can show where the fault lies. Neither one changes the result on the reference image.
-- **Distribution:** stays OEM/preinstall (V8).
+- **Distribution:** this iteration targets a sideloaded debug POC on the AAOS userdebug emulator. Production
+  distribution is undecided and outside this POC's scope; Product must choose a supported route before
+  production planning. An OEM-preinstall route requires OEM confirmation (V8).
 
 ## Decision
 
