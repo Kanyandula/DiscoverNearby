@@ -31,7 +31,7 @@ Navigate hands off through `IntentNavigationLauncher` (DN-M3-001:
 8 s fix timeout; approximate-only uses the platform's recent coarse fix), Grant only while restrictions allow it,
 denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
 (DN-M0-011): `focusRing` on every actionable control, `ReturnFocus` (after Back, rotary focus returns to the item
-selected by rotary once 250 ms have passed, because Compose reports focus only for nodes already in its semantics
+selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's semantics
 snapshot), `RotaryContractTest`. ADR-002 had chosen **Compose for the emulator POC**; it is now **reopened**.
 
 V7 **failed** its clean re-test after the one bounded fix (2026-10-06):

@@ -21,7 +21,7 @@
 
 The decisions below record the original kickoff baseline. Their current status and owners are in §9; use that register rather than this historical kickoff wording to determine active blockers.
 
-1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 (2026-10-06) keeps Compose for the emulator POC; production distribution and its UI requirements stay open.
+1. The current implementation uses **Kotlin + Jetpack Compose** as one distraction-optimized activity on Android **API 29+**. ADR-002 had kept Compose for the emulator POC (2026-10-06). It is reopened after V7 failed its clean re-test, and the stack decision is back with the Product Lead. Production distribution stays open.
 2. Use **fake POI data** for M0 while the provider spike runs.
 3. The **Android/Tech Lead** owns the provider spike. **Product** owns data-quality approval. **Licensing** is confirmed by a Product/Legal/Business owner, not by engineering alone.
 4. The test baseline is **Compose UI tests (Robolectric) + unit tests + emulator validation**.
@@ -332,10 +332,10 @@ flowchart TD
     start([Start]) --> m0[M0 AAOS implementation]
     start --> spike[Provider spike and licensing gate]
     m0 --> e1[E1 harness and timing investigation — done]
-    e1 --> adr2[ADR-002: Compose for the POC — decided]
-    adr2 --> uiwork[One bounded Compose fix — DN-M0-011]
-    uiwork --> v7[Clean re-test against the V7 gate]
-    v7 -->|still fails| reopen[V7 failed; ADR-002 reopens]
+    e1 --> adr2[ADR-002: Compose for the POC — decided, then reopened]
+    adr2 --> uiwork[One bounded Compose fix — DN-M0-011, done]
+    uiwork --> v7[Clean re-test against the V7 gate — failed]
+    v7 -->|failed| reopen[V7 failed; ADR-002 reopened — Product decides]
     v7 --> m0exit[M0 exit]
     spike --> adr1[ADR-001 provider decision]
     adr1 --> m1[M1 Live POI Discovery]
@@ -348,7 +348,7 @@ flowchart TD
     go -->|optional after GO| m5[M5 Along Route]
 ```
 
-M0's implementation is largely complete. E1 is done, and ADR-002 keeps Compose; M0 exit waits on the V7 gate after one bounded fix. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
+M0's implementation is largely complete. E1 is done; V7 failed its clean re-test after the one bounded fix, so ADR-002 is reopened and M0 exit waits on the Product Lead's decision. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
 
 ---
 

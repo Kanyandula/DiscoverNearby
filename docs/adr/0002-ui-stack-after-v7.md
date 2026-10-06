@@ -26,7 +26,7 @@ The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below
 >   launch-time `uiautomator` polling rather than wait duration: no-poll arms passed 20/20, launch-poll arms
 >   failed 14/19, and the mid-journey dump arm passed 9/9. This is diagnostic evidence, not proof of the
 >   underlying cause ([E1](#e1-harness-or-timing-dn-sp-003-2026-10-06)).
-> - **V7 is still not passed.** On current `main`, two gate conditions fail:
+> - **V7 is still not passed.** Before the bounded fix, two gate conditions failed:
 >   - a turn is lost after Back to Recommendations;
 >   - focus on rows, header Back and Navigate is only a faint tint.
 >
@@ -74,8 +74,8 @@ not driven by hand from Extended Controls. The failures below were later traced 
   path work by rotary, with focus visible and Navigate reachable.
 
 The reported behaviors conflict with UX spec §16 ("The primary flow must be fully usable through rotary
-input") and the GO condition "AAOS flow works" (delivery plan §7). V7 remains open; the [Decision](#decision)
-sets its gate.
+input") and the GO condition "AAOS flow works" (delivery plan §7). V7 then failed its clean re-test after the
+one bounded fix ([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)), and this ADR is reopened.
 
 V8 is already confirmed and bears on the same choice, but it does not decide the POC target. Play accepts
 `distractionOptimized` only on the Car App Library's `CarAppActivity`. If Product later chooses Play, the
@@ -281,31 +281,45 @@ orders.
 **What the fix changed**
 - **`focusRing`:** a 4 dp ring on every actionable control (`Accent`; light on the `Action`-blue buttons).
 - **`ReturnFocus`:**
-  - after Back, the item selected by rotary gets focus again once 250 ms have passed;
-  - the wait is because Compose reports a focus change only for a node already in its last semantics snapshot.
+  - after Back, the item selected by rotary gets focus again once 250 ms have passed.
+- **The wait changed during development, before the re-test.**
+  - The plan specified one frame.
+  - Developer check-1 (warm emulator) showed the restored Family on Discover going unreported, with the next turn
+    jumping to Coffee. So the wait became 250 ms, and check-2 passed.
+  - The working hypothesis: Compose reports a focus change only for a node already in its last semantics
+    snapshot, refreshed at most every 100 ms. park1 contradicts it.
+  - It was ruled a parameter of the same fix, not a second attempt. Whether Product agrees is Product's call.
 
 | Gate condition | park1 | park2 | park3 | drive1 |
 | --- | --- | --- | --- | --- |
 | Rotary reaches Navigate | ✅ | ✅ | ✅ | ✅ |
 | Selection activates the focused control | ✅ | ✅ | ✅ | ✅ |
 | Back without losing a turn (Details / Recommendations / Discover) | ✅ / ✅ / ❌ | ✅ / ✅ / ✅ | ✅ / ✅ / ✅ | ✅ / ✅ / ✅ |
-| Visible focus on every actionable control | ✅ | ✅ | ✅ | ✅ |
+| Visible focus on every actionable control | ✅ | not kept | not kept | ✅ |
 
-- **Visible focus** was checked by exact ring colour on a tile, a row, header Back, Navigate, and the network-error
-  state's Try Again and Back.
-- **park1, Back to Discover:** the ring is drawn on the restored Family, but the rotary service holds the
-  ComposeView host. Its turn goes to the first tile, Coffee.
-- **park2, Back to Discover:** the service held a stale node, but its turn still landed on Scenic.
+- **"Back without losing a turn"** is scored from the RotaryController log: the node the service held before each
+  turn. That agrees with where each turn landed.
+- **Visible focus** was checked by exact ring colour on park1's and drive1's frames (tile, row, header Back,
+  Navigate) and on the network-error state's Try Again and Back. park2's and park3's frames were not kept.
+- **park1, Back to Discover:**
+  - the ring is drawn on the restored Family, but the rotary service holds the ComposeView host;
+  - the log shows no tile focus event at all, neither Family nor Compose's own initial Coffee;
+  - the turn goes to the first tile, Coffee.
 - **The `uiautomator` control** (reported separately) landed right after every Back.
-- **Where focus lands after Back** (recorded): Details: Navigate. Recommendations: the opened row. Discover:
-  Family is focused in Compose, but the service followed it in only park3 and drive1.
+- **Where focus lands after Back** (recorded):
+  - Details: Navigate.
+  - Recommendations: the opened row.
+  - Discover: Family, followed by the service in three of four runs; park1 is the exception.
 
 **Reading**
 - **The fix removed the failure it targeted:** the lost turn after Back to Recommendations, in 4 of 4 runs.
   Visible focus is fixed too.
-- **The remaining failure is in the Discover restore,** which the gate doesn't require (where focus lands is
-  recorded only). In E1, without the restore, Back to Discover kept Compose's own focus on Coffee and reported it.
-- **By Product's rule,** removing that restore or changing the wait would be a second fix. It was not tried.
+- **The remaining failure is park1's Back to Discover,** where no tile focus reached the service.
+  - The evidence doesn't show that the Discover restore caused it, since Compose's own Coffee focus went
+    unreported too.
+  - Nor does it show that removing the restore would bring back E1's behaviour (there, Coffee was reported after
+    Back to Discover in 4 of 4 V7-bar runs).
+- **By Product's rule,** any further change was not tried: no restore on Discover, another wait, or a guard.
 
 ### Manual Extended Controls run
 
@@ -334,9 +348,10 @@ The probe below tested this premise. Templates also give a Play route (V8).
 
 The visual spec stays as designed, and the work done so far is kept.
 
-- **Gap:** V7 is open. E1's clean journeys fail two gate conditions: a turn is lost after Back to
-  Recommendations, and focus on rows, header Back and Navigate is only a faint tint.
-- **What it needs:** one bounded Compose fix for those two conditions, then a clean re-test (see Decision).
+- **Gap:** V7 failed its clean re-test after the one bounded fix ([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)).
+  - The fix removed the lost turn after Back to Recommendations, and made focus visible on every control.
+  - In one of four runs, Back to Discover left the rotary service on the host, so the next turn jumped to the
+    first tile.
 - **Diagnostic only:** a newer AAOS image or another Compose version can show where the fault lies. Neither one changes the result on the reference image.
 - **Distribution:** this iteration targets a sideloaded debug POC on the AAOS userdebug emulator. Production
   distribution is undecided and outside this POC's scope; Product must choose a supported route before
@@ -391,6 +406,7 @@ The fix is done under DN-M0-011, followed by the clean V7-bar re-test.
   - allow a narrowed change (no restore on Discover) with another re-test;
   - Option A.
 - **`tools/cal-rotary-probe/` stays.**
+- **DN-UX-001 waits on this ADR again,** since its stack decision is open.
 
 **As decided before the re-test (history):**
 - **M0 exit waits on V7:**

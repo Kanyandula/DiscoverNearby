@@ -11,8 +11,9 @@ The pack is deliberately scoped for an **emulator-first proof of concept**, not 
 - **POC target:** a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator.
 - **Production distribution:** undecided and outside this POC. Product must choose a supported route before
   production planning; any OEM-preinstall route needs OEM confirmation.
-- **UI stack:** ADR-002 (2026-10-06, Product Lead) keeps **Compose for the emulator POC**. Production
-  distribution and its UI requirements stay open; the stack is revisited if Play is chosen.
+- **UI stack:** ADR-002 is **reopened** (2026-10-06) after V7 failed its clean re-test, so the decision is back
+  with the Product Lead. It had chosen Compose for the emulator POC; production distribution and its UI
+  requirements stay open.
 - **V7 (after the re-test, 2026-10-06):** **failed; ADR-002 reopened.** The one bounded Compose fix removed the
   lost turn after Back to Recommendations and made focus visible on every control. But in one of four clean runs,
   Back to Discover left the rotary service on the host, so the next turn jumped to Coffee. See
