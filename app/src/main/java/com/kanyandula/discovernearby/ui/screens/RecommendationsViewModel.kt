@@ -27,12 +27,7 @@ sealed interface RecommendationsUiState {
     /** Places were found, but the driving list limit allows none to be shown (docs/02 §17). */
     data object ParkToSee : RecommendationsUiState
 
-    data class PermissionRequired(
-        val canRequest: Boolean,
-        val denied: Boolean = false,
-        /** Android won't ask again; only Settings can allow location (docs/02 §10). */
-        val permanentlyDenied: Boolean = false,
-    ) : RecommendationsUiState
+    data class PermissionRequired(val canRequest: Boolean, val denial: Denial = Denial.NONE) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 
@@ -98,8 +93,7 @@ class RecommendationsViewModel(
         }
         DiscoverResult.PermissionRequired -> RecommendationsUiState.PermissionRequired(
             canRequest = !driving.distractionOptimizationRequired,
-            denied = denial != Denial.NONE,
-            permanentlyDenied = denial == Denial.PERMANENT,
+            denial = denial,
         )
         is DiscoverResult.Failure -> RecommendationsUiState.Error(result.error)
     }
@@ -109,5 +103,5 @@ class RecommendationsViewModel(
         minOf(CategoryConfigs.getValue(category).desiredResults, driving.listLimit ?: Int.MAX_VALUE)
 }
 
-/** How the location permission was last refused (docs/02 §10). */
-private enum class Denial { NONE, ONCE, PERMANENT }
+/** How the location permission was last refused (docs/02 §10). After [PERMANENT], only Settings can allow it. */
+enum class Denial { NONE, ONCE, PERMANENT }

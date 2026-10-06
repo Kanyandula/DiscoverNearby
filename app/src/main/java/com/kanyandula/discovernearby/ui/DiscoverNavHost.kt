@@ -13,7 +13,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -130,14 +131,12 @@ private fun rememberLocationActions(viewModel: RecommendationsViewModel): Locati
     }
     val context = LocalContext.current
     var openedSettings by rememberSaveable { mutableStateOf(false) }
-    // Back from Settings: search again, in case location was allowed there. Keyed on Unit and reading the flag on
-    // each resume: a key on the flag would rerun at the tap, while still in front.
-    LifecycleResumeEffect(Unit) {
+    // Back from Settings: search again, in case location was allowed there.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (openedSettings) {
             openedSettings = false
             viewModel.retry()
         }
-        onPauseOrDispose { }
     }
     return LocationActions(
         grant = { permissions.launch(LOCATION_PERMISSIONS) },

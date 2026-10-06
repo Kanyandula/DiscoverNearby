@@ -241,7 +241,7 @@ class RecommendationsViewModelTest {
         val vm = collected()
         vm.onPermissionResult(granted = false)
         runCurrent()
-        assertEquals(PermissionRequired(canRequest = true, denied = true), vm.uiState.value)
+        assertEquals(PermissionRequired(canRequest = true, denial = Denial.ONCE), vm.uiState.value)
 
         places.reply = { cafes(2) }
         location.result = LocationResult.Available(ORIGIN)
@@ -250,17 +250,8 @@ class RecommendationsViewModelTest {
         assertEquals(listOf("p0", "p1"), vm.shown)
     }
 
-    // DN-UX-001: a permanent refusal is remembered, so the screen can offer Settings.
-    @Test
-    fun permanentRefusalIsRemembered() = runTest {
-        location.result = LocationResult.PermissionMissing
-        val vm = collected()
-        vm.onPermissionResult(granted = false, permanent = true)
-        runCurrent()
-        assertEquals(PermissionRequired(canRequest = true, denied = true, permanentlyDenied = true), vm.uiState.value)
-    }
-
-    // Review Focus 3: back from Settings with location still off, the Settings message stays.
+    // DN-UX-001: a permanent refusal is remembered, so the screen offers Settings; Review Focus 3: back from Settings
+    // with location still off, it still does.
     @Test
     fun retryAfterAPermanentRefusalStillOffersSettings() = runTest {
         location.result = LocationResult.PermissionMissing
@@ -268,7 +259,7 @@ class RecommendationsViewModelTest {
         vm.onPermissionResult(granted = false, permanent = true)
         vm.retry()
         runCurrent()
-        assertEquals(PermissionRequired(canRequest = true, denied = true, permanentlyDenied = true), vm.uiState.value)
+        assertEquals(PermissionRequired(canRequest = true, denial = Denial.PERMANENT), vm.uiState.value)
     }
 
     // DN-M0-010: the restrictions connection exists only while collected, so the screen must be the collector.

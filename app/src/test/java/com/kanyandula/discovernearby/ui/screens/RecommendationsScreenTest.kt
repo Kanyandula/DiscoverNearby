@@ -180,7 +180,7 @@ class RecommendationsScreenTest {
 
     @Test
     fun deniedOffersGrantAgain() {
-        state = PermissionRequired(canRequest = true, denied = true)
+        state = PermissionRequired(canRequest = true, denial = Denial.ONCE)
         rule.onNodeWithText("Discover Nearby can't find places without location access.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertIsDisplayed()
         rule.onNodeWithText("Back").assertIsDisplayed()
@@ -189,7 +189,7 @@ class RecommendationsScreenTest {
     // While driving the park-first copy wins over the denied copy, and no request can be made.
     @Test
     fun restrictedCopyWinsOverDenied() {
-        state = PermissionRequired(canRequest = false, denied = true)
+        state = PermissionRequired(canRequest = false, denial = Denial.ONCE)
         rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertDoesNotExist()
     }
@@ -197,13 +197,13 @@ class RecommendationsScreenTest {
     // DN-UX-001: after a permanent refusal, Settings replaces Grant, but only while requests are allowed (parked).
     @Test
     fun permanentRefusalOffersSettingsOnlyWhileRequestsAreAllowed() {
-        state = PermissionRequired(canRequest = true, denied = true, permanentlyDenied = true)
+        state = PermissionRequired(canRequest = true, denial = Denial.PERMANENT)
         rule.onNodeWithText("Location access is off for Discover Nearby. Turn it on in Settings.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertDoesNotExist()
         rule.onNodeWithText("Open Settings").performClick()
         assertEquals(1, settings)
 
-        state = PermissionRequired(canRequest = false, denied = true, permanentlyDenied = true)
+        state = PermissionRequired(canRequest = false, denial = Denial.PERMANENT)
         rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
         rule.onNodeWithText("Open Settings").assertDoesNotExist()
     }

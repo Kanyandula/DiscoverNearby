@@ -110,7 +110,7 @@ private fun PermissionMessage(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val settings = state.permanentlyDenied
+    val settings = state.denial == Denial.PERMANENT
     MessageState(
         message = Message(
             icon = R.drawable.ic_location,
@@ -119,7 +119,7 @@ private fun PermissionMessage(
             body = when {
                 !state.canRequest -> R.string.permission_body_restricted
                 settings -> R.string.permission_body_settings
-                state.denied -> R.string.permission_body_denied
+                state.denial == Denial.ONCE -> R.string.permission_body_denied
                 else -> R.string.permission_body
             },
         ),
