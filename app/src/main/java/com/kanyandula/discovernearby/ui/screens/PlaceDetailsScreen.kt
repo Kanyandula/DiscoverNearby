@@ -37,6 +37,7 @@ import com.kanyandula.discovernearby.ui.attributeTypes
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
+import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
@@ -48,6 +49,7 @@ import com.kanyandula.discovernearby.ui.theme.NavigateHeight
 import com.kanyandula.discovernearby.ui.theme.NavigateIconGap
 import com.kanyandula.discovernearby.ui.theme.NavigateIconSize
 import com.kanyandula.discovernearby.ui.theme.NavigateRadius
+import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
 import com.kanyandula.discovernearby.ui.theme.Raised
@@ -190,10 +192,12 @@ private fun DetailsUnavailable() {
 
 @Composable
 private fun NavigateButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(NavigateRadius)
     Button(
         onClick = onClick,
-        modifier = modifier.height(NavigateHeight),
-        shape = RoundedCornerShape(NavigateRadius),
+        // Action blue fill: a light ring stands out where an Accent one would not.
+        modifier = modifier.focusRing(shape, OnSurface).height(NavigateHeight),
+        shape = shape,
         colors = ButtonDefaults.buttonColors(containerColor = Action, contentColor = Color.White),
     ) {
         // Decorative: the label says what it does.

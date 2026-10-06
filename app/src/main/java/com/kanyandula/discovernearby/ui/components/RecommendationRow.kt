@@ -40,10 +40,11 @@ private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or deriv
 @Composable
 fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val place = recommendation.place
+    val shape = RoundedCornerShape(RowRadius)
     Surface(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(RowRadius),
+        modifier = modifier.focusRing(shape).fillMaxWidth(),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
