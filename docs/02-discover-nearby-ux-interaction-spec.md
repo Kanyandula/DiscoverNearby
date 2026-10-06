@@ -389,6 +389,22 @@ location access.
 [Grant Permission]   [Back]
 ```
 
+### Permission denied permanently
+
+After the user has refused twice, Android no longer shows the permission dialog. While parked, Settings takes
+Grant's place (DN-UX-001):
+
+```text
+Location permission required
+
+Location access is off for Discover Nearby.
+Turn it on in Settings.
+
+[Open Settings]   [Back]
+```
+
+While driving, the park-first copy is shown, with Back only. Back from Settings searches again.
+
 When permission is granted, discovery continues for the selected category.
 
 ---
@@ -423,7 +439,16 @@ Actions:
 - Retry
 - Back
 
-The same message covers network failure, provider failure and timeout. Engineering distinguishes them internally for logging.
+Network failure and provider failure share this message. A timeout has its own, as in the timeout mockup
+(`docs/design/10-timeout.png`):
+
+```text
+Taking longer than expected
+
+Please try again.
+```
+
+Actions: Try Again, Back. Engineering still distinguishes the causes internally for logging.
 
 ---
 
@@ -502,6 +527,18 @@ Differences the user may see:
 
 - The location permission prompt is only available while parked (§10).
 - The number of visible recommendations may be lower if the driving restrictions lower the list limit.
+- If the limit allows no results at all, the list is replaced by a message (DN-UX-001):
+
+  ```text
+  Park to see places
+
+  Results can't be shown while driving.
+  Park the vehicle, then try again.
+
+  [Try Again]   [Back]
+  ```
+
+  Parking shows the places on its own; Try Again searches again.
 
 The POC validates that the flow remains stable when the vehicle state changes, including while results are loading.
 

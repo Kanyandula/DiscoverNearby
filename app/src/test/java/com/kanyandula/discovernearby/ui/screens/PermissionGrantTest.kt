@@ -57,6 +57,7 @@ class PermissionGrantTest {
                     onBack = {},
                     onPlaceSelected = {},
                     onGrant = { grants++ },
+                    onOpenSettings = {},
                 )
             }
         }

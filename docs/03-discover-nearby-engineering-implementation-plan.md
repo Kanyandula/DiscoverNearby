@@ -408,8 +408,12 @@ interface LocationProvider {
 
 - Permission is requested with `rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions())`, fine and coarse together in one dialog; either grant counts.
 - Grant is offered **only when `distractionOptimizationRequired` is false** (in practice, Park on the reference emulator). Templates enforced this with `ParkedOnlyOnClickListener`; in Compose the app enforces it, from `DrivingRestrictions`.
-- `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired, denied)` as a message state. `canRequest` updates live when the restrictions change; `denied` switches to the denied copy after the user declines.
+- `RecommendationsScreen` shows `PermissionRequired(canRequest = !distractionOptimizationRequired, denial)` as a message state. `canRequest` updates live when the restrictions change; `denial` (`NONE`, `ONCE`, `PERMANENT`) switches to the denied copy after the user declines.
 - On grant, discovery continues for the selected category. On denial, show the denied message with Grant and Back.
+- After a permanent refusal (no rationale for either permission), offer Open Settings instead of Grant, only while
+  `distractionOptimizationRequired` is false; return from Settings searches again (DN-UX-001). An empty result
+  (a cancelled or overlapping request) is not a refusal. Known limit: on Android 11+, dismissing the first dialog
+  without answering also leaves no rationale, so it shows Open Settings where Grant would still work.
 
 ### Test locations
 
@@ -710,7 +714,8 @@ sealed interface RecommendationsUiState {
         val recommendations: List<Recommendation>,
     ) : RecommendationsUiState
     data object Empty : RecommendationsUiState
-    data class PermissionRequired(val canRequest: Boolean, val denied: Boolean = false) : RecommendationsUiState
+    data object ParkToSee : RecommendationsUiState // the driving list limit allows none (docs/02 §17)
+    data class PermissionRequired(val canRequest: Boolean, val denial: Denial = Denial.NONE) : RecommendationsUiState
     data class Error(val type: DiscoverError) : RecommendationsUiState
 }
 

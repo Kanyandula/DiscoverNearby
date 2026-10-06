@@ -27,6 +27,7 @@ import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Empty
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Error
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Loading
+import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.ParkToSee
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.PermissionRequired
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
@@ -52,6 +53,7 @@ class RecommendationsScreenTest {
     private var backs = 0
     private var selected: Recommendation? = null
     private var grants = 0
+    private var settings = 0
 
     @Before
     fun setUp() {
@@ -64,6 +66,7 @@ class RecommendationsScreenTest {
                     onBack = { backs++ },
                     onPlaceSelected = { selected = it },
                     onGrant = { grants++ },
+                    onOpenSettings = { settings++ },
                 )
             }
         }
@@ -120,6 +123,18 @@ class RecommendationsScreenTest {
         assertEquals(1, backs)
     }
 
+    // DN-UX-001: a list limit of 0 shows a park-first message with Try Again and Back.
+    @Test
+    fun listLimitZeroAsksToPark() {
+        state = ParkToSee
+        rule.onNodeWithText("Park to see places").assertIsDisplayed()
+        rule.onNodeWithText("Results can't be shown while driving. Park the vehicle, then try again.")
+            .assertIsDisplayed()
+        rule.onNodeWithText("Try Again").performClick()
+        assertEquals(1, retries)
+        rule.onNodeWithText("Back").assertIsDisplayed()
+    }
+
     @Test
     fun networkAndProviderFailuresShareOneMessageWithRetryAndBack() {
         listOf(DiscoverError.NetworkUnavailable, DiscoverError.ProviderFailure).forEach { error ->
@@ -165,7 +180,7 @@ class RecommendationsScreenTest {
 
     @Test
     fun deniedOffersGrantAgain() {
-        state = PermissionRequired(canRequest = true, denied = true)
+        state = PermissionRequired(canRequest = true, denial = Denial.ONCE)
         rule.onNodeWithText("Discover Nearby can't find places without location access.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertIsDisplayed()
         rule.onNodeWithText("Back").assertIsDisplayed()
@@ -174,9 +189,23 @@ class RecommendationsScreenTest {
     // While driving the park-first copy wins over the denied copy, and no request can be made.
     @Test
     fun restrictedCopyWinsOverDenied() {
-        state = PermissionRequired(canRequest = false, denied = true)
+        state = PermissionRequired(canRequest = false, denial = Denial.ONCE)
         rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
         rule.onNodeWithText("Grant Permission").assertDoesNotExist()
+    }
+
+    // DN-UX-001: after a permanent refusal, Settings replaces Grant, but only while requests are allowed (parked).
+    @Test
+    fun permanentRefusalOffersSettingsOnlyWhileRequestsAreAllowed() {
+        state = PermissionRequired(canRequest = true, denial = Denial.PERMANENT)
+        rule.onNodeWithText("Location access is off for Discover Nearby. Turn it on in Settings.").assertIsDisplayed()
+        rule.onNodeWithText("Grant Permission").assertDoesNotExist()
+        rule.onNodeWithText("Open Settings").performClick()
+        assertEquals(1, settings)
+
+        state = PermissionRequired(canRequest = false, denial = Denial.PERMANENT)
+        rule.onNodeWithText("Park the vehicle to allow Discover Nearby to access your location.").assertIsDisplayed()
+        rule.onNodeWithText("Open Settings").assertDoesNotExist()
     }
 
     @Test
