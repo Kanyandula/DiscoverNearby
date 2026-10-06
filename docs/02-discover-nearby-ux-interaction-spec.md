@@ -439,7 +439,16 @@ Actions:
 - Retry
 - Back
 
-The same message covers network failure, provider failure and timeout. Engineering distinguishes them internally for logging.
+Network failure and provider failure share this message. A timeout has its own, as in the timeout mockup
+(`docs/design/10-timeout.png`):
+
+```text
+Taking longer than expected
+
+Please try again.
+```
+
+Actions: Try Again, Back. Engineering still distinguishes the causes internally for logging.
 
 ---
 
