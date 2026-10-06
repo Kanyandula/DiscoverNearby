@@ -1,8 +1,9 @@
 # ADR-002: UI Stack After V7 — Compose or Car App Library
 
-**Status:** **Reopened (2026-10-06).** V7 failed its clean re-test after the one bounded Compose fix
-([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)). The decision returns to the Product Lead.
-The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below as history.
+**Status:** **Accepted for the emulator POC (Product Lead, 2026-10-06, after the re-test): stay on Compose, with
+a product waiver.**
+- V7 is recorded as **failed under its original criteria**.
+- Product waives the focus jump after Back to Discover for this iteration ([Decision](#decision)).
 
 **Date:** 2026-10-05
 
@@ -10,7 +11,14 @@ The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below
 
 **Deciders:** Product Lead · Android/Tech Lead
 
-> **Update 2026-10-06, after the re-test: V7 failed; this ADR is reopened.**
+> **Decision 2026-10-06, after the re-test:**
+> - **Stay on Compose for the emulator POC.**
+> - **V7 failed under its original criteria,** and that record stands.
+> - **A separate product waiver** accepts the focus jump after Back to Discover as a known limitation for this
+>   iteration.
+> - **M0 exits under the waiver.** Production distribution and OEM validation stay open.
+>
+> **Re-test 2026-10-06: V7 failed, and this ADR was reopened** (then decided above).
 > - **Fixed by the one bounded Compose fix (DN-M0-011), in all four behavioural runs:**
 >   - the turn lost after Back to Recommendations;
 >   - visible focus on every actionable control.
@@ -21,7 +29,8 @@ The earlier decision (B, Compose for the emulator POC, 2026-10-06) is kept below
 >
 > **Historical snapshot before the bounded fix (2026-10-06; superseded by the re-test above).**
 > - **Product's decision at that point:** Compose for the emulator POC this iteration ([Decision](#decision)).
->   The re-test above failed, so ADR-002 is reopened. Production distribution and its UI requirements stay open.
+>   The re-test above failed, the ADR was reopened, then decided with a product waiver (Decision). Production
+>   distribution and its UI requirements stay open.
 > - **E1 (DN-SP-003):** its pre-registered classification was inconclusive. The run pattern strongly implicates
 >   launch-time `uiautomator` polling rather than wait duration: no-poll arms passed 20/20, launch-poll arms
 >   failed 14/19, and the mid-journey dump arm passed 9/9. This is diagnostic evidence, not proof of the
@@ -75,7 +84,8 @@ not driven by hand from Extended Controls. The failures below were later traced 
 
 The reported behaviors conflict with UX spec §16 ("The primary flow must be fully usable through rotary
 input") and the GO condition "AAOS flow works" (delivery plan §7). V7 then failed its clean re-test after the
-one bounded fix ([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)), and this ADR is reopened.
+one bounded fix ([re-test](#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06)). The ADR was reopened, then
+decided: Compose with a product waiver ([Decision](#decision)).
 
 V8 is already confirmed and bears on the same choice, but it does not decide the POC target. Play accepts
 `distractionOptimized` only on the Car App Library's `CarAppActivity`. If Product later chooses Play, the
@@ -122,7 +132,9 @@ Source references:
 Option A's premise, that templates give rotary a working journey, was tested on the same reference image.
 
 **The probe**
-- [`tools/cal-rotary-probe/`](../../tools/cal-rotary-probe/README.md): a throwaway, standalone build, not in the root build or CI.
+- `tools/cal-rotary-probe/`: a throwaway, standalone build, not in the root build or CI. It was removed in DN-M0-015
+  (2026-10-06) once this ADR kept Compose. The full source is in the DN-SP-002 plan
+  (`docs/superpowers/plans/2026-10-05-dn-sp-002-cal-rotary-probe.md`) and in git history up to `51d4ce5`.
 - Car App Library 1.7.0. Template host 1.007 on the image; it negotiated Car API level 7.
 - Grid, list and pane templates with static data, and a Navigate action. The manifest follows the AAOS guide, including `automotive_app_desc` (`<uses name="template"/>`).
 - Driven with the same `cmd car_service inject-rotary` / `inject-key` as V7.
@@ -327,6 +339,8 @@ The hand-driven journey (Extended Controls → Car rotary, no touch) is recorded
 adb-driven runs above.
 
 - **Status:** pending; the user runs it.
+- **Its role:** supplementary evidence. It doesn't replace or overwrite the adb-driven results above (Product,
+  2026-10-06).
 
 ## Options
 
@@ -359,7 +373,28 @@ The visual spec stays as designed, and the work done so far is kept.
 
 ## Decision
 
-**Prior decision (now reopened): B, keep Compose for the emulator POC this iteration.** The Product Lead decided this on 2026-10-06; V7 then failed its clean re-test, returning the choice to Product.
+**Current decision: accept the result and stay on Compose for the emulator POC, with a product waiver.** Decided by
+the Product Lead on 2026-10-06, after the re-test.
+
+- **V7: failed under its original criteria** (the re-test above). The waiver doesn't change that record; it is not
+  a test pass.
+- **Product waiver (this iteration only):** the focus jump after Back to Discover is accepted as a known limitation
+  of the emulator POC.
+  - It was seen in 1 of 4 clean runs.
+  - The ring is restored on the opened tile, but the rotary service stays on the host, so the next turn goes to
+    the first tile.
+- **Scope:** the emulator POC only.
+  - Production distribution and OEM validation stay open.
+  - If Play is chosen, the stack decision is revisited (V8).
+- **The wait adjustment** (one frame → 250 ms) counts as part of the one bounded fix, not a second attempt. It
+  stays disclosed.
+- **The manual Extended Controls run** is supplementary evidence in its own section. It doesn't replace or
+  overwrite the automated results.
+- **M0 exits under the waiver.** DN-UX-001 is unblocked.
+
+**Prior decision (before the re-test; history): B, keep Compose for the emulator POC this iteration.** The Product
+Lead decided this on 2026-10-06. V7 then failed its clean re-test, and the choice returned to Product (decided
+above).
 
 - **Scope.**
   - The decision covers the emulator POC only. Production distribution and its UI requirements remain open.
@@ -394,7 +429,17 @@ The fix is done under DN-M0-011, followed by the clean V7-bar re-test.
 
 ## Consequences
 
-**Now (reopened, 2026-10-06):**
+**Now (decided after the re-test, 2026-10-06):**
+- **M0 exits under the waiver.** V7 stays recorded as failed; the waiver is the reason M0 can exit. DN-M0-011 is
+  closed with that outcome.
+- **The bounded fix's code stays:** the focus ring on every control, and the restore after Back.
+- **The known limitation is the waived jump after Back to Discover.** Any further rotary change is a new
+  decision.
+- **DN-UX-001 is ready.** It is the next UI work on Compose.
+- **`tools/cal-rotary-probe/` is removed** (DN-M0-015). The evidence stays in `docs/adr/0002/`.
+- **Production distribution and OEM validation stay open.** Play would force templates (V8).
+
+**While reopened (history):**
 - **V7 is recorded as failed.** M0 exit stays blocked; DN-M0-011 is blocked on this ADR.
 - **The Product Lead decides again,** with both options' evidence:
   - Compose: the re-test above;
