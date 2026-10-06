@@ -41,7 +41,7 @@ All scenarios run on one recorded configuration so results are repeatable. Fill 
 | Item | Planned | Recorded (M0) |
 | --- | --- | --- |
 | AVD | `AAOS_AOSP_33_userdebug` — the same AVD NyasaPlayer uses | `AAOS_AOSP_33_userdebug` (checked 2026-10-05) |
-| Emulator image | `system-images;android-33;android-automotive;<abi>` (a `userdebug` build, no Play Store) | `system-images;android-33;android-automotive;x86_64`, revision 5, `userdebug` (`sdk_gcar_x86_64`, TEA1.250515.001). **It ships Play services (GmsCoreAuto 24.26.32) and the Play Store**, unlike planned; the `userdebug` build is what matters ("Why this AVD" below). |
+| Emulator image | `system-images;android-33;android-automotive;<abi>` (a `userdebug` build, no Play Store) | `system-images;android-33;android-automotive;x86_64`, revision 5, `userdebug` (`sdk_gcar_x86_64`, TEA1.250515.001). **It ships Play services (GmsCoreAuto 24.26.32)**, unlike planned, but not the Play Store (`com.android.vending` is the LicenseChecker stub) or Google Maps (only CarMapsPlaceholder); the `userdebug` build is what matters ("Why this AVD" below). |
 | API level | 33 | 33 |
 | ABI | `x86_64` on Intel (as on the NyasaPlayer machine); `arm64-v8a` on Apple Silicon | `x86_64` (Intel Mac) |
 | Hardware profile | `automotive_1024p_landscape` | `automotive_1024p_landscape` |

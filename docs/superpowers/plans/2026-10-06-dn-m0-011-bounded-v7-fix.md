@@ -6,8 +6,9 @@
 > (the initial plan used one frame); details are in [the re-test record](../../adr/0002/v7-retest-2026-10-06/results.md).
 > V7 **failed** because after Back to Discover, the rotary service stayed on the host and the next turn jumped to the first tile in 1 of 4 behavioural runs, so ADR-002 is reopened.
 > This was the one bounded attempt; do not make another UI fix until Product decides. The manual Extended Controls
-> run and branch closeout review remain pending. The checkboxes below were authored as an implementation plan and
-> were not maintained as a live progress tracker; the re-test record and ADR-002 hold the actual outcome.
+> run remains pending. The implementation was merged in PR #19 and its branch was deleted. The checkboxes below were authored as an implementation plan and
+> were not maintained as a live progress tracker. The task steps below are the historical implementation recipe;
+> do not execute another UI change until Product decides. The re-test record and ADR-002 hold the actual outcome.
 
 **Goal:** Make the Compose UI meet the V7 gate on the reference emulator with one bounded fix: a visible
 focus ring on every actionable control, and no lost turn after Back. Then re-test cleanly and record the
@@ -20,13 +21,14 @@ result, pass or fail.
   screen returns. The first implementation used one frame; the final bounded fix waits 250 ms after semantics
   snapshot investigation (see the re-test record).
 
-The lost turn happens because, after Back to Recommendations, Compose focuses the header Back in the screen's
-first frame without reporting it, so the rotary service keeps the ComposeView host. Moving focus one frame
-later is a change Compose does report. When it opened Details, the RotaryController log showed exactly that:
-host first, then the node.
+An initial working hypothesis was that, after Back to Recommendations, Compose focused header Back before the
+screen's semantics snapshot could report it, leaving the rotary service on the ComposeView host. A developer check
+showed a later focus request being reported on that screen, which motivated the restore. The final bounded fix
+waited 250 ms, but the clean re-test still failed on Back to Discover in one run. The mechanism is therefore not
+established; see the [re-test record](../../adr/0002/v7-retest-2026-10-06/results.md).
 
 **Tech Stack:**
-- Compose UI 1.12.1: `FocusRequester`, `onFocusChanged`, `LocalInputModeManager`, `withFrameNanos`.
+- Compose UI 1.12.1: `FocusRequester`, `onFocusChanged`, `LocalInputModeManager`; `kotlinx.coroutines.delay` for the final 250 ms wait.
 - Robolectric 4.17, with native graphics for the pixel checks.
 - `adb … cmd car_service inject-rotary` / `inject-key` on `AAOS_AOSP_33_userdebug`.
 
@@ -857,7 +859,7 @@ change this result; both are recorded beside it.
 
 Add `### V7 re-test after the bounded fix (DN-M0-011, <run date>)`, linking `0002/v7-retest-2026-10-06/results.md`. It
 covers:
-- what changed (the ring helper; restore one frame late);
+- what changed (the ring helper; `ReturnFocus` waits 250 ms before restoring focus);
 - the gate table;
 - the control, separately;
 - the manual Extended Controls run: still its own section, unchanged unless the user has done it.
