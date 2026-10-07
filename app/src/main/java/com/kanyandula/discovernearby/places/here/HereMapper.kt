@@ -1,0 +1,39 @@
+package com.kanyandula.discovernearby.places.here
+
+import com.kanyandula.discovernearby.model.GeoPoint
+import com.kanyandula.discovernearby.model.PlaceDetails
+import com.kanyandula.discovernearby.model.PlaceSummary
+
+/**
+ * A HERE item as a domain place, or null without an ID, a name or a full position. `/browse` has no rating, parking,
+ * toilets or travel time (ADR-001 Field availability), so those stay unknown; unknown data is neutral.
+ */
+internal fun HereItem.toSummary(): PlaceSummary? {
+    val placeId = id?.takeIf { it.isNotBlank() }
+    val name = title?.trim()?.takeIf { it.isNotEmpty() }
+    val lat = position?.lat
+    val lng = position?.lng
+    if (placeId == null || name == null || lat == null || lng == null) return null
+    val kinds = categories.mapNotNull { kindFor(it.id) }
+    return PlaceSummary(
+        id = placeId,
+        name = name,
+        location = GeoPoint(lat, lng),
+        placeKinds = kinds.toSet(),
+        primaryKind = categories.firstOrNull { it.primary }?.let { kindFor(it.id) } ?: kinds.firstOrNull(),
+        attributes = emptySet(),
+        rating = null,
+        ratingCount = null,
+        isOpenNow = openingHours.firstNotNullOfOrNull { it.isOpen },
+        travelTimeMinutes = null,
+    )
+}
+
+/** Details add the opening-hours text. Attribution stays null until HERE's brand guidance is read (ADR-001 V6a). */
+internal fun HereItem.toDetails(): PlaceDetails? = toSummary()?.let { summary ->
+    PlaceDetails(
+        summary = summary,
+        openingSummary = openingHours.flatMap { it.text }.joinToString("; ").ifEmpty { null },
+        attribution = null,
+    )
+}
