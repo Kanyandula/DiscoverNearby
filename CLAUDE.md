@@ -51,7 +51,8 @@ in place (DN-M0-012, DN-M0-001).
 - **HERE client (DN-M1-001, wired in DN-M1-002):** `places/here/HerePlacesRepository` (OkHttp +
   kotlinx.serialization; `/browse`, `/lookup`), key `here.apiKey` → `BuildConfig.HERE_API_KEY`.
   - **Source:** `AppContainer` serves HERE when the key is set. It serves the fakes without a key (CI) and for
-    `--es scenario`.
+    `--es scenario`, which applies only to a fresh process: launch it with `am start -S`, because a warm
+    relaunch keeps live data.
   - **Tests:** Robolectric uses `TestDiscoverApplication` (keyless) by its `Test<ApplicationName>` convention, so
     tests always get the fakes.
   - **Live categories:** Coffee is the first live category (ADR-001); the others are live but are accepted in M2.
