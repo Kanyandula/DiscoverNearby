@@ -44,8 +44,8 @@ class BasicRecommendationEngineTest {
     }
 
     // Category match outweighs distance (docs/04 §11) up to a point: a primary match a third of the radius away
-    // beats a secondary one next door. Past three quarters of the radius (half, if the secondary is open now)
-    // nearness wins; DN-M2-002's benchmark tunes NEARNESS_WEIGHT.
+    // beats a secondary one next door. Past three quarters of the radius (about two thirds, if the secondary is open
+    // now) nearness wins; DN-M2-002's benchmark kept NEARNESS_WEIGHT.
     @Test
     fun primaryKindMatchesRankAboveSecondaryOnes() {
         val secondary = testPlace("secondary", "museum", "playground", metersNorth = 100)
@@ -116,6 +116,15 @@ class BasicRecommendationEngineTest {
         }
     }
 
+    // Product Lead, 2026-10-07 (DN-M2-003): open now breaks near-ties but doesn't carry a place 3.5 km further away
+    // past a nearer one with the same match.
+    @Test
+    fun openNowDoesNotOutweighAFewKilometres() {
+        val open = testPlace("open", "landmark", metersNorth = 3_800).copy(isOpenNow = true)
+        val near = testPlace("near", "landmark", metersNorth = 300)
+        assertEquals(listOf("near", "open"), ranked(EXPLORE, open, near))
+    }
+
     // Amenities count only where the category weights them: parking means nothing to Outdoors, toilets lift Family.
     @Test
     fun amenitiesCountOnlyWhereTheCategoryWeightsThem() {
@@ -137,13 +146,25 @@ class BasicRecommendationEngineTest {
         assertEquals(scores.getValue("once"), scores.getValue("twice"), 0.0)
     }
 
-    // Light diversity (Product Lead, 2026-10-07): Outdoors keeps the two best parks, then the beach; the third park
-    // is dropped, not moved down.
+    // Light diversity (Product Lead, 2026-10-07): Outdoors keeps the three best parks (a city's parks fill HERE's
+    // results), then the beach; the fourth park is dropped, not moved down.
     @Test
-    fun keepsAtMostTwoOfAKind() {
-        val parks = List(3) { testPlace("park-$it", "park", metersNorth = 100 * (it + 1)) }
+    fun outdoorsKeepsAtMostThreeOfAKind() {
+        val parks = List(4) { testPlace("park-$it", "park", metersNorth = 100 * (it + 1)) }
         val beach = testPlace("beach", "beach", metersNorth = 900)
-        assertEquals(listOf("park-0", "park-1", "beach"), ranked(OUTDOORS, *(parks + beach).toTypedArray()))
+        assertEquals(
+            listOf("park-0", "park-1", "park-2", "beach"),
+            ranked(OUTDOORS, *(parks + beach).toTypedArray()),
+        )
+    }
+
+    // Family and Explore keep two of a kind.
+    @Test
+    fun familyAndExploreKeepAtMostTwoOfAKind() {
+        mapOf(FAMILY to "zoo", EXPLORE to "museum").forEach { (category, kind) ->
+            val places = List(3) { testPlace("p$it", kind, metersNorth = 100 * (it + 1)) }
+            assertEquals(category.name, listOf("p0", "p1"), ranked(category, *places.toTypedArray()))
+        }
     }
 
     // Product Lead, 2026-10-07: on HERE data every café is "cafe" and every Scenic Point "viewpoint", so Coffee, Food
@@ -162,17 +183,18 @@ class BasicRecommendationEngineTest {
     fun anUnknownPrimaryKindCountsAsTheKindItMatched() {
         val p1 = testPlace("p1", "park", metersNorth = 2_000)
         val p2 = testPlace("p2", "park", metersNorth = 3_000)
+        val p3 = testPlace("p3", "park", metersNorth = 4_000)
         val filed = testPlace("filed", "park", metersNorth = 100, primaryKind = null)
-        assertEquals(listOf("p1", "p2"), ranked(OUTDOORS, filed, p1, p2))
+        assertEquals(listOf("p1", "p2", "p3"), ranked(OUTDOORS, filed, p1, p2, p3))
         assertEquals(listOf("p1", "filed"), ranked(OUTDOORS, filed, p1))
     }
 
     // Review Focus 3: a provider listing a place twice must not use up its kind's cap.
     @Test
     fun aRepeatedPlaceDoesNotUseUpTheCap() {
-        val a = testPlace("a", "park", metersNorth = 100)
-        val b = testPlace("b", "park", metersNorth = 200)
-        assertEquals(listOf("a", "b"), ranked(OUTDOORS, a, a, b, testPlace("c", "park", metersNorth = 300)))
+        val a = testPlace("a", "zoo", metersNorth = 100)
+        val b = testPlace("b", "zoo", metersNorth = 200)
+        assertEquals(listOf("a", "b"), ranked(FAMILY, a, a, b, testPlace("c", "zoo", metersNorth = 300)))
     }
 
     // Review Focus 1: a provider can return a place past the radius; it gets no nearness, never a negative one.
