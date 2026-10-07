@@ -43,7 +43,9 @@ class BasicRecommendationEngineTest {
         assertEquals(listOf("also-playground"), ranked(FAMILY, alsoPark, alsoPlayground))
     }
 
-    // Category match dominates (docs/04 §11): a primary match well away beats a secondary one next door.
+    // Category match outweighs distance (docs/04 §11) up to a point: a primary match a third of the radius away
+    // beats a secondary one next door. Past three quarters of the radius (half, if the secondary is open now)
+    // nearness wins; DN-M2-002's benchmark tunes NEARNESS_WEIGHT.
     @Test
     fun primaryKindMatchesRankAboveSecondaryOnes() {
         val secondary = testPlace("secondary", "museum", "playground", metersNorth = 100)
