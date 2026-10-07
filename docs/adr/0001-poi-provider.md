@@ -336,7 +336,8 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
   - Non-family businesses carry Amusement Park, sometimes as their primary category; it weighs less in Family.
   - Some places have duplicate records.
 
-  They are reported through HERE's map feedback. The re-run records whether they still appear.
+  They are to be reported through HERE's map feedback (Product Lead decision, 2026-10-07); none is filed yet. The
+  re-run records whether they still appear.
 
 ## Rejected
 
