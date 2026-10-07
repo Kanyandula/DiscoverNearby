@@ -17,6 +17,7 @@ class ArchitectureRulesTest {
     private val testSourceSets = setOf("test", "androidTest", "testFixtures")
     private val composeImport = Regex("""^import androidx\.([\w.]+\.)?compose\.""")
     private val carImport = Regex("""^import android\.car\.""")
+    private val hereImport = Regex("""^import com\.kanyandula\.discovernearby\.places\.here\.""")
 
     private class Source(val file: File, val pkg: String, val imports: List<String>)
 
@@ -55,5 +56,12 @@ class ArchitectureRulesTest {
     fun onlyCarDrivingRestrictionsImportsAndroidCar() {
         val allowed = { s: Source -> s.pkg == "$base.car" && s.file.name == "CarDrivingRestrictions.kt" }
         assertEquals(emptyList<String>(), violations(carImport, allowed))
+    }
+
+    // docs/03 §8: provider response models never leave the provider package; only the wiring point may name it.
+    @Test
+    fun onlyAppContainerReachesIntoTheHerePackage() {
+        val allowed = { s: Source -> inPackage(s, "places.here") || s.file.name == "AppContainer.kt" }
+        assertEquals(emptyList<String>(), violations(hereImport, allowed))
     }
 }
