@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.time.Year
 
 // Stateless screen: each test sets the state; one composition per test, so a state change redraws in place.
 @RunWith(RobolectricTestRunner::class)
@@ -128,5 +129,24 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithText("Navigate").assertDoesNotExist()
         rule.onNodeWithText("Back").performClick()
         assertEquals(1, backs)
+    }
+
+    // Review Focus 1: the notice comes with the summary, so it shows while loading, with details, and on the
+    // summary-only fallback alike.
+    @Test
+    fun hereDataShowsTheNoticeInEveryState() {
+        val live = place.copy(attribution = "HERE")
+        val notice = "© ${Year.now().value} HERE"
+        listOf(Loading(live), Content(PlaceDetails(live, openingSummary = null)), SummaryOnly(live)).forEach {
+            state = it
+            rule.onNodeWithText(notice).assertIsDisplayed()
+        }
+    }
+
+    // Review Focus 3
+    @Test
+    fun dataWithoutAnAttributionShowsNoNotice() {
+        state = SummaryOnly(place)
+        rule.onAllNodesWithText("©", substring = true).assertCountEquals(0)
     }
 }

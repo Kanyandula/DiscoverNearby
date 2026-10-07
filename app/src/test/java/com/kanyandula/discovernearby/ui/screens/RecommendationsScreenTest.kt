@@ -38,6 +38,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.time.Year
 
 // The screen is stateless: each test sets the state and reads what is drawn. One composition per test, so a
 // state change redraws the same screen (docs/02 §6).
@@ -221,5 +222,20 @@ class RecommendationsScreenTest {
         state = Content(requestId = 1, recommendations = listOf(chosen))
         rule.onNodeWithText("Harbour Roasters").performClick()
         assertEquals(chosen, selected)
+    }
+
+    // DN-M1-003 (ADR-001 V6a; Product decision): live HERE results carry HERE's copyright notice.
+    @Test
+    fun liveResultsShowTheProvidersNotice() {
+        val live = testPlace("Live Cafe", "cafe").copy(attribution = "HERE")
+        state = Content(requestId = 1, recommendations = listOf(row(live, 300)))
+        rule.onNodeWithText("© ${Year.now().value} HERE").assertIsDisplayed()
+    }
+
+    // Review Focus 3: the fakes are not HERE's, so they show no notice.
+    @Test
+    fun resultsWithoutAnAttributionShowNoNotice() {
+        state = Content(requestId = 1, recommendations = listOf(row(testPlace("Fake Cafe", "cafe"), 300)))
+        rule.onAllNodesWithText("©", substring = true).assertCountEquals(0)
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -22,6 +23,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Year
 
 /**
  * The panel a destination gets on the reference AVD: 768 dp, less the system bars (76 + 96), the app header (56),
@@ -46,6 +48,7 @@ class PlaceDetailsFitTest {
             ratingCount = 180,
             isOpenNow = true,
             attributes = AttributeType.entries.map { PlaceAttribute(it, PROVIDED) }.toSet(),
+            attribution = "HERE",
         )
         rule.setContent {
             DiscoverNearbyTheme {
@@ -62,5 +65,9 @@ class PlaceDetailsFitTest {
         val note = rule.onNodeWithText("More details unavailable right now")
         note.assertHeightIsAtLeast(30.dp) // one whole titleMedium line
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+        val notice = rule.onNodeWithText("© ${Year.now().value} HERE")
+        notice.assertIsDisplayed()
+        assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+        assertTrue(note.getUnclippedBoundsInRoot().bottom <= notice.getUnclippedBoundsInRoot().top)
     }
 }

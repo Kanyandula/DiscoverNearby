@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,7 @@ import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.attributeTypes
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
+import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
@@ -60,7 +62,7 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
 /**
  * Place Details (canvas Place Details artboards): what is known about the place, with Navigate always there and
  * never waiting on the optional details call (docs/02 §7). One layout serves every state but the hand-off failure
- * message, so nothing moves when details arrive. ponytail: no photo, attribution or place-kind label until ADR-001
+ * message, so nothing moves when details arrive. ponytail: no photo or place-kind label until ADR-001
  * (DN-M1-003, DN-M2-001).
  */
 @Composable
@@ -82,9 +84,12 @@ fun PlaceDetailsScreen(
                 modifier = Modifier.weight(1f).padding(start = DetailsInset),
                 horizontalArrangement = Arrangement.spacedBy(DetailsColumnGap),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
                     Facts(state.summary, distanceMeters, openingSummary)
                     if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
+                    Spacer(Modifier.weight(1f))
+                    // Bottom left, level with Navigate: HERE's notice with HERE's data (ADR-001 V6a).
+                    ProviderAttribution(state.summary.attribution)
                 }
                 NavigateButton(
                     onClick = onNavigate,

@@ -21,6 +21,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
+import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.rememberReturnFocus
@@ -61,8 +62,11 @@ fun RecommendationsScreen(
         val body = Modifier.weight(1f)
         when (state) {
             RecommendationsUiState.Loading -> LoadingState(body)
-            is RecommendationsUiState.Content ->
-                LazyColumn(modifier = body, verticalArrangement = Arrangement.spacedBy(RowGap)) {
+            is RecommendationsUiState.Content -> Column(
+                modifier = body,
+                verticalArrangement = Arrangement.spacedBy(RowGap),
+            ) {
+                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowGap)) {
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
                         RecommendationRow(
                             recommendation,
@@ -74,6 +78,12 @@ fun RecommendationsScreen(
                         )
                     }
                 }
+                // HERE's notice with HERE's data (ADR-001 V6a); the fakes carry none.
+                ProviderAttribution(
+                    state.recommendations.firstNotNullOfOrNull { it.place.attribution },
+                    Modifier.align(Alignment.End),
+                )
+            }
             RecommendationsUiState.Empty ->
                 MessageState(EmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)
             // docs/02 §17: places were found, but the driving list limit allows none; parking shows them.
