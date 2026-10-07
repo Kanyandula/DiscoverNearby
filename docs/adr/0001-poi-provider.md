@@ -1,8 +1,8 @@
 # ADR-001: POI Provider
 
-**Status:** Proposed — documentation phase complete (2026-10-05); product evaluation owner assigned (the Product Lead, 2026-10-06; Legal sign-off on provider terms separate); live matrix pending the permitted evaluations, the terms and dev-only keys  
+**Status:** Provisionally selected, pending licensing confirmation (2026-10-07), from the live matrix; Legal sign-off on provider terms pending before production  
 *(Outcome at end of the 3-day spike, exactly one of: **Selected** · **Provisionally selected, pending licensing confirmation** · **No viable provider**)*  
-**Date:** 2026-10-05 (documentation phase)  
+**Date:** 2026-10-05 (documentation phase); 2026-10-07 (live matrix and outcome)  
 **Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; product evaluation owner: the Product Lead, 2026-10-06; Legal sign-off on terms separate)
 
 ---
@@ -25,9 +25,10 @@ Candidates, in order:
 
 ## Decision
 
-**[PROVIDER]**, outcome: **[Selected / Provisionally selected / No viable provider]**
+**HERE** (Geocoding & Search v7 `/browse`), outcome: **Provisionally selected, pending licensing confirmation**
 
-If provisionally selected: risk accepted by [Product Lead name] on [date]; licensing clarification pending from [owner].
+Risk accepted by the Product Lead on 2026-10-07; licensing clarification pending from Legal (HERE Platform Terms
+§6.3(a), §6.4, Acceptable Use Policy and Supplier Terms [H1]). Legal sign-off is required before production.
 
 ## One-sheet comparison
 
@@ -38,9 +39,9 @@ If provisionally selected: risk accepted by [Product Lead name] on [date]; licen
 | REST POI search | Yes: Search API `nearbySearch` (GET) [T2] | Yes: Geocoding & Search v7 `/browse` (GET) [H2] | Yes: Places API `GET /v2/places` [G1] |
 | Nearby / category search | `lat`, `lon`, `radius`, `categorySet`, `openingHours`, `limit` ≤ 100 [T2] | `at`, `in=circle:…` (≤ 250 km), `categories` (levels 1–3), `foodTypes`, `limit` [H2] | `categories` (required), `filter=circle:lon,lat,radiusMeters`, `bias`, `conditions`, `limit`, `offset`, `lang` [G1] |
 | Along-route capability | Search API `searchAlongRoute` (POST, `maxDetourTime` ≤ 3600 s, `categorySet`) [T5] | `/browse` with the `route` parameter [H2] | No `route` parameter; [G1] links an "Along a Route" how-to and offers `filter=geometry:<id>` for a previously generated geometry [G1] |
-| Coffee coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
-| Family coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
-| Scenic coverage | Pending the live matrix | Pending the live matrix | Pending the live matrix |
+| Coffee coverage | 3/3 Good, 0 Thin, 0 Empty (Greystones · Dublin · Galway: Good · Good · Good); pubs among the nearest results (CAFE_PUB) | 3/3 Good, 0 Thin, 0 Empty (Good · Good · Good) | 3/3 Good, 0 Thin, 0 Empty (Good · Good · Good) |
+| Family coverage | 1/3 Good, 2 Thin, 0 Empty (Good · Thin · Thin); massage/spa and comedy venues among the results | 2/3 Good, 1 Thin, 0 Empty (Good · Thin · Good) | 0/3 Good, 3 Thin, 0 Empty (Thin · Thin · Thin); most playgrounds unnamed |
+| Scenic coverage | 2/3 Good, 1 Thin, 0 Empty (Good · Good · Thin) | 2/3 Good, 1 Thin, 0 Empty (Good · Good · Thin) | 1/3 Good, 2 Thin, 0 Empty (Good · Thin · Thin); most viewpoints unnamed |
 | Rating / count | Not in Search results [T2]. POI Details API: `value`, `totalRatings` — "Automotive only", Tripadvisor conditions [T4], "Contact Sales" [T6] | Not in the documented response [H2]; `show=tripadvisor` adds ratings — "BETA, RESTRICTED", Tripadvisor branding rules [H4] | Not documented [G1][G2] |
 | Opening hours | `openingHours=nextSevenDays` → `poi.openingHours` time ranges [T2] | Not documented on [H2] | Not a Places API response field [G1]; the product page attributes opening hours to the separate Place Details API [G2] |
 | Useful amenities | No parking or toilet fields in the Nearby response [T2]. Family categories: zoos, amusement parks, leisure centres; no playground code [T3] | No parking or toilet fields documented [H2][H4]. Family categories: zoo, amusement park, water park, children's museum; no playground [H3] | `conditions` filter for accessibility/amenities [G1]; facilities such as wheelchair, internet access, dogs [G2]; `leisure.playground` category exists [G1] |
@@ -50,7 +51,7 @@ If provisionally selected: risk accepted by [Product Lead name] on [date]; licen
 | POC cost | "Start for free": Search API "Free 2.5K monthly"; Places Search API Discover/Details "Free5K monthly", Suggest "Free10K monthly"; POI Details only via "Contact Sales" [T6]; rate limits by plan [T9] | Not established: pricing page shows no figures as text [H7] | Free: "3,000 credits / day", no credit card [G4]; Places: "Every 20 places costing 1 credit" [G1] |
 | Production path plausible | Documented: "Pay as you grow", "Enterprise"; automotive-only products via Contact Sales [T6] | Not established from readable pages [H7] | Paid plans API 10 ($59/month) to API 250 ($609), Custom from $860 [G4]; Free plan in production "with some limitations" [G3] |
 
-Cells cite the provider's own pages ([T…] TomTom, [H…] HERE, [G…] Geoapify) listed under Evidence. Licence rows quote and point to Legal; they never answer yes or no (docs/05 §4: engineering does not interpret licence language). Coverage rows wait for the live matrix.
+Cells cite the provider's own pages ([T…] TomTom, [H…] HERE, [G…] Geoapify) listed under Evidence. Licence rows quote and point to Legal; they never answer yes or no (docs/05 §4: engineering does not interpret licence language). Coverage rows come from the live matrix (2026-10-07; see Test matrix).
 
 ## Evidence (public documentation)
 
@@ -157,28 +158,84 @@ Named at kickoff (2026-10-05) as the OSM-backed candidate, **for evaluation only
 
 ## Test matrix (selected provider, and each candidate tested)
 
-Pending the gate: 9 queries per provider (27 in total) once dev-only keys are in `local.properties` and the licensing owner is assigned. No responses are stored until the terms allow (V6b).
+Run on 2026-10-07 from a development Mac on a home connection (latency is indicative, not in-vehicle), with
+dev-only keys, through `tools/provider-eval/evaluate.py`. Limit 10 per query. Radii from `CategoryConfigs` (Coffee
+5 km, Family 15 km, Scenic 30 km). Categories as in "Candidate category codes"; TomTom IDs confirmed through its
+POI Categories endpoint (CAFE_PUB 9376; ZOOS_ARBORETA_BOTANICAL_GARDEN 9927, AMUSEMENT_PARK 9902, LEISURE_CENTER 9378;
+SCENIC_PANORAMIC_VIEW 7337). All 27 queries returned HTTP 200.
 
-| Category | Greystones | Dublin | Galway | Notes |
-| --- | --- | --- | --- | --- |
-| Coffee | | | | |
-| Family | | | | |
-| Scenic | | | | |
+**What is recorded here:** the repo is public, so this ADR holds derived metrics and verdicts only, with no names,
+place IDs, coordinates or raw responses. The raw responses and the names were kept locally (git-ignored) for the
+judgment and deleted on 2026-10-07.
 
-Per query, record: place ID, name, coordinates, place types, distance, rating, rating count, opening state, parking, toilets, family-related information, attribution requirement, latency.
+**Metrics** (Hours, Phone, Web, Amenities: results with that field; distances in metres; Amenities is Geoapify's
+`facilities` and is not measured for TomTom or HERE, shown as —):
+
+| Provider | Category | Location | HTTP | ms | Results | Hours | Phone | Web | Amenities | Nearest m | Median m |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| tomtom | Coffee | Greystones | 200 | 382 | 10 | 2 | 2 | 3 | — | 28 | 112 |
+| tomtom | Coffee | Dublin | 200 | 302 | 10 | 3 | 4 | 5 | — | 48 | 135 |
+| tomtom | Coffee | Galway | 200 | 193 | 10 | 1 | 2 | 4 | — | 41 | 108 |
+| tomtom | Family | Greystones | 200 | 251 | 10 | 0 | 3 | 9 | — | 149 | 6930 |
+| tomtom | Family | Dublin | 200 | 205 | 10 | 3 | 1 | 10 | — | 144 | 243 |
+| tomtom | Family | Galway | 200 | 249 | 10 | 2 | 0 | 9 | — | 49 | 103 |
+| tomtom | Scenic | Greystones | 200 | 235 | 10 | 0 | 0 | 1 | — | 2987 | 14054 |
+| tomtom | Scenic | Dublin | 200 | 272 | 10 | 0 | 0 | 1 | — | 337 | 16295 |
+| tomtom | Scenic | Galway | 200 | 180 | 2 | 0 | 0 | 0 | — | 19366 | 21722 |
+| here | Coffee | Greystones | 200 | 304 | 10 | 7 | 10 | 6 | — | 37 | 95 |
+| here | Coffee | Dublin | 200 | 141 | 10 | 4 | 9 | 5 | — | 23 | 32 |
+| here | Coffee | Galway | 200 | 149 | 10 | 8 | 8 | 7 | — | 49 | 161 |
+| here | Family | Greystones | 200 | 116 | 7 | 2 | 4 | 2 | — | 1869 | 6975 |
+| here | Family | Dublin | 200 | 126 | 10 | 3 | 6 | 4 | — | 36 | 708 |
+| here | Family | Galway | 200 | 131 | 10 | 5 | 8 | 6 | — | 197 | 2084 |
+| here | Scenic | Greystones | 200 | 121 | 10 | 4 | 4 | 6 | — | 11896 | 17336 |
+| here | Scenic | Dublin | 200 | 122 | 10 | 4 | 5 | 7 | — | 1542 | 12338 |
+| here | Scenic | Galway | 200 | 120 | 3 | 3 | 1 | 1 | — | 121 | 933 |
+| geoapify | Coffee | Greystones | 200 | 390 | 10 | 2 | 0 | 3 | 8 | 27 | 167 |
+| geoapify | Coffee | Dublin | 200 | 251 | 10 | 4 | 0 | 5 | 9 | 29 | 95 |
+| geoapify | Coffee | Galway | 200 | 392 | 10 | 5 | 6 | 6 | 8 | 50 | 173 |
+| geoapify | Family | Greystones | 200 | 487 | 10 | 0 | 0 | 0 | 2 | 479 | 2151 |
+| geoapify | Family | Dublin | 200 | 439 | 10 | 0 | 0 | 0 | 0 | 300 | 518 |
+| geoapify | Family | Galway | 200 | 570 | 10 | 0 | 0 | 0 | 0 | 227 | 686 |
+| geoapify | Scenic | Greystones | 200 | 255 | 10 | 0 | 0 | 0 | 1 | 2635 | 3940 |
+| geoapify | Scenic | Dublin | 200 | 506 | 10 | 0 | 0 | 0 | 3 | 920 | 3322 |
+| geoapify | Scenic | Galway | 200 | 426 | 10 | 0 | 0 | 0 | 3 | 89 | 978 |
+
+**Relevance and verdicts** (relevant / named relevant / results; verdict on named relevant: Good ≥ 3, Thin 1–2,
+Empty 0; a recommendation row shows the place name, so unnamed results do not count toward the verdict):
+
+| Provider | Coffee G | Coffee D | Coffee Gal | Family G | Family D | Family Gal | Scenic G | Scenic D | Scenic Gal |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TomTom | 5/5/10 Good | 6/6/10 Good | 3/3/10 Good | 3/3/10 Good | 1/1/10 Thin | 1/1/10 Thin | 10/10/10 Good | 10/10/10 Good | 2/2/2 Thin |
+| HERE | 10/10/10 Good | 10/10/10 Good | 10/10/10 Good | 5/5/7 Good | 1/1/10 Thin | 7/7/10 Good | 7/7/10 Good | 7/7/10 Good | 2/2/3 Thin |
+| Geoapify | 10/10/10 Good | 10/10/10 Good | 10/10/10 Good | 10/2/10 Thin | 10/1/10 Thin | 10/2/10 Thin | 10/7/10 Good | 10/1/10 Thin | 10/2/10 Thin |
+
+G = Greystones, D = Dublin, Gal = Galway. Relevant: Coffee is a café, coffee shop or tea room (a pub, bar or
+restaurant without coffee in its name or categories does not count); Family is a playground, zoo or aquarium, farm
+park, amusement, theme or water park, play centre, family amusement arcade, karting or children's museum, and a
+leisure centre only when its categories say it serves families (not gaming or slot arcades, casinos, massage or
+spa, comedy, cinema, escape rooms or general sports clubs); Scenic is a viewpoint, scenic point, peak, cliff walk
+or coastal lookout. Duplicates count once. Totals: TomTom 6 Good, 3 Thin; HERE 7 Good, 2 Thin; Geoapify 4 Good,
+5 Thin; no Empty cells. This is the rule as applied; it widens the plan's draft for Family (aquarium, play centre,
+family arcade, karting). The raw output is deleted, so the per-cell counts cannot be re-checked.
 
 ## Field availability (selected provider)
 
 | Field | Provided / Derivable / Unavailable | Coverage notes |
 | --- | --- | --- |
-| Rating | | |
-| Rating count | | |
-| Open now | | |
-| Parking | | |
-| Toilets | | |
-| Family information | | |
-| Travel time from origin | | Decides distance vs time in M1 |
-| Along-route search | | Relevant to M5 only |
+| Rating | Unavailable | Not in `/browse` responses [H2]; ratings only through `show=tripadvisor`, "BETA, RESTRICTED", with Tripadvisor branding rules [H4] |
+| Rating count | Unavailable | As Rating |
+| Open now | Provided | `openingHours[].isOpen` on 40 of 80 results (Coffee 19/30, Family 10/27, Scenic 11/23) |
+| Parking | Unavailable | No parking field in the 80 results; not documented [H2] |
+| Toilets | Unavailable | No toilet field in the 80 results; not documented [H2] |
+| Family information | Derivable | From `categories` (Amusement Park, Zoo, Water Park, Children's Museum); no age or family attributes |
+| Travel time from origin | Unavailable | `distance` in metres from `at` only; M1 ranks by distance |
+| Along-route search | Provided | `/browse` `route` parameter [H2]; M5 only, not live-tested |
+| Contact (phone / web) | Provided | `contacts` on 62 of 80 results (phone 55, web 44) |
+
+Hours, phone and web counts come from the Metrics table. The field names (`openingHours[].isOpen`, `contacts` on 62
+of 80 results, and the absence of any parking or toilet field) come from a survey of the raw responses' field names
+on 2026-10-07, before the raw output was deleted; they cannot be re-derived from the committed table.
 
 ## Category mapping
 
@@ -197,32 +254,32 @@ Per query, record: place ID, name, coordinates, place types, distance, rating, r
 
 | Category | Provider types / categories |
 | --- | --- |
-| Coffee | |
-| Food | |
-| Outdoors | |
-| Family | |
-| Scenic | |
-| Explore | |
+| Coffee | 100-1100 Coffee-Tea (live-tested) |
+| Food | 100-1000 Restaurant (documented, not live-tested) |
+| Outdoors | 550-5510-0202 Park-Recreation Area, 550-5510-0205 Beach, 350-3522-0239 Forest, Heath or Other Vegetation (documented, not live-tested) |
+| Family | 550-5520-0208 Zoo, 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum (live-tested) |
+| Scenic | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks (live-tested) |
+| Explore | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum (documented, not live-tested) |
 
 ## V6a — Attribution
 
 | Field | Value |
 | --- | --- |
-| Required text | |
-| Required logo | |
-| Must be always visible? | |
-| Can appear in About / Data Sources? | |
-| Required on Recommendations? | |
-| Required on Place Details? | |
+| Required text | → Legal. §13.1: "You will ensure that all HERE Marks and copyright notices are present in the HERE Materials and Result in accordance with HERE brand guidance" [H1]. The brand guidance was not read |
+| Required logo | → Legal; HERE brand guidance not read |
+| Must be always visible? | Not established (brand guidance not read) |
+| Can appear in About / Data Sources? | Not established |
+| Required on Recommendations? | Not established. §6.4(a): when combined with non-HERE content, "the origin of the HERE Content and non-HERE content can be distinguished and correct attribution can be provided" [H1] |
+| Required on Place Details? | Not established |
 
 ## V6b — Caching and storage
 
 | Field | Value |
 | --- | --- |
-| May POI responses be persisted? For how long? | |
-| May place IDs be stored? | |
-| May responses be recorded as test fixtures? | |
-| Caching-header rules | |
+| May POI responses be persisted? For how long? | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days" … "unless Results are used solely for your internal testing, evaluation, or record retention for audit and legal compliance purposes" [H1]. POC: no persistence (in memory) |
+| May place IDs be stored? | → Legal. Not addressed in the sections read. The POC stores none |
+| May responses be recorded as test fixtures? | No: none recorded (public repo); revisit with Legal |
+| Caching-header rules | Exhibit 2 §1.3: only "as explicitly allowed by the caching headers (HTTP/1.1 standard) returned by HERE Location Services" [H1]; headers not recorded in this run |
 
 Default until this is filled in: **no persistence** (in-memory, discarded at session end).
 
@@ -230,27 +287,38 @@ Default until this is filled in: **no persistence** (in-memory, discarded at ses
 
 | Field | Value |
 | --- | --- |
-| Key / auth model | |
-| Can keys be restricted (package, signing, referrer)? | |
-| Key rotation / revocation | |
-| Requires backend proxy, device auth, signed tokens, or SDK credentials? (→ additional scope) | |
+| Key / auth model | API key (`apiKey` query parameter) or OAuth 2.0 bearer tokens [H5][H6] |
+| Can keys be restricted (package, signing, referrer)? | Trusted domains (up to 20) [H5]; no app/package or signing restriction documented |
+| Key rotation / revocation | Create a second key, then delete the original [H5] |
+| Requires backend proxy, device auth, signed tokens, or SDK credentials? (→ additional scope) | Not required by the API. A key in the APK can be extracted; the POC accepts that with a dev-only, low-quota key. Production: decide between a proxy and OAuth before release |
 
 POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, easy to revoke, never committed.
 
 ## Known limitations
 
-- [e.g. Scenic coverage weak outside cities]
-- [e.g. no restroom field]
+- Family is thin in central Dublin (1 relevant of 10): the amusement-park code also returns gaming arcades, casinos
+  and sports venues.
+- Scenic is thin around Galway (2 relevant of 3), and one result's position looks wrong.
+- Some results are miscategorised businesses (for example, roofing contractors and a restaurant under Scenic Point).
+- The nearest Scenic result from Greystones is 11.9 km away.
+- No rating, parking or toilet data in `/browse` responses.
+- Latency (116–304 ms) was measured from a development Mac on a home connection, not in the vehicle.
+- HERE's free allowance and pricing are not established [H7].
+- Licence: the §6.3(a) quote goes to Legal before production.
 
 ## Rejected
 
-- [Provider B] — [reason]
-- [Provider C] — [reason]
+- TomTom — not selected: the Product Lead judged only HERE's data good enough (2026-10-07). Matrix observations:
+  Family mixed in massage/spa and comedy venues (Thin in Dublin and Galway); Coffee mixes in pubs (CAFE_PUB).
+  Licence text [T1] unverified → Legal.
+- Geoapify — not selected: the Product Lead judged only HERE's data good enough (2026-10-07). Matrix observations:
+  most playgrounds and viewpoints are unnamed (Family Thin in all three locations). Terms silent on vehicles [G3]
+  → Legal.
 
 ## Sign-off
 
 | Question | Name | Result | Date |
 | --- | --- | --- | --- |
-| Data good enough (Product) | | | |
-| Licence suitable for embedded automotive use (Product/Legal/Business) | | | |
-| API technically workable (Tech Lead) | | | |
+| Data good enough (Product) | Product Lead | Yes for HERE (Coffee, Family and Scenic overall); No for TomTom and Geoapify | 2026-10-07 |
+| Licence suitable for embedded automotive use (Product/Legal/Business) | Legal | Pending: risk accepted by the Product Lead until then | — |
+| API technically workable (Tech Lead) | Tech Lead | Yes, with the limits listed (no ratings, parking or toilets; key in the APK) | 2026-10-07 |

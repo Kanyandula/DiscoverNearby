@@ -30,3 +30,7 @@ build/
 .remember/
 _to_delete/
 graphify-out/
+
+# DN-SP-001 provider evaluation output: provider content, never committed (public repo)
+tools/provider-eval/out/
+tools/provider-eval/__pycache__/

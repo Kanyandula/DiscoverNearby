@@ -25,8 +25,8 @@ The pack is deliberately scoped for an **emulator-first proof of concept**, not 
   [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md),
   [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and
   [ADR-002](adr/0002-ui-stack-after-v7.md).
-- **Current gates:** M0 has exited under the waiver (V7 failed and waived). The provider decision V4 blocks M1;
-  its product evaluation owner is assigned, with Legal sign-off on terms separate. V8 does not block the POC.
+- **Current gates:** M0 has exited under the waiver (V7 failed and waived). V4: HERE is provisionally selected
+  (ADR-001, 2026-10-07), with Legal sign-off on provider terms pending before production; M1 can start. V8 does not block the POC.
 
 The verification register and ADRs are the status sources. Older implementation plans and revision summaries
 record what was true when those tasks ran; they are historical evidence, not current status.
