@@ -67,6 +67,7 @@ class PlaceDetailsFitTest {
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
         val notice = rule.onNodeWithText("© ${Year.now().value} HERE")
         notice.assertIsDisplayed()
+        notice.assertHeightIsAtLeast(16.dp) // one whole labelMedium line: the last child is squeezed first
         assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= notice.getUnclippedBoundsInRoot().top)
     }

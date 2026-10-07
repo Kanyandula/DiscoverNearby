@@ -133,7 +133,7 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
     displayed in the 'About HERE' section in the Settings."
   - Nothing addresses an app that shows results without a map. **→ Legal.**
 - **[H9]** HERE brand guidance, Trademarks. <https://brand.here.com/legal/trademarks/>. Covers the use of the HERE
-  logo and wordmark. It does not require a logo to be displayed.
+  logo and wordmark when one is shown; no requirement to display a logo was found there or in [H8]. **→ Legal.**
 - **[H10]** Geocoding & Search v7, Lookup. <https://docs.here.com/geocoding-and-search/docs/endpoint-lookup-brief>.
   `GET https://lookup.search.hereapi.com/v1/lookup?id=…`. The sample response has `title`, `id`, `address`,
   `position`, `access`, `categories`, `references`, `contacts`. `references` names data suppliers; there is no
@@ -284,7 +284,7 @@ categories also run live from DN-M1-002, but are accepted in M2 (DN-M2-001, DN-M
 | Field | Value |
 | --- | --- |
 | Required text | "© 20XX HERE" [H8]; §13.1 requires notices "in accordance with HERE brand guidance" [H1]. The responses carry no notice of their own [H10] |
-| Required logo | Not required by [H8]; [H9] governs a logo if one is shown |
+| Required logo | No logo requirement found in [H8]; [H9] covers logo use if one is shown → Legal |
 | Must be always visible? | Not stated for an app without a map [H8] → Legal |
 | Can appear in About / Data Sources? | "In mobile handsets, including watches and embedded in-car systems, the HERE copyright may alternatively be displayed in the 'About HERE' section in the Settings" [H8]; tied to a map → Legal |
 | Required on Recommendations? | Not established. §6.4(a): when combined with non-HERE content, "the origin of the HERE Content and non-HERE content can be distinguished and correct attribution can be provided" [H1] |
