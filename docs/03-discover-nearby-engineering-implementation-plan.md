@@ -578,9 +578,13 @@ Product Lead decisions (2026-10-07):
 
 - known-closed places are dropped in Coffee, Food, Family and Explore; Outdoors and Scenic keep them, with no
   open-now bonus;
-- at most two results per primary kind in Outdoors, Family and Explore; Coffee, Food and Scenic have no cap (HERE
-  files every café, restaurant and Scenic Point as one kind);
+- at most three results per primary kind in Outdoors and two in Family and Explore; Coffee, Food and Scenic have no
+  cap (HERE files every café, restaurant and Scenic Point as one kind);
 - a matching kind that isn't the place's primary counts half, and a category match below 10 is dropped.
+- **DN-M2-003 (Product Lead, 2026-10-07):** after the benchmark, HERE's Family codes map to finer kinds
+  (amusement park, aquarium, water park, children's museum). An amusement park weighs 20, since HERE files
+  non-family businesses under it; the others weigh 30. The open-now bonus is 2, so it breaks near-ties without
+  outweighing a few kilometres.
 
 Rating aggregation (for example, Bayesian averaging of rating and count) is **not** a POC requirement. Investigate it only if the provider ADR shows that ratings and counts exist with useful coverage.
 

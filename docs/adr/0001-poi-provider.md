@@ -112,7 +112,8 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
 - **[H3]** Geocoding & Search v7, Places category system. <https://docs.here.com/geocoding-and-search/docs/places-category-system-full>.
   - 100-1100-0010 Coffee Shop (100-1100 Coffee-Tea); 100-1000 Restaurant.
   - 550-5510-0202 Park-Recreation Area; 550-5510-0205 Beach; 350-3522-0239 Forest, Heath or Other Vegetation.
-  - 550-5520-0208 Zoo; 550-5520-0207 Amusement Park; 550-5520-0357 Water Park; 300-3100-0027 Children's Museum.
+  - 550-5520-0208 Zoo; 550-5520-0211 Aquarium; 550-5520-0207 Amusement Park; 550-5520-0357 Water Park;
+    300-3100-0027 Children's Museum.
   - 550-5510-0242 Scenic Point; 350-3510-0238 Mountain Peaks.
   - 300-3000-0023 Tourist Attraction; 300-3000 Landmark-Attraction; 300-3100 Museum.
   - No playground category is listed.
@@ -271,7 +272,7 @@ on 2026-10-07, before the raw output was deleted; they cannot be re-derived from
 | Coffee | 100-1100 Coffee-Tea (live-tested) |
 | Food | 100-1000 Restaurant (documented, not live-tested) |
 | Outdoors | 550-5510-0202 Park-Recreation Area, 550-5510-0205 Beach, 350-3522-0239 Forest, Heath or Other Vegetation (documented, not live-tested) |
-| Family | 550-5520-0208 Zoo, 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum (live-tested) |
+| Family | 550-5520-0208 Zoo, 550-5520-0211 Aquarium (added DN-M2-003), 550-5520-0207 Amusement Park, 550-5520-0357 Water Park, 300-3100-0027 Children's Museum (live-tested) |
 | Scenic | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks (live-tested) |
 | Explore | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum (documented, not live-tested) |
 
@@ -328,6 +329,14 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 - Latency (116–304 ms) was measured from a development Mac on a home connection, not in the vehicle.
 - HERE's free allowance and pricing are not established [H7].
 - Licence: the §6.3(a) quote goes to Legal before production.
+- **HERE data quality (DN-M2-003 investigation, 2026-10-07).** These are provider data limitations; the app has no
+  field to detect them:
+  - Some records carry a wrong position that agrees with their own address and access point: a Scenic Point about
+    60 km from where it shows, and several Dublin places at one street-level point.
+  - Non-family businesses carry Amusement Park, sometimes as their primary category; it weighs less in Family.
+  - Some places have duplicate records.
+
+  They are reported through HERE's map feedback. The re-run records whether they still appear.
 
 ## Rejected
 

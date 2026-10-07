@@ -59,7 +59,9 @@ in place (DN-M0-012, DN-M0-001).
     for HERE data only (`PlaceSummary.attribution`). Placement without a map is pending Legal.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
-  Explore; at most two per primary kind in Outdoors, Family and Explore; below a category match of 10 is dropped.
+  Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
+  dropped. DN-M2-003: HERE's Family codes map to finer kinds (an amusement park weighs 20), open now adds 2, and HERE
+  answers in English (`lang=en`) with up to 50 results.
 - **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
   cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
   Place names stay in the private vault. M2 exits after DN-M2-003's re-run (Product Lead).
