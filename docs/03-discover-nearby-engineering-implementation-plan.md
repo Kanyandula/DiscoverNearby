@@ -145,8 +145,9 @@ app/
 │   ├── fake/
 │   │   └── FakePlacesRepository        (M0: all six categories, fixed data per test location)
 │   └── here/                           HERE client + mapper (DN-M1-001, ADR-001)
-│       ├── <Provider>PlacesRepository
-│       └── <Provider>PlaceMapper
+│       ├── HerePlacesRepository        (/browse, /lookup over OkHttp)
+│       ├── HereMapper, HereModels
+│       └── HereCategories              (request codes; HERE category → kind)
 │
 ├── location/
 │   ├── LocationProvider                (interface)

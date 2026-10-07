@@ -261,6 +261,10 @@ on 2026-10-07, before the raw output was deleted; they cannot be re-derived from
 | Scenic | 550-5510-0242 Scenic Point, 350-3510-0238 Mountain Peaks (live-tested) |
 | Explore | 300-3000-0023 Tourist Attraction, 300-3000 Landmark-Attraction, 300-3100 Museum (documented, not live-tested) |
 
+**First live category (DN-M1-002): Coffee.** It is HERE's only category rated Good at all three test locations
+(Test matrix). It was verified live on the emulator at Greystones, Dublin and Galway on 2026-10-07. The other five
+categories also run live from DN-M1-002, but are accepted in M2 (DN-M2-001, DN-M2-002).
+
 ## V6a — Attribution
 
 | Field | Value |

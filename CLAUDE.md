@@ -48,8 +48,13 @@ in place (DN-M0-012, DN-M0-001).
   when the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 - **Provider evaluation (DN-SP-001):** `tools/provider-eval/evaluate.py` (stdlib Python, not in Gradle or CI); output
   in the git-ignored `out/`; outcome in ADR-001.
-- **HERE client (DN-M1-001):** `places/here/HerePlacesRepository` (OkHttp + kotlinx.serialization; `/browse`,
-  `/lookup`), key `here.apiKey` → `BuildConfig.HERE_API_KEY`. Not wired yet: `AppContainer` still serves the fakes.
+- **HERE client (DN-M1-001, wired in DN-M1-002):** `places/here/HerePlacesRepository` (OkHttp +
+  kotlinx.serialization; `/browse`, `/lookup`), key `here.apiKey` → `BuildConfig.HERE_API_KEY`.
+  - **Source:** `AppContainer` serves HERE when the key is set. It serves the fakes without a key (CI) and for
+    `--es scenario`, warm relaunches included.
+  - **Tests:** Robolectric uses `TestDiscoverApplication` (keyless) by its `Test<ApplicationName>` convention, so
+    tests always get the fakes.
+  - **Live categories:** Coffee is the first live category (ADR-001); the others are live but are accepted in M2.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
@@ -65,9 +70,9 @@ on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to
 limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 
-Next: DN-M1-002 (live nearby discovery) wires the HERE client into `AppContainer`; DN-M1-003 (live place details)
-follows. ADR-001 provisionally selects HERE (Legal sign-off on provider terms pending before production).
-DN-TD-002 (Gradle/CI tuning) is P3.
+Next: DN-M1-003 (live place details: verify `/lookup`; attribution once HERE's brand guidance is read). ADR-001
+provisionally selects HERE (Legal sign-off on provider terms pending before production). DN-TD-002 (Gradle/CI
+tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).

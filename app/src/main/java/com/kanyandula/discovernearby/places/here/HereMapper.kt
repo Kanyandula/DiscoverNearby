@@ -14,12 +14,14 @@ internal fun HereItem.toSummary(): PlaceSummary? {
     val location = position?.run { if (lat != null && lng != null) GeoPoint(lat, lng) else null }
     if (placeId == null || name == null || location == null) return null
     val kinds = categories.mapNotNull { kindFor(it.id) }
+    val primary = categories.firstOrNull { it.primary }
     return PlaceSummary(
         id = placeId,
         name = name,
         location = location,
         placeKinds = kinds.toSet(),
-        primaryKind = categories.firstOrNull { it.primary }?.let { kindFor(it.id) } ?: kinds.firstOrNull(),
+        // HERE's own primary decides; without one flagged, the first mapped kind leads.
+        primaryKind = if (primary != null) kindFor(primary.id) else kinds.firstOrNull(),
         attributes = emptySet(),
         rating = null,
         ratingCount = null,

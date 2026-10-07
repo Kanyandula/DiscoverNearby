@@ -101,4 +101,14 @@ class HereMapperTest {
         assertEquals(false, item(base + """[{"isOpen": false}, {"text": ["x"]}]}""").toSummary()?.isOpenNow)
         assertNull(item(base + """[{"text": ["x"]}]}""").toSummary()?.isOpenNow)
     }
+
+    // Review Focus 3 (DN-M1-001 review): a petrol forecourt (primary, not searched) with a coffee counter is a place
+    // that serves coffee, not a café; it must not score as a primary match.
+    @Test
+    fun aPrimaryCategoryWeDoNotSearchLeavesNoPrimaryKind() {
+        val place = checkNotNull(item("""{"id": "x", "title": "A", "position": {"lat": 1.0, "lng": 2.0},
+            "categories": [{"id": "700-7600-0116", "primary": true}, {"id": "100-1100-0010"}]}""").toSummary())
+        assertEquals(setOf("coffee_shop"), place.placeKinds)
+        assertNull(place.primaryKind)
+    }
 }

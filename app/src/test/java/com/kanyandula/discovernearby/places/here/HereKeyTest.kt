@@ -1,7 +1,7 @@
 package com.kanyandula.discovernearby.places.here
 
 import com.kanyandula.discovernearby.BuildConfig
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HereKeyTest {
@@ -11,6 +11,6 @@ class HereKeyTest {
     @Test
     fun theKeyComesFromBuildConfigTrimmed() {
         val key: String = BuildConfig.HERE_API_KEY
-        assertEquals(key.trim(), key)
+        assertTrue("HERE_API_KEY has surrounding whitespace", key == key.trim()) // never print the key itself
     }
 }
