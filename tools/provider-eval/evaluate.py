@@ -34,9 +34,17 @@ LOCATIONS = {  # TestLocation.kt (docs/03 §7)
     "Galway": (53.2707, -9.0568),
 }
 RADIUS_M = {"Coffee": 5_000, "Family": 15_000, "Scenic": 30_000}  # CategoryConfigs
-# ADR-001 "Candidate category codes (documented)". `check` confirms the TomTom IDs against poiCategories.
+# TomTom category ID: (category, documented code) [T3]. `check` confirms each ID's name against poiCategories.
+TOMTOM_CODES = {
+    "9376": ("Coffee", "CAFE_PUB"),
+    "9927": ("Family", "ZOOS_ARBORETA_BOTANICAL_GARDEN"),
+    "9902": ("Family", "AMUSEMENT_PARK"),
+    "9378": ("Family", "LEISURE_CENTER"),
+    "7337": ("Scenic", "SCENIC_PANORAMIC_VIEW"),
+}
+# ADR-001 "Candidate category codes (documented)".
 CATEGORIES = {
-    "tomtom": {"Coffee": "9376", "Family": "9927,9902,9378", "Scenic": "7337"},
+    "tomtom": {c: ",".join(i for i, (cat, _) in TOMTOM_CODES.items() if cat == c) for c in CATEGORY_NAMES},
     "here": {
         "Coffee": "100-1100",
         "Family": "550-5520-0208,550-5520-0207,550-5520-0357,300-3100-0027",
@@ -47,13 +55,6 @@ CATEGORIES = {
         "Family": "leisure.playground,entertainment.zoo,entertainment.theme_park",
         "Scenic": "tourism.attraction.viewpoint,natural.mountain.peak",
     },
-}
-TOMTOM_CODES = {
-    "9376": "CAFE_PUB",
-    "9927": "ZOOS_ARBORETA_BOTANICAL_GARDEN",
-    "9902": "AMUSEMENT_PARK",
-    "9378": "LEISURE_CENTER",
-    "7337": "SCENIC_PANORAMIC_VIEW",
 }
 CHECK_CELL = ("Coffee", "Greystones")
 METRIC_KEYS = (
@@ -195,7 +196,7 @@ def run(cells, keys: dict[str, str], done: dict, get=fetch, out: Path = OUT) -> 
 def tomtom_category_names(key: str, get=fetch) -> dict[str, str]:
     status, body = get("https://api.tomtom.com/search/2/poiCategories.json?" + urllib.parse.urlencode({"key": key}))
     names = {str(c.get("id")): c.get("name", "") for c in body.get("poiCategories", [])} if status == 200 else {}
-    return {i: f"{code} -> {names.get(i, f'not found (HTTP {status})')}" for i, code in TOMTOM_CODES.items()}
+    return {i: f"{code} -> {names.get(i, f'not found (HTTP {status})')}" for i, (_, code) in TOMTOM_CODES.items()}
 
 
 def table(results: dict) -> str:
@@ -204,11 +205,9 @@ def table(results: dict) -> str:
         "| " + " | ".join(["---"] * len(METRIC_KEYS)) + " |",
     ]
     for provider, category, location in all_cells():
-        row = results.get(cell_id(provider, category, location))
-        if row is None:
-            rows.append(f"| {provider} | {category} | {location} | not run |" + " |" * (len(METRIC_KEYS) - 4))
-        else:
-            rows.append("| " + " | ".join("—" if row[k] is None else str(row[k]) for k in METRIC_KEYS) + " |")
+        row = results.get(cell_id(provider, category, location)) or {
+            "provider": provider, "category": category, "location": location, "status": "not run"}
+        rows.append("| " + " | ".join("—" if row.get(k) is None else str(row[k]) for k in METRIC_KEYS) + " |")
     return "\n".join(rows)
 
 
