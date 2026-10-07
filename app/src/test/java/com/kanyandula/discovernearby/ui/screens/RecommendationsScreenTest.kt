@@ -23,6 +23,7 @@ import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Empty
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Error
@@ -221,5 +222,20 @@ class RecommendationsScreenTest {
         state = Content(requestId = 1, recommendations = listOf(chosen))
         rule.onNodeWithText("Harbour Roasters").performClick()
         assertEquals(chosen, selected)
+    }
+
+    // DN-M1-003 (ADR-001 V6a; Product decision): live HERE results carry HERE's copyright notice.
+    @Test
+    fun liveResultsShowTheProvidersNotice() {
+        val live = testPlace("Live Cafe", "cafe").copy(attribution = "HERE")
+        state = Content(requestId = 1, recommendations = listOf(row(live, 300)))
+        rule.onNodeWithText(hereNotice()).assertIsDisplayed()
+    }
+
+    // Review Focus 3: the fakes are not HERE's, so they show no notice.
+    @Test
+    fun resultsWithoutAnAttributionShowNoNotice() {
+        state = Content(requestId = 1, recommendations = listOf(row(testPlace("Fake Cafe", "cafe"), 300)))
+        rule.onAllNodesWithText("©", substring = true).assertCountEquals(0)
     }
 }

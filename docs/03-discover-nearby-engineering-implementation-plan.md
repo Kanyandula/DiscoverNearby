@@ -480,12 +480,12 @@ data class PlaceSummary(
     val ratingCount: Int?,                // null if provider lacks it
     val isOpenNow: Boolean?,              // null = unknown
     val travelTimeMinutes: Int?,          // only if provider supplies it
+    val attribution: String? = null,      // copyright holder for the notice, e.g. "HERE"
 )
 
 data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
-    val attribution: String?,
 )
 ```
 

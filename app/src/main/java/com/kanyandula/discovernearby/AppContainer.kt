@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.util.Log
 import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.car.DrivingRestrictions
 import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
@@ -24,6 +25,12 @@ import kotlinx.coroutines.SupervisorJob
  * The single wiring point (docs/03 §3): every app-scoped dependency is constructed here by hand.
  */
 class AppContainer(context: Context, private val hereApiKey: String) {
+    init {
+        // Without a key the app serves the fakes; say so once per process, so a keyless build isn't taken for live
+        // data. A requested scenario (useFakeScenario) is deliberate, so it isn't logged.
+        if (hereApiKey.isBlank()) Log.i(TAG, "No HERE key: serving the fake places")
+    }
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val applicationInfo = context.applicationInfo
 
@@ -57,5 +64,9 @@ class AppContainer(context: Context, private val hereApiKey: String) {
             fakePlaces.scenario = FakeScenario.valueOf(name)
             fakesRequested = true
         }
+    }
+
+    private companion object {
+        const val TAG = "AppContainer"
     }
 }

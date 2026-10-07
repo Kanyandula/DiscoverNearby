@@ -15,11 +15,11 @@ data class PlaceSummary(
     val ratingCount: Int?, // null if provider lacks it
     val isOpenNow: Boolean?, // null = unknown
     val travelTimeMinutes: Int?, // only if provider supplies it
+    val attribution: String? = null, // the data's copyright holder, e.g. "HERE"; null when no notice is needed
 )
 
 /** Richer fields, fetched only when a place is opened. */
 data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
-    val attribution: String?,
 )

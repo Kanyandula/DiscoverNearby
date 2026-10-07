@@ -19,6 +19,7 @@ import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
@@ -66,7 +67,7 @@ class PlaceDetailsScreenTest {
 
     @Test
     fun contentShowsWhatIsKnown() {
-        state = Content(PlaceDetails(place, openingSummary = "Open until 18:00", attribution = null))
+        state = Content(PlaceDetails(place, openingSummary = "Open until 18:00"))
         rule.onNodeWithText("The Daily Grind").assertIsDisplayed()
         rule.onNodeWithText("2.1 km away").assertIsDisplayed()
         rule.onNodeWithText("4.6 ★ (342 reviews)").assertIsDisplayed()
@@ -128,5 +129,24 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithText("Navigate").assertDoesNotExist()
         rule.onNodeWithText("Back").performClick()
         assertEquals(1, backs)
+    }
+
+    // Review Focus 1: the notice comes with the summary, so it shows while loading, with details, and on the
+    // summary-only fallback alike.
+    @Test
+    fun hereDataShowsTheNoticeInEveryState() {
+        val live = place.copy(attribution = "HERE")
+        val notice = hereNotice()
+        listOf(Loading(live), Content(PlaceDetails(live, openingSummary = null)), SummaryOnly(live)).forEach {
+            state = it
+            rule.onNodeWithText(notice).assertIsDisplayed()
+        }
+    }
+
+    // Review Focus 3
+    @Test
+    fun dataWithoutAnAttributionShowsNoNotice() {
+        state = SummaryOnly(place)
+        rule.onAllNodesWithText("©", substring = true).assertCountEquals(0)
     }
 }

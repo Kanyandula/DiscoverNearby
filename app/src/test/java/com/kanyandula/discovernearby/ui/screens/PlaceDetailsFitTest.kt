@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -13,6 +14,7 @@ import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import org.junit.Assert.assertTrue
@@ -46,6 +48,7 @@ class PlaceDetailsFitTest {
             ratingCount = 180,
             isOpenNow = true,
             attributes = AttributeType.entries.map { PlaceAttribute(it, PROVIDED) }.toSet(),
+            attribution = "HERE",
         )
         rule.setContent {
             DiscoverNearbyTheme {
@@ -62,5 +65,10 @@ class PlaceDetailsFitTest {
         val note = rule.onNodeWithText("More details unavailable right now")
         note.assertHeightIsAtLeast(30.dp) // one whole titleMedium line
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+        val notice = rule.onNodeWithText(hereNotice())
+        notice.assertIsDisplayed()
+        notice.assertHeightIsAtLeast(16.dp) // one whole labelMedium line: the last child is squeezed first
+        assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+        assertTrue(note.getUnclippedBoundsInRoot().bottom <= notice.getUnclippedBoundsInRoot().top)
     }
 }

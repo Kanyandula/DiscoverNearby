@@ -54,10 +54,10 @@ class FakePlacesRepository(
         if (scenario == FakeScenario.DETAILS_FAILURE) throw ProviderFailure("Details unavailable")
         val summary = byId[placeId] ?: throw ProviderFailure("Unknown place $placeId")
         return if (scenario == FakeScenario.NULL_HEAVY) {
-            PlaceDetails(summary.withoutOptionalFields(), openingSummary = null, attribution = null)
+            PlaceDetails(summary.withoutOptionalFields(), openingSummary = null)
         } else {
             val opening = if (summary.isOpenNow == true) "Open until 18:00" else null
-            PlaceDetails(summary, openingSummary = opening, attribution = null)
+            PlaceDetails(summary, openingSummary = opening)
         }
     }
 

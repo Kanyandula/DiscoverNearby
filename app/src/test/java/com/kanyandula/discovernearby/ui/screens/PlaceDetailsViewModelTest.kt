@@ -33,7 +33,7 @@ class PlaceDetailsViewModelTest {
     private val places = ScriptedPlaces()
     private val launcher = FakeNavigationLauncher()
     private val place = testPlace("p1", "cafe", metersNorth = 500)
-    private val loaded = PlaceDetails(place.copy(rating = 4.6), openingSummary = "Open until 18:00", attribution = null)
+    private val loaded = PlaceDetails(place.copy(rating = 4.6), openingSummary = "Open until 18:00")
 
     private fun viewModel() = PlaceDetailsViewModel(
         place = place,
