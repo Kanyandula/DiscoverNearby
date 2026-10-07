@@ -46,7 +46,8 @@ class FakePlacesRepositoryTest {
                 assertTrue("$cell has at least three places", places.size >= 3)
                 val withinRadius = places.all { location.point.distanceMetersTo(it.location) <= config.radiusMeters }
                 assertTrue("$cell within radius", withinRadius)
-                assertTrue("$cell fits the category", places.all { it.placeKinds.any { k -> k in config.targetKinds } })
+                val fits = places.all { it.placeKinds.any { k -> k in config.kindWeights.keys } }
+                assertTrue("$cell fits the category", fits)
             }
         }
     }

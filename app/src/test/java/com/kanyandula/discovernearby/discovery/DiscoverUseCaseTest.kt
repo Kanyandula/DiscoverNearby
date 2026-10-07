@@ -42,9 +42,10 @@ class DiscoverUseCaseTest {
         val result = useCase().invoke(7, FAMILY) as DiscoverResult.Success
         val expected = DiscoveryContext(7, TestLocation.GREYSTONES.point, FAMILY, result.context.createdAtMillis)
         assertEquals(expected, result.context)
-        val distances = result.recommendations.map { it.distanceMeters }
-        assertTrue(distances.isNotEmpty())
-        assertEquals(distances.sorted(), distances)
+        // The engine's ranking, best first (docs/03 §10): not distance alone, since a park is a weak Family match.
+        val scores = result.recommendations.map { it.score }
+        assertTrue(scores.isNotEmpty())
+        assertEquals(scores.sortedDescending(), scores)
     }
 
     @Test

@@ -3,16 +3,12 @@ package com.kanyandula.discovernearby.ui
 import androidx.annotation.StringRes
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.AttributeType
-import com.kanyandula.discovernearby.model.PlaceSummary
 
 private const val METERS_PER_KM = 1_000.0
 internal const val SEPARATOR = " · "
 
 /** Kilometres, for the "%.1f km" strings. */
 internal fun kilometres(meters: Int) = meters / METERS_PER_KM
-
-/** Each known attribute type once, in the provider's order. Unknown attributes are absent from the set. */
-internal fun PlaceSummary.attributeTypes() = attributes.map { it.type }.distinct()
 
 @get:StringRes
 internal val AttributeType.label: Int

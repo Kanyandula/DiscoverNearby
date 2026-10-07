@@ -6,6 +6,9 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory.FAMILY
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory.FOOD
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory.OUTDOORS
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory.SCENIC
+import com.kanyandula.discovernearby.model.AttributeType.CAFE
+import com.kanyandula.discovernearby.model.AttributeType.PARKING
+import com.kanyandula.discovernearby.model.AttributeType.TOILETS
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,12 +38,43 @@ class CategoryConfigTest {
     // docs/03 §9 target kinds; Outdoors (do) and Scenic (look) stay distinct.
     @Test
     fun targetKindsFollowTheDocs() {
-        assertEquals(setOf("cafe", "coffee_shop"), CategoryConfigs.getValue(COFFEE).targetKinds)
-        assertTrue("park" in CategoryConfigs.getValue(OUTDOORS).targetKinds)
-        assertTrue("viewpoint" in CategoryConfigs.getValue(SCENIC).targetKinds)
-        assertTrue("viewpoint" !in CategoryConfigs.getValue(OUTDOORS).targetKinds)
-        assertTrue("playground" in CategoryConfigs.getValue(FAMILY).targetKinds)
-        assertTrue("museum" in CategoryConfigs.getValue(EXPLORE).targetKinds)
-        assertTrue(CategoryConfigs.values.all { it.targetKinds.isNotEmpty() })
+        assertEquals(setOf("cafe", "coffee_shop"), CategoryConfigs.getValue(COFFEE).kindWeights.keys)
+        assertTrue("park" in CategoryConfigs.getValue(OUTDOORS).kindWeights.keys)
+        assertTrue("viewpoint" in CategoryConfigs.getValue(SCENIC).kindWeights.keys)
+        assertTrue("viewpoint" !in CategoryConfigs.getValue(OUTDOORS).kindWeights.keys)
+        assertTrue("playground" in CategoryConfigs.getValue(FAMILY).kindWeights.keys)
+        assertTrue("museum" in CategoryConfigs.getValue(EXPLORE).kindWeights.keys)
+        assertTrue(CategoryConfigs.values.all { it.kindWeights.keys.isNotEmpty() })
+    }
+
+    // Product Lead, 2026-10-07: these categories drop known-closed places; Outdoors and Scenic keep them.
+    @Test
+    fun timeSensitiveCategoriesDropClosedPlaces() {
+        assertEquals(setOf(COFFEE, FOOD, FAMILY, EXPLORE), CategoryConfigs.filterValues { it.excludeClosed }.keys)
+    }
+
+    // Product Lead, 2026-10-07: two of a kind at most, except in Coffee, Food and Scenic.
+    @Test
+    fun diversityCapsAllButCoffeeFoodAndScenic() {
+        assertEquals(
+            mapOf(COFFEE to null, FOOD to null, OUTDOORS to 2, FAMILY to 2, SCENIC to null, EXPLORE to 2),
+            CategoryConfigs.mapValues { it.value.maxPerKind },
+        )
+    }
+
+    // docs/03 §10 Family example: the strongest kinds outweigh a park; toilets, parking and café count.
+    @Test
+    fun familyWeightsFollowTheDocsExample() {
+        val family = CategoryConfigs.getValue(FAMILY)
+        assertTrue(family.kindWeights.getValue("playground") > family.kindWeights.getValue("park"))
+        assertEquals(setOf(TOILETS, PARKING, CAFE), family.amenityWeights.keys)
+    }
+
+    // A target kind that could never pass the floor would be dead configuration.
+    @Test
+    fun everyTargetKindPassesTheFloorAsPrimary() {
+        CategoryConfigs.forEach { (category, config) ->
+            config.kindWeights.forEach { (kind, weight) -> assertTrue("$category $kind", weight >= SCORE_FLOOR) }
+        }
     }
 }
