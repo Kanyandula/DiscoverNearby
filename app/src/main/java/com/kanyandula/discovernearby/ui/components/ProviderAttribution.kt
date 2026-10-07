@@ -3,11 +3,9 @@ package com.kanyandula.discovernearby.ui.components
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.kanyandula.discovernearby.R
-import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import java.time.Year
 
 /**
@@ -17,11 +15,11 @@ import java.time.Year
 @Composable
 fun ProviderAttribution(holder: String?, modifier: Modifier = Modifier) {
     if (holder == null) return
-    val year = remember { Year.now().value }
+    val year = Year.now().value
     Text(
         text = stringResource(R.string.provider_attribution, year, holder),
         style = MaterialTheme.typography.labelMedium,
-        color = OnSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
     )
 }

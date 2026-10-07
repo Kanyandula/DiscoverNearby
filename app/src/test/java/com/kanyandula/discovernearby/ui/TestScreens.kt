@@ -10,6 +10,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import com.kanyandula.discovernearby.DiscoverApplication
 import org.robolectric.RuntimeEnvironment
+import java.time.Year
 
 /** Robolectric qualifiers for the reference AVD's automotive_1024p_landscape screen. */
 const val AUTOMOTIVE_1024P = "w1024dp-h768dp-land-mdpi"
@@ -28,3 +29,6 @@ fun ComposeTestRule.rotarySelect(node: SemanticsNodeInteraction, inputModes: Inp
     node.requestFocus()
     node.performKeyInput { pressKey(Key.DirectionCenter) }
 }
+
+/** HERE's copyright notice as the screens draw it this year (ADR-001 V6a). */
+fun hereNotice() = "© ${Year.now().value} HERE"

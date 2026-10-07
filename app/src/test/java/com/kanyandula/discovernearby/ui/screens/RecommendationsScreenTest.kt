@@ -23,6 +23,7 @@ import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Empty
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState.Error
@@ -38,7 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.Year
 
 // The screen is stateless: each test sets the state and reads what is drawn. One composition per test, so a
 // state change redraws the same screen (docs/02 §6).
@@ -229,7 +229,7 @@ class RecommendationsScreenTest {
     fun liveResultsShowTheProvidersNotice() {
         val live = testPlace("Live Cafe", "cafe").copy(attribution = "HERE")
         state = Content(requestId = 1, recommendations = listOf(row(live, 300)))
-        rule.onNodeWithText("© ${Year.now().value} HERE").assertIsDisplayed()
+        rule.onNodeWithText(hereNotice()).assertIsDisplayed()
     }
 
     // Review Focus 3: the fakes are not HERE's, so they show no notice.

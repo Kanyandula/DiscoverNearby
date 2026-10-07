@@ -14,6 +14,7 @@ import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import org.junit.Assert.assertTrue
@@ -23,7 +24,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.time.Year
 
 /**
  * The panel a destination gets on the reference AVD: 768 dp, less the system bars (76 + 96), the app header (56),
@@ -65,7 +65,7 @@ class PlaceDetailsFitTest {
         val note = rule.onNodeWithText("More details unavailable right now")
         note.assertHeightIsAtLeast(30.dp) // one whole titleMedium line
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
-        val notice = rule.onNodeWithText("© ${Year.now().value} HERE")
+        val notice = rule.onNodeWithText(hereNotice())
         notice.assertIsDisplayed()
         notice.assertHeightIsAtLeast(16.dp) // one whole labelMedium line: the last child is squeezed first
         assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)

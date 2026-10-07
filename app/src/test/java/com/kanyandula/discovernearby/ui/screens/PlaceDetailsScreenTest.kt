@@ -19,6 +19,7 @@ import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
@@ -31,7 +32,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.Year
 
 // Stateless screen: each test sets the state; one composition per test, so a state change redraws in place.
 @RunWith(RobolectricTestRunner::class)
@@ -136,7 +136,7 @@ class PlaceDetailsScreenTest {
     @Test
     fun hereDataShowsTheNoticeInEveryState() {
         val live = place.copy(attribution = "HERE")
-        val notice = "© ${Year.now().value} HERE"
+        val notice = hereNotice()
         listOf(Loading(live), Content(PlaceDetails(live, openingSummary = null)), SummaryOnly(live)).forEach {
             state = it
             rule.onNodeWithText(notice).assertIsDisplayed()
