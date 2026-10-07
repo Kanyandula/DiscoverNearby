@@ -3,13 +3,16 @@ package com.kanyandula.discovernearby.ui
 import android.Manifest
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.lifecycle.Lifecycle
 import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
@@ -17,7 +20,10 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 class AppSettingsTest {
 
-    private val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+    @get:Rule
+    val rule = createAndroidComposeRule<ComponentActivity>()
+
+    private val activity: ComponentActivity get() = rule.activity
 
     @Test
     fun opensThisAppsDetailsPage() {
@@ -58,4 +64,57 @@ class AppSettingsTest {
     }
 
     private val refused = LOCATION_PERMISSIONS.associateWith { false }
+
+    private var returns = 0
+    private lateinit var openSettings: () -> Unit
+
+    private fun showOpenSettings() = rule.setContent {
+        openSettings = rememberOpenAppSettings(onReturn = { returns++ })
+    }
+
+    /** The app is paused behind Settings, then resumes; [whileAway] runs in between. */
+    private fun comeBack(whileAway: () -> Unit = {}) {
+        rule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+        whileAway()
+        rule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        rule.waitForIdle()
+    }
+
+    // Review Focus 3: the second resume is unrelated (e.g. back from the navigation app), so nothing runs again.
+    @Test
+    fun returnFromSettingsRunsOnReturnOnce() {
+        showOpenSettings()
+        rule.runOnIdle { openSettings() }
+        comeBack()
+        assertEquals(1, returns)
+        comeBack()
+        assertEquals(1, returns)
+    }
+
+    @Test
+    fun aResumeWithoutSettingsRunsNothing() {
+        showOpenSettings()
+        comeBack()
+        assertEquals(0, returns)
+    }
+
+    // Review Focus 2: Settings didn't open, so the next resume isn't a return from it.
+    @Test
+    fun settingsThatDidNotOpenRunNothingOnReturn() {
+        shadowOf(RuntimeEnvironment.getApplication()).checkActivities(true)
+        showOpenSettings()
+        rule.runOnIdle { openSettings() }
+        comeBack()
+        assertEquals(0, returns)
+    }
+
+    // Review Focus 1: the UI is rebuilt from saved state while Settings is in front (e.g. process death).
+    @Test
+    fun recreatedWhileInSettingsStillRunsOnReturn() {
+        val restoration = StateRestorationTester(rule)
+        restoration.setContent { openSettings = rememberOpenAppSettings(onReturn = { returns++ }) }
+        rule.runOnIdle { openSettings() }
+        comeBack(whileAway = restoration::emulateSavedInstanceStateRestore)
+        assertEquals(1, returns)
+    }
 }

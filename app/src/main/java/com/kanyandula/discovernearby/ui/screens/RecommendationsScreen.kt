@@ -23,6 +23,7 @@ import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
+import com.kanyandula.discovernearby.ui.rememberReturnFocus
 import com.kanyandula.discovernearby.ui.theme.Highlight
 import com.kanyandula.discovernearby.ui.theme.MessageGap
 import com.kanyandula.discovernearby.ui.theme.MessageIconSize
@@ -31,7 +32,6 @@ import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.SpinnerStroke
 import com.kanyandula.discovernearby.ui.visual
-import com.kanyandula.discovernearby.ui.rememberReturnFocus
 
 private val EmptyMessage = Message(R.drawable.ic_empty, Highlight, R.string.empty_title, R.string.empty_body)
 private val LoadFailedMessage =

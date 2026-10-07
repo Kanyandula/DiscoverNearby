@@ -1,12 +1,12 @@
 package com.kanyandula.discovernearby.model
 
+import kotlinx.serialization.Serializable
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlinx.serialization.Serializable
 
 @Serializable
 data class GeoPoint(val lat: Double, val lng: Double) {

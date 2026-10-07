@@ -1,6 +1,8 @@
 [versions]
 # The one compile SDK for every module (CLAUDE.md); CI installs this platform.
 android-compileSdk = "37"
+android-minSdk = "29"
+android-targetSdk = "36"
 agp = "9.2.1"
 # Must equal the Kotlin version built into AGP (./gradlew buildEnvironment → kotlin-gradle-plugin).
 kotlin = "2.2.10"

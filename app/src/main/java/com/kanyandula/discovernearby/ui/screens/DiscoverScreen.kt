@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.components.CategoryTile
-import com.kanyandula.discovernearby.ui.theme.GridGap
 import com.kanyandula.discovernearby.ui.rememberReturnFocus
+import com.kanyandula.discovernearby.ui.theme.GridGap
 
 private const val GRID_COLUMNS = 3
 private val Rows = DiscoveryCategory.entries.chunked(GRID_COLUMNS)

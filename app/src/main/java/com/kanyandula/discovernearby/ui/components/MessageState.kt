@@ -68,20 +68,28 @@ internal fun MessageState(
             textAlign = TextAlign.Center,
         )
         Row(modifier = Modifier.padding(top = ButtonGap), horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-            if (onPrimary != null) MessageButton(primaryLabel, onPrimary, container = Action, content = Color.White)
-            MessageButton(backLabel, onBack, container = Raised, content = MaterialTheme.colorScheme.onSurface)
+            // The Action-blue primary gets a light ring; an Accent ring would barely show on it.
+            if (onPrimary != null) {
+                MessageButton(primaryLabel, onPrimary, container = Action, content = Color.White, ring = OnSurface)
+            }
+            MessageButton(
+                backLabel,
+                onBack,
+                container = Raised,
+                content = MaterialTheme.colorScheme.onSurface,
+                ring = Accent,
+            )
         }
     }
 }
 
 @Composable
-private fun MessageButton(@StringRes label: Int, onClick: () -> Unit, container: Color, content: Color) {
+private fun MessageButton(@StringRes label: Int, onClick: () -> Unit, container: Color, content: Color, ring: Color) {
     val shape = RoundedCornerShape(ButtonRadius)
     Button(
         onClick = onClick,
-        // A primary (Action blue) button gets a light ring; an Accent ring would barely show on it.
         modifier = Modifier
-            .focusRing(shape, if (container == Action) OnSurface else Accent)
+            .focusRing(shape, ring)
             .defaultMinSize(minWidth = ButtonMinWidth, minHeight = MinTouchTarget),
         shape = shape,
         colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = content),

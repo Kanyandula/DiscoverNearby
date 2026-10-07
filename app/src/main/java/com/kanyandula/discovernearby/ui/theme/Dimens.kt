@@ -38,5 +38,6 @@ val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
 val InfoIconGap = 12.dp
 
-// Rotary focus (docs/02 §16): a 4 px primary outline on the focused element.
+// Rotary focus ring (DN-M0-011): a 4.dp outline in Accent, or light (OnSurface) on Action-blue fills. docs/02 §16
+// asks only for a clearly visible indicator; the width and colours are the app's choice.
 val FocusRingWidth = 4.dp
