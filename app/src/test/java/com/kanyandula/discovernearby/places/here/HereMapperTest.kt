@@ -91,4 +91,14 @@ class HereMapperTest {
             .toDetails())
         assertNull(details.openingSummary)
     }
+
+    // Final review: HERE can send one hours entry per category (kitchen closed, café open). Any open entry means open;
+    // known-closed (which the engine excludes) only when no entry says open.
+    @Test
+    fun anyOpenHoursEntryMeansOpen() {
+        val base = """{"id": "x", "title": "A", "position": {"lat": 1.0, "lng": 2.0}, "openingHours": """
+        assertEquals(true, item(base + """[{"isOpen": false}, {"isOpen": true}]}""").toSummary()?.isOpenNow)
+        assertEquals(false, item(base + """[{"isOpen": false}, {"text": ["x"]}]}""").toSummary()?.isOpenNow)
+        assertNull(item(base + """[{"text": ["x"]}]}""").toSummary()?.isOpenNow)
+    }
 }

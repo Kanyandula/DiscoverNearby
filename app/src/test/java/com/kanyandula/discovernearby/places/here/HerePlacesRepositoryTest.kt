@@ -6,6 +6,7 @@ import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.PlacesException
 import com.kanyandula.discovernearby.places.ProviderFailure
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -15,9 +16,13 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
+import okio.BufferedSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -26,6 +31,7 @@ import org.robolectric.RobolectricTestRunner
 import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
@@ -169,5 +175,35 @@ class HerePlacesRepositoryTest {
         search.cancelAndJoin()
         assertTrue(call.get().isCanceled())
         release.countDown()
+    }
+
+    // Final review: the body is read on OkHttp's thread, never the caller's (Main, in the app), so a read can't block
+    // or crash it, and cancelling the call stops the read too.
+    @Test
+    fun theBodyIsReadOffTheCallersThread() {
+        val readOn = AtomicReference<Thread>()
+        respond = { request ->
+            val body = object : ResponseBody() {
+                override fun contentType() = "application/json".toMediaType()
+
+                override fun contentLength() = -1L
+
+                override fun source(): BufferedSource {
+                    readOn.set(Thread.currentThread())
+                    return Buffer().writeUtf8("""{"items": []}""")
+                }
+            }
+            reply(request, 200, "").newBuilder().body(body).build()
+        }
+        val caller = Executors.newSingleThreadExecutor()
+        try {
+            val callerThread = caller.submit<Thread> { Thread.currentThread() }.get()
+            runBlocking(caller.asCoroutineDispatcher()) {
+                HerePlacesRepository(KEY, client).searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 1)
+            }
+            assertNotEquals(callerThread, readOn.get())
+        } finally {
+            caller.shutdown()
+        }
     }
 }

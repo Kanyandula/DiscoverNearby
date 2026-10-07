@@ -23,7 +23,8 @@ internal fun HereItem.toSummary(): PlaceSummary? {
         attributes = emptySet(),
         rating = null,
         ratingCount = null,
-        isOpenNow = openingHours.firstNotNullOfOrNull { it.isOpen },
+        // HERE can send one hours entry per category: any open entry means open, and null means unknown.
+        isOpenNow = openingHours.mapNotNull { it.isOpen }.let { if (true in it) true else it.firstOrNull() },
         travelTimeMinutes = null,
     )
 }
