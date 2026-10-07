@@ -62,7 +62,7 @@ in place (DN-M0-012, DN-M0-001).
   Explore; at most two per primary kind in Outdoors, Family and Explore; below a category match of 10 is dropped.
 - **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
   cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
-  Place names stay in the private vault.
+  Place names stay in the private vault. Whether M2 exits now or after DN-M2-003's re-run is pending the Product Lead.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
