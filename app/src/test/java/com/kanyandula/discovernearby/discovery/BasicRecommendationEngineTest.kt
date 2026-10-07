@@ -53,6 +53,22 @@ class BasicRecommendationEngineTest {
         assertEquals(listOf("primary", "secondary"), ranked(FAMILY, secondary, primary))
     }
 
+    // Product Lead, 2026-10-07 (DN-M2-003): HERE files salons, cafés and escape rooms under Amusement Park, so it
+    // weighs less than a zoo, and a zoo a few km away outranks an amusement park next door.
+    @Test
+    fun aZooOutranksAnAmusementParkNextDoor() {
+        val amusement = testPlace("amusement", "amusement_park", metersNorth = 100)
+        val zoo = testPlace("zoo", "zoo", metersNorth = 3_000)
+        assertEquals(listOf("zoo", "amusement"), ranked(FAMILY, amusement, zoo))
+    }
+
+    // DN-M2-003: an adventure park filed under another category, with Amusement Park as a secondary one, still passes
+    // the floor.
+    @Test
+    fun aSecondaryAmusementParkStillPassesTheFloor() {
+        assertEquals(listOf("adventure"), ranked(FAMILY, testPlace("adventure", "landmark", "amusement_park")))
+    }
+
     // Product Lead, 2026-10-07: time-sensitive categories drop a place known to be closed now.
     @Test
     fun knownClosedIsDroppedWhereTheCategoryIsTimeSensitive() {

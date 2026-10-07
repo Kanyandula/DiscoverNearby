@@ -76,7 +76,10 @@ class HerePlacesRepositoryTest {
         assertEquals("browse.search.hereapi.com", url.host)
         assertEquals("53.144000,-6.063300", url.queryParameter("at"))
         assertEquals("circle:53.144000,-6.063300;r=15000", url.queryParameter("in"))
-        assertEquals("550-5520-0208,550-5520-0207,550-5520-0357,300-3100-0027", url.queryParameter("categories"))
+        assertEquals(
+            "550-5520-0208,550-5520-0211,550-5520-0207,550-5520-0357,300-3100-0027",
+            url.queryParameter("categories"),
+        )
         assertEquals("20", url.queryParameter("limit"))
         assertEquals(KEY, url.queryParameter("apiKey"))
     }

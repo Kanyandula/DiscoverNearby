@@ -26,8 +26,17 @@ class HereCategoriesTest {
     fun theMostSpecificCategoryWins() {
         assertEquals("coffee_shop", kindFor("100-1100-0010"))
         assertEquals("cafe", kindFor("100-1100-0331"))
-        assertEquals("family_attraction", kindFor("300-3100-0027"))
+        assertEquals("amusement_park", kindFor("550-5520-0207"))
+        assertEquals("aquarium", kindFor("550-5520-0211"))
+        assertEquals("water_park", kindFor("550-5520-0357"))
+        assertEquals("childrens_museum", kindFor("300-3100-0027"))
         assertEquals("museum", kindFor("300-3100-0000"))
+    }
+
+    // DN-M2-003: HERE files aquariums under their own code, not Zoo; without it they only match at half weight.
+    @Test
+    fun familySearchesForAquariums() {
+        assertTrue("550-5520-0211" in HERE_CATEGORIES.getValue(DiscoveryCategory.FAMILY).split(","))
     }
 
     @Test

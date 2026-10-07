@@ -51,6 +51,11 @@ data class CategoryConfig(
 
 private const val STRONG_MATCH = 30
 private const val WEAK_MATCH = 15
+
+// HERE files salons, cafés and escape rooms under Amusement Park, often as their primary category; at 20 a zoo or
+// play centre a few km away outranks one next door, and as a secondary category (10) it still passes the floor
+// (Product Lead, 2026-10-07, DN-M2-003).
+private const val AMUSEMENT_MATCH = 20
 private const val DIVERSITY_CAP = 2
 
 private fun strong(vararg kinds: String) = kinds.associateWith { STRONG_MATCH }
@@ -80,7 +85,8 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     ),
     FAMILY to CategoryConfig(
         radiusMeters = 15_000,
-        kindWeights = strong("playground", "zoo", "aquarium", "family_attraction") + ("park" to WEAK_MATCH),
+        kindWeights = strong("playground", "zoo", "aquarium", "water_park", "childrens_museum", "family_attraction") +
+            mapOf("park" to WEAK_MATCH, "amusement_park" to AMUSEMENT_MATCH),
         amenityWeights = mapOf(TOILETS to 10, PARKING to 10, CAFE to 5),
         excludeClosed = true,
         maxPerKind = DIVERSITY_CAP,
