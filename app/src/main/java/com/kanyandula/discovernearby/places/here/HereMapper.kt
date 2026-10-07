@@ -4,6 +4,9 @@ import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.PlaceSummary
 
+// The holder HERE's brand guidance names in its notice, "© 20XX HERE" (ADR-001 V6a).
+private const val HERE_ATTRIBUTION = "HERE"
+
 /**
  * A HERE item as a domain place, or null without an ID, a name or a full position. `/browse` has no rating, parking,
  * toilets or travel time (ADR-001 Field availability), so those stay unknown; unknown data is neutral.
@@ -28,14 +31,14 @@ internal fun HereItem.toSummary(): PlaceSummary? {
         // HERE can send one hours entry per category: any open entry means open, and null means unknown.
         isOpenNow = openingHours.mapNotNull { it.isOpen }.let { if (true in it) true else it.firstOrNull() },
         travelTimeMinutes = null,
+        attribution = HERE_ATTRIBUTION,
     )
 }
 
-/** Details add the opening-hours text. Attribution stays null until HERE's brand guidance is read (ADR-001 V6a). */
+/** Details add the opening-hours text; the copyright notice comes with the summary. */
 internal fun HereItem.toDetails(): PlaceDetails? = toSummary()?.let { summary ->
     PlaceDetails(
         summary = summary,
         openingSummary = openingHours.flatMap { it.text }.joinToString("; ").ifEmpty { null },
-        attribution = null,
     )
 }

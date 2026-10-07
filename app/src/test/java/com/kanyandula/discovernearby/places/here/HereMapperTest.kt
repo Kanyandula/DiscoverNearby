@@ -33,6 +33,7 @@ class HereMapperTest {
         assertEquals(setOf("restaurant", "coffee_shop"), place.placeKinds)
         assertEquals("coffee_shop", place.primaryKind)
         assertEquals(true, place.isOpenNow)
+        assertEquals("HERE", place.attribution) // DN-M1-003: HERE's notice goes with its data (ADR-001 V6a)
     }
 
     // ADR-001 Field availability: /browse has no rating, parking, toilets or travel time. Unknown stays unknown.
@@ -82,7 +83,7 @@ class HereMapperTest {
     fun detailsAddTheOpeningHoursText() {
         val details = checkNotNull(item(FULL_ITEM).toDetails())
         assertEquals("Mon-Sat: 07:30 - 18:00; Sun: 09:00 - 17:00", details.openingSummary)
-        assertNull(details.attribution)
+        assertEquals("HERE", details.summary.attribution)
     }
 
     @Test
