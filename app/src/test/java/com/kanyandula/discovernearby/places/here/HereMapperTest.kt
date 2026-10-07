@@ -9,7 +9,7 @@ import org.junit.Test
 
 // Synthetic: invented values in the shape of HERE's documented /browse item (ADR-001 [H2]). The spike recorded no
 // fixtures (public repo; ADR-001 V6b).
-private const val FULL_ITEM = """
+internal const val FULL_ITEM = """
 {"title": "Test Coffee", "id": "here:pds:place:test-1", "resultType": "place",
  "position": {"lat": 53.1445, "lng": -6.0631}, "distance": 60,
  "categories": [{"id": "100-1000-0000", "name": "Restaurant"},

@@ -37,18 +37,16 @@ import java.util.concurrent.atomic.AtomicReference
 
 private const val KEY = "TEST-KEY-not-real"
 private val GREYSTONES = GeoPoint(53.144, -6.0633)
-private const val ITEM = """{"id": "here:pds:place:test-1", "title": "Test Coffee",
-    "position": {"lat": 53.1445, "lng": -6.0631}, "categories": [{"id": "100-1100-0010", "primary": true}],
-    "openingHours": [{"text": ["Mon-Sun: 08:00 - 18:00"], "isOpen": true}]}"""
-
 @RunWith(RobolectricTestRunner::class)
 class HerePlacesRepositoryTest {
 
     private val requests = mutableListOf<Request>()
-    private var respond: (Request) -> Response = { reply(it, 200, """{"items": [$ITEM]}""") }
+    private var respond: (Request) -> Response = { reply(it, 200, """{"items": [$FULL_ITEM]}""") }
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain -> chain.request().also { requests += it }.let(respond) }
         .build()
+
+    private val repository = HerePlacesRepository(KEY, client)
 
     private fun reply(request: Request, code: Int, body: String) = Response.Builder()
         .request(request)
@@ -73,11 +71,11 @@ class HerePlacesRepositoryTest {
 
     @Test
     fun browseAsksForTheCategoryAroundTheOrigin() = runBlocking {
-        HerePlacesRepository(KEY, client).searchNearby(GREYSTONES, DiscoveryCategory.FAMILY, 15_000)
+        repository.searchNearby(GREYSTONES, DiscoveryCategory.FAMILY, 15_000)
         val url = requests.single().url
         assertEquals("browse.search.hereapi.com", url.host)
-        assertEquals("53.144,-6.0633", url.queryParameter("at"))
-        assertEquals("circle:53.144,-6.0633;r=15000", url.queryParameter("in"))
+        assertEquals("53.144000,-6.063300", url.queryParameter("at"))
+        assertEquals("circle:53.144000,-6.063300;r=15000", url.queryParameter("in"))
         assertEquals("550-5520-0208,550-5520-0207,550-5520-0357,300-3100-0027", url.queryParameter("categories"))
         assertEquals("20", url.queryParameter("limit"))
         assertEquals(KEY, url.queryParameter("apiKey"))
@@ -89,33 +87,33 @@ class HerePlacesRepositoryTest {
         val default = Locale.getDefault()
         Locale.setDefault(Locale.GERMANY)
         try {
-            HerePlacesRepository(KEY, client).searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 5_000)
+            repository.searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 5_000)
         } finally {
             Locale.setDefault(default)
         }
-        assertEquals("53.144,-6.0633", requests.single().url.queryParameter("at"))
+        assertEquals("53.144000,-6.063300", requests.single().url.queryParameter("at"))
     }
 
     @Test
     fun browseItemsBecomePlaces() = runBlocking {
-        val places = HerePlacesRepository(KEY, client).searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 5_000)
+        val places = repository.searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 5_000)
         assertEquals(listOf("Test Coffee"), places.map { it.name })
     }
 
     @Test
     fun detailsLookUpThePlaceById() = runBlocking {
-        respond = { reply(it, 200, ITEM) }
-        val details = HerePlacesRepository(KEY, client).getPlaceDetails("here:pds:place:test-1")
+        respond = { reply(it, 200, FULL_ITEM) }
+        val details = repository.getPlaceDetails("here:pds:place:test-1")
         val url = requests.single().url
         assertEquals("lookup.search.hereapi.com", url.host)
         assertEquals("here:pds:place:test-1", url.queryParameter("id"))
-        assertEquals("Mon-Sun: 08:00 - 18:00", details.openingSummary)
+        assertEquals("Mon-Sat: 07:30 - 18:00; Sun: 09:00 - 17:00", details.openingSummary)
     }
 
     @Test
     fun detailsWithoutAUsablePlaceAreAProviderFailure() {
         respond = { reply(it, 200, """{"id": "x"}""") }
-        assertTrue(failure { HerePlacesRepository(KEY, client).getPlaceDetails("x") } is ProviderFailure)
+        assertTrue(failure { repository.getPlaceDetails("x") } is ProviderFailure)
     }
 
     // Review Focus 4
@@ -199,7 +197,7 @@ class HerePlacesRepositoryTest {
         try {
             val callerThread = caller.submit<Thread> { Thread.currentThread() }.get()
             runBlocking(caller.asCoroutineDispatcher()) {
-                HerePlacesRepository(KEY, client).searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 1)
+                repository.searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 1)
             }
             assertNotEquals(callerThread, readOn.get())
         } finally {

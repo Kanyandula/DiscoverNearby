@@ -1,6 +1,7 @@
 package com.kanyandula.discovernearby.model
 
 import kotlinx.serialization.Serializable
+import java.util.Locale
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
@@ -10,6 +11,9 @@ import kotlin.math.sqrt
 
 @Serializable
 data class GeoPoint(val lat: Double, val lng: Double) {
+
+    /** "lat,lng" for URLs and URIs: six decimals and dots whatever the locale, never scientific notation. */
+    fun latLng(): String = String.format(Locale.US, "%.6f,%.6f", lat, lng)
 
     /** Great-circle (haversine) distance in metres. */
     fun distanceMetersTo(other: GeoPoint): Int {

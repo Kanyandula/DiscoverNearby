@@ -18,8 +18,8 @@ internal val HERE_CATEGORIES: Map<DiscoveryCategory, String> = mapOf(
     EXPLORE to "300-3000-0023,300-3000,300-3100",
 )
 
-// A HERE category, or a parent category, → the normalised kind CategoryConfigs targets. The most specific match
-// wins: a Coffee Shop (100-1100-0010) is "coffee_shop", any other Coffee-Tea place "cafe".
+// A HERE category, or its parent, → the normalised kind CategoryConfigs targets. The category's own entry wins: a
+// Coffee Shop (100-1100-0010) is "coffee_shop", any other Coffee-Tea place (100-1100-…) "cafe".
 private val KINDS = mapOf(
     "100-1100-0010" to "coffee_shop",
     "100-1100" to "cafe",
@@ -38,9 +38,6 @@ private val KINDS = mapOf(
     "300-3100" to "museum",
 )
 
-/** The domain kind for a HERE category ID, or null when no category we search covers it. */
+/** The domain kind for a HERE category ID (its own, else its parent's); null when no category we search covers it. */
 internal fun kindFor(hereCategoryId: String): String? =
-    KINDS.keys
-        .filter { hereCategoryId == it || hereCategoryId.startsWith("$it-") }
-        .maxByOrNull { it.length }
-        ?.let(KINDS::getValue)
+    KINDS[hereCategoryId] ?: KINDS[hereCategoryId.substringBeforeLast("-")]

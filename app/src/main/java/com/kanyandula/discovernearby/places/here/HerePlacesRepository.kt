@@ -43,8 +43,8 @@ class HerePlacesRepository(
         radiusMeters: Int,
     ): List<PlaceSummary> {
         val url = BROWSE_URL.newBuilder()
-            .addQueryParameter("at", "${origin.lat},${origin.lng}")
-            .addQueryParameter("in", "circle:${origin.lat},${origin.lng};r=$radiusMeters")
+            .addQueryParameter("at", origin.latLng())
+            .addQueryParameter("in", "circle:${origin.latLng()};r=$radiusMeters")
             .addQueryParameter("categories", HERE_CATEGORIES.getValue(category))
             .addQueryParameter("limit", "$SEARCH_LIMIT")
             .build()
@@ -58,13 +58,11 @@ class HerePlacesRepository(
     /** The decoded body. No key, an HTTP error or an unreadable body is a [ProviderFailure]. */
     private suspend inline fun <reified T> get(url: HttpUrl): T {
         val body = if (apiKey.isBlank()) null else fetch(url.newBuilder().addQueryParameter("apiKey", apiKey).build())
-        return body?.let { decode<T>(it) } ?: throw ProviderFailure()
-    }
-
-    private inline fun <reified T> decode(body: String): T? = try {
-        json.decodeFromString<T>(body)
-    } catch (ignored: SerializationException) {
-        null
+        return try {
+            json.decodeFromString<T>(body ?: throw ProviderFailure())
+        } catch (ignored: SerializationException) {
+            throw ProviderFailure()
+        }
     }
 
     /** A successful response's body, or null for an HTTP error. A call that can't complete is [NetworkUnavailable]. */

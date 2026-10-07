@@ -4,10 +4,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import com.kanyandula.discovernearby.model.GeoPoint
-import java.util.Locale
 
 /** `geo:lat,lng` to six decimals; Locale.US, so a comma-decimal locale can't reach the URI (docs/03 §11). */
-internal fun geoUri(point: GeoPoint): String = String.format(Locale.US, "geo:%.6f,%.6f", point.lat, point.lng)
+internal fun geoUri(point: GeoPoint): String = "geo:${point.latLng()}"
 
 /**
  * Hands the destination to whatever navigation app the system resolves (docs/03 §11): ACTION_VIEW with a geo: URI,
