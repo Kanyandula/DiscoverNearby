@@ -130,24 +130,25 @@ class BasicRecommendationEngineTest {
         assertEquals(listOf("park-0", "park-1", "beach"), ranked(OUTDOORS, *(parks + beach).toTypedArray()))
     }
 
-    // Product Lead, 2026-10-07: every café is "cafe" on HERE data, so Coffee and Food have no cap.
+    // Product Lead, 2026-10-07: on HERE data every café is "cafe" and every Scenic Point "viewpoint", so Coffee, Food
+    // and Scenic have no cap.
     @Test
-    fun coffeeAndFoodAreNotCapped() {
-        mapOf(COFFEE to "cafe", FOOD to "restaurant").forEach { (category, kind) ->
+    fun coffeeFoodAndScenicAreNotCapped() {
+        mapOf(COFFEE to "cafe", FOOD to "restaurant", SCENIC to "viewpoint").forEach { (category, kind) ->
             val places = List(4) { testPlace("p$it", kind, metersNorth = 100 * (it + 1)) }
             assertEquals(category.name, 4, ranked(category, *places.toTypedArray()).size)
         }
     }
 
     // Review Focus 2: HERE leaves the primary kind null when its primary category is one we don't search (a
-    // business also filed under Scenic Point). It matches at half weight and counts as a viewpoint for the cap.
+    // business also filed under Park-Recreation Area). It matches at half weight and counts as a park for the cap.
     @Test
     fun anUnknownPrimaryKindCountsAsTheKindItMatched() {
-        val v1 = testPlace("v1", "viewpoint", metersNorth = 2_000)
-        val v2 = testPlace("v2", "viewpoint", metersNorth = 3_000)
-        val filed = testPlace("filed", "viewpoint", metersNorth = 100, primaryKind = null)
-        assertEquals(listOf("v1", "v2"), ranked(SCENIC, filed, v1, v2))
-        assertEquals(listOf("v1", "filed"), ranked(SCENIC, filed, v1))
+        val p1 = testPlace("p1", "park", metersNorth = 2_000)
+        val p2 = testPlace("p2", "park", metersNorth = 3_000)
+        val filed = testPlace("filed", "park", metersNorth = 100, primaryKind = null)
+        assertEquals(listOf("p1", "p2"), ranked(OUTDOORS, filed, p1, p2))
+        assertEquals(listOf("p1", "filed"), ranked(OUTDOORS, filed, p1))
     }
 
     // Review Focus 3: a provider listing a place twice must not use up its kind's cap.

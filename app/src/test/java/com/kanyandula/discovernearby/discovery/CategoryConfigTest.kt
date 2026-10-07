@@ -53,11 +53,11 @@ class CategoryConfigTest {
         assertEquals(setOf(COFFEE, FOOD, FAMILY, EXPLORE), CategoryConfigs.filterValues { it.excludeClosed }.keys)
     }
 
-    // Product Lead, 2026-10-07: two of a kind at most, except in Coffee and Food.
+    // Product Lead, 2026-10-07: two of a kind at most, except in Coffee, Food and Scenic.
     @Test
-    fun diversityCapsAllButCoffeeAndFood() {
+    fun diversityCapsAllButCoffeeFoodAndScenic() {
         assertEquals(
-            mapOf(COFFEE to null, FOOD to null, OUTDOORS to 2, FAMILY to 2, SCENIC to 2, EXPLORE to 2),
+            mapOf(COFFEE to null, FOOD to null, OUTDOORS to 2, FAMILY to 2, SCENIC to null, EXPLORE to 2),
             CategoryConfigs.mapValues { it.value.maxPerKind },
         )
     }

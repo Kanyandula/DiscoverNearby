@@ -578,7 +578,8 @@ Product Lead decisions (2026-10-07):
 
 - known-closed places are dropped in Coffee, Food, Family and Explore; Outdoors and Scenic keep them, with no
   open-now bonus;
-- at most two results per primary kind in Outdoors, Family, Scenic and Explore; Coffee and Food have no cap;
+- at most two results per primary kind in Outdoors, Family and Explore; Coffee, Food and Scenic have no cap (HERE
+  files every café, restaurant and Scenic Point as one kind);
 - a matching kind that isn't the place's primary counts half, and a category match below 10 is dropped.
 
 Rating aggregation (for example, Bayesian averaging of rating and count) is **not** a POC requirement. Investigate it only if the provider ADR shows that ratings and counts exist with useful coverage.

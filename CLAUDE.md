@@ -59,7 +59,7 @@ in place (DN-M0-012, DN-M0-001).
     for HERE data only (`PlaceSummary.attribution`). Placement without a map is pending Legal.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
-  Explore; at most two per primary kind outside Coffee and Food; below a category match of 10 is dropped.
+  Explore; at most two per primary kind in Outdoors, Family and Explore; below a category match of 10 is dropped.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 

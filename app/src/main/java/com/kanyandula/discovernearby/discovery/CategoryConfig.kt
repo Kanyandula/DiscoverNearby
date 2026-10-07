@@ -91,7 +91,8 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
         kindWeights = strong("viewpoint", "scenic_spot", "coastal_overlook", "waterfall", "natural_attraction") +
             ("landmark" to WEAK_MATCH),
         excludeClosed = false,
-        maxPerKind = DIVERSITY_CAP,
+        // HERE files every Scenic Point as one kind, so a cap would drop real views (Product Lead, 2026-10-07).
+        maxPerKind = null,
     ),
     EXPLORE to CategoryConfig(
         radiusMeters = 15_000,
