@@ -11,14 +11,13 @@ import com.kanyandula.discovernearby.model.PlaceSummary
 internal fun HereItem.toSummary(): PlaceSummary? {
     val placeId = id?.takeIf { it.isNotBlank() }
     val name = title?.trim()?.takeIf { it.isNotEmpty() }
-    val lat = position?.lat
-    val lng = position?.lng
-    if (placeId == null || name == null || lat == null || lng == null) return null
+    val location = position?.run { if (lat != null && lng != null) GeoPoint(lat, lng) else null }
+    if (placeId == null || name == null || location == null) return null
     val kinds = categories.mapNotNull { kindFor(it.id) }
     return PlaceSummary(
         id = placeId,
         name = name,
-        location = GeoPoint(lat, lng),
+        location = location,
         placeKinds = kinds.toSet(),
         primaryKind = categories.firstOrNull { it.primary }?.let { kindFor(it.id) } ?: kinds.firstOrNull(),
         attributes = emptySet(),
