@@ -48,6 +48,8 @@ in place (DN-M0-012, DN-M0-001).
   when the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 - **Provider evaluation (DN-SP-001):** `tools/provider-eval/evaluate.py` (stdlib Python, not in Gradle or CI); output
   in the git-ignored `out/`; outcome in ADR-001.
+- **HERE client (DN-M1-001):** `places/here/HerePlacesRepository` (OkHttp + kotlinx.serialization; `/browse`,
+  `/lookup`), key `here.apiKey` → `BuildConfig.HERE_API_KEY`. Not wired yet: `AppContainer` still serves the fakes.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
@@ -63,8 +65,9 @@ on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to
 limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 
-Next: M1 (DN-M1-001, the HERE REST client) is ready: ADR-001 provisionally selects HERE (2026-10-07; Legal sign-off
-on provider terms pending before production). DN-TD-002 (Gradle/CI tuning) is P3.
+Next: DN-M1-002 (live nearby discovery) wires the HERE client into `AppContainer`; DN-M1-003 (live place details)
+follows. ADR-001 provisionally selects HERE (Legal sign-off on provider terms pending before production).
+DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -85,7 +88,7 @@ on provider terms pending before production). DN-TD-002 (Gradle/CI tuning) is P3
 - `car/` — `DrivingRestrictions` (interface + `DrivingState`, no android.car) and
   `CarDrivingRestrictions` (CarUxRestrictionsManager → StateFlow)
 - `discovery/` — DiscoverUseCase, RecommendationEngine, DiscoveryCategory, DiscoveryContext, CategoryConfig
-- `places/` — PlacesRepository; `fake/FakePlacesRepository` (M0); `<provider>/` client + mapper (after ADR-001)
+- `places/` — PlacesRepository; `fake/FakePlacesRepository` (M0); `here/` HERE client + mapper (DN-M1-001, ADR-001)
 - `location/`, `navigation/` — interfaces + Android implementations (`IntentNavigationLauncher`)
 - `model/` — GeoPoint, PlaceSummary, PlaceDetails, PlaceAttribute, Recommendation
 - `tools/stub-navigation/` — separate test APK: ACTION_VIEW `geo:` handler, distractionOptimized

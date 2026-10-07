@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -7,6 +9,13 @@ plugins {
 
 // The project's one compile SDK (gradle/libs.versions.toml); the android.car.jar path below derives from it.
 val compileApi = libs.versions.android.compileSdk.get().toInt()
+
+// Dev-only provider key (docs/03 §19): local.properties → BuildConfig, never committed or logged. Empty without
+// local.properties (CI); the HERE repository then fails without making a request.
+val hereApiKey: String = Properties().apply {
+    providers.fileContents(rootProject.layout.projectDirectory.file("local.properties")).asText.orNull
+        ?.let { load(it.reader()) }
+}.getProperty("here.apiKey", "").trim()
 
 android {
     namespace = "com.kanyandula.discovernearby"
@@ -20,6 +29,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "HERE_API_KEY", "\"$hereApiKey\"")
     }
 
     buildTypes {
@@ -35,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     testOptions {
         unitTests {
