@@ -49,7 +49,7 @@ class PlacesTest(unittest.TestCase):
         found = evaluate.places("tomtom", body)
         self.assertEqual(["Cafe A", "Pub B"], [p.name for p in found])
         self.assertEqual(
-            {"results": 2, "hours": 1, "phone": 1, "web": 1, "amenities": 0, "nearest_m": 120, "median_m": 210},
+            {"results": 2, "hours": 1, "phone": 1, "web": 1, "amenities": None, "nearest_m": 120, "median_m": 210},
             evaluate.metrics(found),
         )
 
@@ -61,7 +61,7 @@ class PlacesTest(unittest.TestCase):
         found = evaluate.places("here", body)
         self.assertEqual(["Scenic Point"], found[0].categories)
         self.assertEqual(
-            {"results": 1, "hours": 1, "phone": 1, "web": 1, "amenities": 0, "nearest_m": 900, "median_m": 900},
+            {"results": 1, "hours": 1, "phone": 1, "web": 1, "amenities": None, "nearest_m": 900, "median_m": 900},
             evaluate.metrics(found),
         )
 
@@ -79,9 +79,17 @@ class PlacesTest(unittest.TestCase):
             evaluate.metrics(found),
         )
 
+    # Final review: only Geoapify's facilities are inspected, so TomTom and HERE show "not measured", not 0.
+    def test_amenities_are_not_measured_for_tomtom_and_here(self):
+        body = {"results": [{"dist": 1, "poi": {"name": "A"}}]}
+        row = {"provider": "tomtom", "category": "Coffee", "location": "Greystones", "status": 200, "ms": 1,
+               **evaluate.metrics(evaluate.places("tomtom", body))}
+        self.assertIsNone(row["amenities"])
+        self.assertIn("| — |", evaluate.table({"tomtom/Coffee/Greystones": row}))
+
     def test_no_results_have_no_distances(self):
         self.assertEqual(
-            {"results": 0, "hours": 0, "phone": 0, "web": 0, "amenities": 0, "nearest_m": None, "median_m": None},
+            {"results": 0, "hours": 0, "phone": 0, "web": 0, "amenities": None, "nearest_m": None, "median_m": None},
             evaluate.metrics([]),
         )
 

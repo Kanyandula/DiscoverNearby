@@ -61,6 +61,7 @@ METRIC_KEYS = (
     "results", "hours", "phone", "web", "amenities", "nearest_m", "median_m",
 )
 
+# has_amenities is None where the provider has no amenities field to inspect (TomTom, HERE).
 Place = namedtuple("Place", "name categories distance has_hours has_phone has_web has_amenities")
 
 
@@ -106,14 +107,14 @@ def places(provider: str, body: dict) -> list[Place]:
     if provider == "tomtom":
         return [
             Place(r["poi"].get("name", ""), r["poi"].get("categories", []), r.get("dist"),
-                  "openingHours" in r["poi"], "phone" in r["poi"], "url" in r["poi"], False)
+                  "openingHours" in r["poi"], "phone" in r["poi"], "url" in r["poi"], None)
             for r in body.get("results", []) if "poi" in r
         ]
     if provider == "here":
         return [
             Place(i.get("title", ""), [c.get("name", "") for c in i.get("categories", [])], i.get("distance"),
                   "openingHours" in i, any("phone" in c or "mobile" in c for c in i.get("contacts", [])),
-                  any("www" in c for c in i.get("contacts", [])), False)
+                  any("www" in c for c in i.get("contacts", [])), None)
             for i in body.get("items", [])
         ]
     return [
@@ -124,13 +125,15 @@ def places(provider: str, body: dict) -> list[Place]:
 
 
 def metrics(found: list[Place]) -> dict:
+    """Counts of results with each field. Amenities is None (not measured) unless the provider's results carry it."""
     distances = sorted(p.distance for p in found if p.distance is not None)
+    amenities = [p.has_amenities for p in found if p.has_amenities is not None]
     return {
         "results": len(found),
         "hours": sum(p.has_hours for p in found),
         "phone": sum(p.has_phone for p in found),
         "web": sum(p.has_web for p in found),
-        "amenities": sum(p.has_amenities for p in found),
+        "amenities": sum(amenities) if amenities else None,
         "nearest_m": round(distances[0]) if distances else None,
         "median_m": round(statistics.median(distances)) if distances else None,
     }

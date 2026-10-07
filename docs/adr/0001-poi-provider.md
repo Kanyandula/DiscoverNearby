@@ -168,28 +168,29 @@ SCENIC_PANORAMIC_VIEW 7337). All 27 queries returned HTTP 200.
 place IDs, coordinates or raw responses. The raw responses and the names were kept locally (git-ignored) for the
 judgment and deleted on 2026-10-07.
 
-**Metrics** (Hours, Phone, Web, Amenities: results with that field; distances in metres):
+**Metrics** (Hours, Phone, Web, Amenities: results with that field; distances in metres; Amenities is Geoapify's
+`facilities` and is not measured for TomTom or HERE, shown as —):
 
 | Provider | Category | Location | HTTP | ms | Results | Hours | Phone | Web | Amenities | Nearest m | Median m |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| tomtom | Coffee | Greystones | 200 | 382 | 10 | 2 | 2 | 3 | 0 | 28 | 112 |
-| tomtom | Coffee | Dublin | 200 | 302 | 10 | 3 | 4 | 5 | 0 | 48 | 135 |
-| tomtom | Coffee | Galway | 200 | 193 | 10 | 1 | 2 | 4 | 0 | 41 | 108 |
-| tomtom | Family | Greystones | 200 | 251 | 10 | 0 | 3 | 9 | 0 | 149 | 6930 |
-| tomtom | Family | Dublin | 200 | 205 | 10 | 3 | 1 | 10 | 0 | 144 | 243 |
-| tomtom | Family | Galway | 200 | 249 | 10 | 2 | 0 | 9 | 0 | 49 | 103 |
-| tomtom | Scenic | Greystones | 200 | 235 | 10 | 0 | 0 | 1 | 0 | 2987 | 14054 |
-| tomtom | Scenic | Dublin | 200 | 272 | 10 | 0 | 0 | 1 | 0 | 337 | 16295 |
-| tomtom | Scenic | Galway | 200 | 180 | 2 | 0 | 0 | 0 | 0 | 19366 | 21722 |
-| here | Coffee | Greystones | 200 | 304 | 10 | 7 | 10 | 6 | 0 | 37 | 95 |
-| here | Coffee | Dublin | 200 | 141 | 10 | 4 | 9 | 5 | 0 | 23 | 32 |
-| here | Coffee | Galway | 200 | 149 | 10 | 8 | 8 | 7 | 0 | 49 | 161 |
-| here | Family | Greystones | 200 | 116 | 7 | 2 | 4 | 2 | 0 | 1869 | 6975 |
-| here | Family | Dublin | 200 | 126 | 10 | 3 | 6 | 4 | 0 | 36 | 708 |
-| here | Family | Galway | 200 | 131 | 10 | 5 | 8 | 6 | 0 | 197 | 2084 |
-| here | Scenic | Greystones | 200 | 121 | 10 | 4 | 4 | 6 | 0 | 11896 | 17336 |
-| here | Scenic | Dublin | 200 | 122 | 10 | 4 | 5 | 7 | 0 | 1542 | 12338 |
-| here | Scenic | Galway | 200 | 120 | 3 | 3 | 1 | 1 | 0 | 121 | 933 |
+| tomtom | Coffee | Greystones | 200 | 382 | 10 | 2 | 2 | 3 | — | 28 | 112 |
+| tomtom | Coffee | Dublin | 200 | 302 | 10 | 3 | 4 | 5 | — | 48 | 135 |
+| tomtom | Coffee | Galway | 200 | 193 | 10 | 1 | 2 | 4 | — | 41 | 108 |
+| tomtom | Family | Greystones | 200 | 251 | 10 | 0 | 3 | 9 | — | 149 | 6930 |
+| tomtom | Family | Dublin | 200 | 205 | 10 | 3 | 1 | 10 | — | 144 | 243 |
+| tomtom | Family | Galway | 200 | 249 | 10 | 2 | 0 | 9 | — | 49 | 103 |
+| tomtom | Scenic | Greystones | 200 | 235 | 10 | 0 | 0 | 1 | — | 2987 | 14054 |
+| tomtom | Scenic | Dublin | 200 | 272 | 10 | 0 | 0 | 1 | — | 337 | 16295 |
+| tomtom | Scenic | Galway | 200 | 180 | 2 | 0 | 0 | 0 | — | 19366 | 21722 |
+| here | Coffee | Greystones | 200 | 304 | 10 | 7 | 10 | 6 | — | 37 | 95 |
+| here | Coffee | Dublin | 200 | 141 | 10 | 4 | 9 | 5 | — | 23 | 32 |
+| here | Coffee | Galway | 200 | 149 | 10 | 8 | 8 | 7 | — | 49 | 161 |
+| here | Family | Greystones | 200 | 116 | 7 | 2 | 4 | 2 | — | 1869 | 6975 |
+| here | Family | Dublin | 200 | 126 | 10 | 3 | 6 | 4 | — | 36 | 708 |
+| here | Family | Galway | 200 | 131 | 10 | 5 | 8 | 6 | — | 197 | 2084 |
+| here | Scenic | Greystones | 200 | 121 | 10 | 4 | 4 | 6 | — | 11896 | 17336 |
+| here | Scenic | Dublin | 200 | 122 | 10 | 4 | 5 | 7 | — | 1542 | 12338 |
+| here | Scenic | Galway | 200 | 120 | 3 | 3 | 1 | 1 | — | 121 | 933 |
 | geoapify | Coffee | Greystones | 200 | 390 | 10 | 2 | 0 | 3 | 8 | 27 | 167 |
 | geoapify | Coffee | Dublin | 200 | 251 | 10 | 4 | 0 | 5 | 9 | 29 | 95 |
 | geoapify | Coffee | Galway | 200 | 392 | 10 | 5 | 6 | 6 | 8 | 50 | 173 |
@@ -211,10 +212,12 @@ Empty 0; a recommendation row shows the place name, so unnamed results do not co
 
 G = Greystones, D = Dublin, Gal = Galway. Relevant: Coffee is a café, coffee shop or tea room (a pub, bar or
 restaurant without coffee in its name or categories does not count); Family is a playground, zoo or aquarium, farm
-park, amusement, theme or water park, play centre, arcade, karting or children's museum (not massage or spa,
-comedy, cinema, casino, escape rooms or general sports clubs); Scenic is a viewpoint, scenic point, peak, cliff walk
+park, amusement, theme or water park, play centre, family amusement arcade, karting or children's museum, and a
+leisure centre only when its categories say it serves families (not gaming or slot arcades, casinos, massage or
+spa, comedy, cinema, escape rooms or general sports clubs); Scenic is a viewpoint, scenic point, peak, cliff walk
 or coastal lookout. Duplicates count once. Totals: TomTom 6 Good, 3 Thin; HERE 7 Good, 2 Thin; Geoapify 4 Good,
-5 Thin; no Empty cells.
+5 Thin; no Empty cells. This is the rule as applied; it widens the plan's draft for Family (aquarium, play centre,
+family arcade, karting). The raw output is deleted, so the per-cell counts cannot be re-checked.
 
 ## Field availability (selected provider)
 
@@ -229,6 +232,10 @@ or coastal lookout. Duplicates count once. Totals: TomTom 6 Good, 3 Thin; HERE 7
 | Travel time from origin | Unavailable | `distance` in metres from `at` only; M1 ranks by distance |
 | Along-route search | Provided | `/browse` `route` parameter [H2]; M5 only, not live-tested |
 | Contact (phone / web) | Provided | `contacts` on 62 of 80 results (phone 55, web 44) |
+
+Hours, phone and web counts come from the Metrics table. The field names (`openingHours[].isOpen`, `contacts` on 62
+of 80 results, and the absence of any parking or toilet field) come from a survey of the raw responses' field names
+on 2026-10-07, before the raw output was deleted; they cannot be re-derived from the committed table.
 
 ## Category mapping
 
@@ -259,7 +266,7 @@ or coastal lookout. Duplicates count once. Totals: TomTom 6 Good, 3 Thin; HERE 7
 | Field | Value |
 | --- | --- |
 | Required text | → Legal. §13.1: "You will ensure that all HERE Marks and copyright notices are present in the HERE Materials and Result in accordance with HERE brand guidance" [H1]. The brand guidance was not read |
-| Required logo | → Legal; set by HERE brand guidance (not read) |
+| Required logo | → Legal; HERE brand guidance not read |
 | Must be always visible? | Not established (brand guidance not read) |
 | Can appear in About / Data Sources? | Not established |
 | Required on Recommendations? | Not established. §6.4(a): when combined with non-HERE content, "the origin of the HERE Content and non-HERE content can be distinguished and correct attribution can be provided" [H1] |
@@ -270,7 +277,7 @@ or coastal lookout. Duplicates count once. Totals: TomTom 6 Good, 3 Thin; HERE 7
 | Field | Value |
 | --- | --- |
 | May POI responses be persisted? For how long? | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days" … "unless Results are used solely for your internal testing, evaluation, or record retention for audit and legal compliance purposes" [H1]. POC: no persistence (in memory) |
-| May place IDs be stored? | → Legal. Not addressed separately in the sections read; treated as Results (§6.4(j)) |
+| May place IDs be stored? | → Legal. Not addressed in the sections read. The POC stores none |
 | May responses be recorded as test fixtures? | No: none recorded (public repo); revisit with Legal |
 | Caching-header rules | Exhibit 2 §1.3: only "as explicitly allowed by the caching headers (HTTP/1.1 standard) returned by HERE Location Services" [H1]; headers not recorded in this run |
 
@@ -289,8 +296,8 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 
 ## Known limitations
 
-- Family is thin in central Dublin (1 relevant of 10): the amusement-park code also returns arcades, casinos and
-  sports venues.
+- Family is thin in central Dublin (1 relevant of 10): the amusement-park code also returns gaming arcades, casinos
+  and sports venues.
 - Scenic is thin around Galway (2 relevant of 3), and one result's position looks wrong.
 - Some results are miscategorised businesses (for example, roofing contractors and a restaurant under Scenic Point).
 - The nearest Scenic result from Greystones is 11.9 km away.
@@ -301,10 +308,12 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 
 ## Rejected
 
-- TomTom — data judged not good enough by the Product Lead (2026-10-07): Family mixed in massage/spa and comedy
-  venues (Thin in Dublin and Galway), and Coffee mixes in pubs (CAFE_PUB). Licence text [T1] unverified → Legal.
-- Geoapify — data judged not good enough by the Product Lead (2026-10-07): most playgrounds and viewpoints are
-  unnamed (Family Thin in all three locations). Terms silent on vehicles [G3].
+- TomTom — not selected: the Product Lead judged only HERE's data good enough (2026-10-07). Matrix observations:
+  Family mixed in massage/spa and comedy venues (Thin in Dublin and Galway); Coffee mixes in pubs (CAFE_PUB).
+  Licence text [T1] unverified → Legal.
+- Geoapify — not selected: the Product Lead judged only HERE's data good enough (2026-10-07). Matrix observations:
+  most playgrounds and viewpoints are unnamed (Family Thin in all three locations). Terms silent on vehicles [G3]
+  → Legal.
 
 ## Sign-off
 
