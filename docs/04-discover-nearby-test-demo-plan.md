@@ -414,7 +414,7 @@ Run on the §2 configuration, from a known state: app and stub installed from th
 2. **Core flow (touch)** — Coffee → Recommendations (location granted through the app's own flow on first use) → first row → Place Details; Navigate is shown.
 3. **Stub** — the stub navigation app answers the `geo:` query (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a android.intent.action.VIEW -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
 4. **Rotary (V7)** — without touch: rotate through the grid, select, then rotate on Recommendations and Place Details and Back twice (Scenario F). Record against the docs/05 §9 V7 row.
-5. **Park / Drive** — in Drive (moving): open a category, Back; relaunched with `am start -S … --es scenario SLOW` (`-S` starts a fresh process; with a HERE key, a warm relaunch keeps live data and skips the scenario), select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash. SLOW (10 s) outlasts the 8 s provider timeout, so that load ends in the timeout message with Try Again (Scenario O); a load that completes after a gear change is not covered.
+5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash. SLOW (10 s) outlasts the 8 s provider timeout, so that load ends in the timeout message with Try Again (Scenario O); a load that completes after a gear change is not covered.
 6. **Deepest path and Back** — in Drive: Discover → Recommendations → Place Details → Back → Back ends on Discover, and Back on Discover leaves the app (Scenario T).
 
 ### Setup

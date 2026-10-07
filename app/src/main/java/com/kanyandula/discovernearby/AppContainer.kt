@@ -6,8 +6,10 @@ import com.kanyandula.discovernearby.car.CarDrivingRestrictions
 import com.kanyandula.discovernearby.car.DrivingRestrictions
 import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
 import com.kanyandula.discovernearby.discovery.DiscoverUseCase
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.location.AndroidLocationProvider
 import com.kanyandula.discovernearby.location.LocationProvider
+import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.navigation.IntentNavigationLauncher
 import com.kanyandula.discovernearby.navigation.NavigationLauncher
 import com.kanyandula.discovernearby.places.PlacesRepository
@@ -27,20 +29,27 @@ class AppContainer(context: Context, private val hereApiKey: String) {
 
     private val fakePlaces = FakePlacesRepository()
     private var fakesRequested = false
+    private val livePlaces by lazy { HerePlacesRepository(hereApiKey) }
 
     /**
      * Live HERE data when a key is configured (DN-M1-002; ADR-001: provisionally selected). The fakes when there is
-     * no key (CI, Robolectric) or when a debug launch names a scenario. Chosen on first use, after MainActivity has
-     * applied any scenario: `am start -S` starts a fresh process for each scenario run.
+     * no key (CI, Robolectric) or once a debug launch names a scenario, warm relaunches included.
      */
-    val placesRepository: PlacesRepository by lazy {
-        if (hereApiKey.isBlank() || fakesRequested) fakePlaces else HerePlacesRepository(hereApiKey)
+    val placesRepository: PlacesRepository
+        get() = if (hereApiKey.isBlank() || fakesRequested) fakePlaces else livePlaces
+
+    // The use case asks for the current source on every call, so a scenario named later still applies.
+    private val selectedPlaces = object : PlacesRepository {
+        override suspend fun searchNearby(origin: GeoPoint, category: DiscoveryCategory, radiusMeters: Int) =
+            placesRepository.searchNearby(origin, category, radiusMeters)
+
+        override suspend fun getPlaceDetails(placeId: String) = placesRepository.getPlaceDetails(placeId)
     }
     val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
 
     val navigationLauncher: NavigationLauncher = IntentNavigationLauncher(context.applicationContext)
-    val discoverUseCase by lazy { DiscoverUseCase(placesRepository, locationProvider, BasicRecommendationEngine()) }
+    val discoverUseCase = DiscoverUseCase(selectedPlaces, locationProvider, BasicRecommendationEngine())
 
     /** Debug builds only: serve the named [FakeScenario], for the docs/04 §7 emulator scenarios. */
     fun useFakeScenario(name: String?) {

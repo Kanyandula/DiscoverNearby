@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby
 
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
+import com.kanyandula.discovernearby.ui.appContainer
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +36,15 @@ class AppContainerTest {
     @Test
     fun robolectricTestsUseTheFakes() {
         assertTrue(app is TestDiscoverApplication)
-        assertTrue((app as DiscoverApplication).container.placesRepository is FakePlacesRepository)
+        assertTrue(appContainer().placesRepository is FakePlacesRepository)
+    }
+
+    // A scenario named on a warm relaunch, after live data was already used, still serves the fakes.
+    @Test
+    fun aScenarioNamedAfterLiveUseStillServesTheFakes() {
+        val container = AppContainer(app, hereApiKey = "k")
+        assertTrue(container.placesRepository is HerePlacesRepository)
+        container.useFakeScenario("SLOW")
+        assertTrue(container.placesRepository is FakePlacesRepository)
     }
 }
