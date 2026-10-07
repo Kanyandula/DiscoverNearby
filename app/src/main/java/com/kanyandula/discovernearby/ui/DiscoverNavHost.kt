@@ -7,14 +7,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -129,17 +123,8 @@ private fun rememberLocationActions(viewModel: RecommendationsViewModel): Locati
         val permanent = activity != null && refusedForGood(activity, it)
         viewModel.onPermissionResult(granted = true in it.values, permanent = permanent)
     }
-    val context = LocalContext.current
-    var openedSettings by rememberSaveable { mutableStateOf(false) }
-    // Back from Settings: search again, in case location was allowed there.
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        if (openedSettings) {
-            openedSettings = false
-            viewModel.retry()
-        }
-    }
     return LocationActions(
         grant = { permissions.launch(LOCATION_PERMISSIONS) },
-        openSettings = { openedSettings = openAppSettings(context) },
+        openSettings = rememberOpenAppSettings(onReturn = viewModel::retry),
     )
 }

@@ -391,8 +391,8 @@ location access.
 
 ### Permission denied permanently
 
-After the user has refused twice, Android no longer shows the permission dialog. While parked, Settings takes
-Grant's place (DN-UX-001):
+Once Android stops showing the permission dialog (after two refusals on Android 11 and later, or "Deny & don't ask
+again" on Android 10), Settings takes Grant's place while parked (DN-UX-001):
 
 ```text
 Location permission required
