@@ -60,6 +60,9 @@ in place (DN-M0-012, DN-M0-001).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most two per primary kind in Outdoors, Family and Explore; below a category match of 10 is dropped.
+- **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
+  cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
+  Place names stay in the private vault. Whether M2 exits now or after DN-M2-003's re-run is pending the Product Lead.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
@@ -75,9 +78,9 @@ on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to
 limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 
-Next: DN-M2-002 (the relevance benchmark, Product sign-off is M2's exit). Legal still owes the terms before
-production and attribution placement without a map. ADR-001 provisionally selects HERE. DN-TD-002 (Gradle/CI
-tuning) is P3.
+Next: DN-M2-003 (ranking and position tuning for the benchmark's failed cells and findings, then a re-run). Legal
+still owes the terms before production and attribution placement without a map. ADR-001 provisionally selects HERE.
+DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).

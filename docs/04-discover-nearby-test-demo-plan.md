@@ -206,6 +206,9 @@ Record per cell: result names, judgement per rule, and a short note. Sparse cell
 
 The benchmark evaluates the concept. It is not a statistically rigorous ranking experiment.
 
+**M2 run (DN-M2-002, 2026-10-07):** `docs/benchmarks/2026-10-07-m2.md`. Place names are kept privately (public repo,
+HERE content); the record holds verdicts, counts and notes.
+
 ---
 
 ## 5. Demo Scenarios — Core Flow
