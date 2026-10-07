@@ -2,18 +2,6 @@ package com.kanyandula.discovernearby.ui.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.onNodeWithContentDescription
-import com.kanyandula.discovernearby.R
-import com.kanyandula.discovernearby.discovery.testPlace
-import com.kanyandula.discovernearby.model.Recommendation
-import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
-import com.kanyandula.discovernearby.ui.useRotaryInput
-import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
-import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
-import com.kanyandula.discovernearby.ui.theme.Highlight
-import com.kanyandula.discovernearby.ui.theme.OnSurface
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
@@ -22,19 +10,31 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
+import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.discovery.testPlace
+import com.kanyandula.discovernearby.model.Recommendation
+import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
 import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
+import com.kanyandula.discovernearby.ui.theme.Highlight
+import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.SurfaceVariant
+import com.kanyandula.discovernearby.ui.useRotaryInput
 import org.junit.Assert.assertArrayEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 private const val TOLERANCE = 0.02f
