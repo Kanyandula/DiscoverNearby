@@ -63,7 +63,7 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
  * Place Details (canvas Place Details artboards): what is known about the place, with Navigate always there and
  * never waiting on the optional details call (docs/02 §7). One layout serves every state but the hand-off failure
  * message, so nothing moves when details arrive. ponytail: no photo or place-kind label until ADR-001
- * (DN-M1-003, DN-M2-001).
+ * (DN-M2-001).
  */
 @Composable
 fun PlaceDetailsScreen(

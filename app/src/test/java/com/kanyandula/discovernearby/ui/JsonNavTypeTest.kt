@@ -23,6 +23,7 @@ class JsonNavTypeTest {
         rating = 4.6,
         ratingCount = 128,
         attributes = setOf(PlaceAttribute(PARKING, PROVIDED)),
+        attribution = "HERE", // Details reads HERE's notice from the route (DN-M1-003)
     )
 
     // Navigation decodes the route value before parseValue.

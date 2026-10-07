@@ -26,8 +26,9 @@ import kotlinx.coroutines.SupervisorJob
  */
 class AppContainer(context: Context, private val hereApiKey: String) {
     init {
-        // Without a key the app serves the fakes; say so once, so a demo can't mistake them for live data.
-        if (hereApiKey.isBlank()) Log.i("AppContainer", "No HERE key: serving the fake places")
+        // Without a key the app serves the fakes; say so once per process, so a keyless build isn't taken for live
+        // data. A requested scenario (useFakeScenario) is deliberate, so it isn't logged.
+        if (hereApiKey.isBlank()) Log.i(TAG, "No HERE key: serving the fake places")
     }
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -63,5 +64,9 @@ class AppContainer(context: Context, private val hereApiKey: String) {
             fakePlaces.scenario = FakeScenario.valueOf(name)
             fakesRequested = true
         }
+    }
+
+    private companion object {
+        const val TAG = "AppContainer"
     }
 }

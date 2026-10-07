@@ -34,8 +34,8 @@ private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or deriv
 
 /**
  * One recommendation (canvas Recommendations artboard): name; rating and attributes when known; distance.
- * Missing fields are left out, never shown blank. ponytail: no photo or attribution until ADR-001 says what
- * the provider allows.
+ * Missing fields are left out, never shown blank. ponytail: no photo until ADR-001 says what the provider allows;
+ * the provider's notice sits under the list, not on the row (ProviderAttribution).
  */
 @Composable
 fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modifier: Modifier = Modifier) {
