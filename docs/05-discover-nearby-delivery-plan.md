@@ -7,7 +7,7 @@
 **Owners:** Product Lead + Android/Tech Lead  
 **Last Updated:** 2026-10-06
 
-> **Current gates (2026-10-06):** **ADR-002 is decided: stay on Compose for the emulator POC, with a product waiver.** V7 failed its clean re-test after the one bounded Compose fix and stays recorded as failed; Product waives the focus jump after Back to Discover for this iteration, so **M0 exits under the waiver**. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. The provider decision V4 blocks M1. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
+> **Current gates (2026-10-07):** **ADR-002 is decided: stay on Compose for the emulator POC, with a product waiver.** V7 failed its clean re-test after the one bounded Compose fix and stays recorded as failed; Product waives the focus jump after Back to Discover for this iteration, so **M0 exits under the waiver**. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. V4: HERE is provisionally selected (ADR-001, 2026-10-07; Legal sign-off on provider terms pending before production), so M1 can start. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
 >
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
@@ -354,13 +354,13 @@ M0's implementation is largely complete. E1 is done; V7 failed its clean re-test
 
 ## 9. Verification Register
 
-**Current milestone gates:** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. V4 blocks M1. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates:** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. V4: HERE provisionally selected (Legal pending before production); M1 can start. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
 | ID | Decision / item | Status | Owner | Blocks |
 | --- | --- | --- | --- | --- |
-| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🔴 **Open** — provider spike (§4): documentation phase recorded in ADR-001 (2026-10-05); product evaluation owner assigned (the Product Lead, 2026-10-06; Legal sign-off on provider terms separate); live matrix pending the permitted evaluations, the terms and dev-only keys | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
+| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; Legal sign-off on provider terms pending before production | Product/Legal/Business owner (licence); Tech Lead (technical) | **M1** |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
