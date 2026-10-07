@@ -14,27 +14,40 @@ structural work. If code and docs disagree, stop and ask.
 Single Compose `:app` module (DN-M0-009): the M0 fake-data flow is implemented across Discover, Recommendations,
 Place Details and the `geo:` navigation handoff; location permission and UX-restriction handling are also in place.
 The stub navigation app is separate. Every actionable control shows the rotary focus ring (`focusRing`); V7 failed
-its clean re-test (2026-10-06); ADR-002 keeps Compose with a product waiver, and M0 exited under it
-(docs/05 §9). The activity is declared
-`distractionOptimized`, with `ManifestContractTest`. compileSdk 37 (one `android-compileSdk` in
-`gradle/libs.versions.toml`; the app derives its `android.car.jar` path from it), targetSdk 36, minSdk 29.
-No Car App Library; do not add its APIs. detekt + lint + CI in place (DN-M0-012, DN-M0-001).
-Baseline (DN-M0-001): `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
-  SDK 36, `ArchitectureRulesTest`. Discover grid and navigation (DN-M0-002): `DiscoverNavHost` and in-app Back
-  (AOSP car bar has none). The completed fake-data Recommendations flow is detailed below (DN-M0-004). Domain model, `CategoryConfigs` and fakes (DN-M0-003): `model/`,
-`places/` (+ `fake/`), `location/` (+ `fake/`), wired in `AppContainer`. UX restrictions via `CarDrivingRestrictions` (DN-M0-010; unknown = restrictions
-apply; emulator moving limit 21). Recommendations flow on fake data (DN-M0-004): `RecommendationEngine`,
-`DiscoverUseCase`, `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug
-launches take `--es scenario <FakeScenario>`. Place Details (DN-M0-005): rows open
-`PlaceDetailsRoute(place, distanceMeters)` (JSON route via `JsonNavType`), `PlaceDetailsViewModel` falls back to the summary,
-Navigate hands off through `IntentNavigationLauncher` (DN-M3-001:
-`ACTION_VIEW geo:`, failure → `NavigationUnavailable`). Location (DN-M0-006): `AndroidLocationProvider` (GPS/network,
-8 s fix timeout; approximate-only uses the platform's recent coarse fix), Grant only while restrictions allow it,
-denied copy; emulator location via `adb emu geo fix`, location on for user 10, `pm clear --user 10`. Rotary
-(DN-M0-011): `focusRing` on every actionable control, `ReturnFocus` (after Back, rotary focus returns to the item
-selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's semantics
-snapshot), `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for the emulator
-POC, with a product waiver**.
+its clean re-test (2026-10-06); ADR-002 keeps Compose with a product waiver, and M0 exited under it (docs/05 §9).
+The activity is declared `distractionOptimized`, with `ManifestContractTest`. compileSdk 37, minSdk 29 and
+targetSdk 36 are in `gradle/libs.versions.toml` (`android-compileSdk`, `android-minSdk`, `android-targetSdk`); the
+app derives its `android.car.jar` path from compileSdk. No Car App Library; do not add its APIs. detekt + lint + CI
+in place (DN-M0-012, DN-M0-001).
+
+- **Baseline (DN-M0-001):** `DiscoverApplication` → `AppContainer`, canvas theme (`ui/theme`), Robolectric 4.17 at
+  SDK 36, `ArchitectureRulesTest`.
+- **Discover grid and navigation (DN-M0-002):** `DiscoverNavHost` and in-app Back (AOSP car bar has none).
+- **Domain model, `CategoryConfigs` and fakes (DN-M0-003):** `model/`, `places/` (+ `fake/`), `location/`
+  (+ `fake/`), wired in `AppContainer`.
+- **UX restrictions (DN-M0-010):** `CarDrivingRestrictions`; unknown = restrictions apply; emulator moving limit 21.
+- **Recommendations on fake data (DN-M0-004):** `RecommendationEngine`, `DiscoverUseCase`,
+  `RecommendationsViewModel` (collects the driving state; Back switches without a fade); debug launches take
+  `--es scenario <FakeScenario>`.
+- **Place Details (DN-M0-005):** rows open `PlaceDetailsRoute(place, distanceMeters)` (JSON route via
+  `JsonNavType`); `PlaceDetailsViewModel` falls back to the summary; Navigate hands off through
+  `IntentNavigationLauncher` (DN-M3-001: `ACTION_VIEW geo:`, failure → `NavigationUnavailable`).
+- **Location (DN-M0-006):** `AndroidLocationProvider` (GPS/network, 8 s fix timeout; approximate-only uses the
+  platform's recent coarse fix), Grant only while restrictions allow it, denied copy; emulator location via
+  `adb emu geo fix`, location on for user 10, `pm clear --user 10`.
+- **UI follow-ups (DN-UX-001):** `ParkToSee` when the driving limit allows no results; after a permanent refusal
+  (`Denial.PERMANENT`), Open Settings replaces Grant while restrictions allow it, and the return from Settings
+  searches again (`rememberOpenAppSettings`).
+- **Rotary (DN-M0-011):** `focusRing` on every actionable control; `ReturnFocus` (after Back, rotary focus returns
+  to the item selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's
+  semantics snapshot); `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for
+  the emulator POC, with a product waiver**.
+- **Stub navigation app (DN-M0-008):** module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
+  (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
+- **Smoke baseline (DN-M0-007):** reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it
+  when the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
+- **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
+  `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
 V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
 - Navigate reached and activated 4/4; visible focus everywhere; no lost turn after Back to Details or Back to
@@ -42,19 +55,15 @@ V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
 - In 1 of 4 runs, after Back to Discover, the service stayed on the host and the turn jumped to Coffee.
 
 E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time
-`uiautomator` polling but did not prove the underlying cause. The gate stays: rotation
-reaches Navigate, select activates the focused control, Back loses no turn, visible focus on every actionable
-control; controller rotation on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to Discover
-jump as a known limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
+`uiautomator` polling but did not prove the underlying cause. The gate stays: rotation reaches Navigate, select
+activates the focused control, Back loses no turn, visible focus on every actionable control; controller rotation
+on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to Discover jump as a known
+limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
-Stub navigation app (DN-M0-008): module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
-(`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
-Smoke baseline (DN-M0-007): reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it when
-the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
-Car App Library rotary probe (DN-SP-002): removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
-`docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
-Next: DN-UX-001 (UI follow-ups on Compose) is ready. DN-SP-001 phase 2 waits on the permitted evaluations, the
-terms and dev-only keys (product evaluation owner: the Product Lead; Legal sign-off separate).
+
+Next: no build ticket is ready. DN-SP-001 phase 2 waits on the permitted evaluations, the terms and dev-only keys
+(product evaluation owner: the Product Lead; Legal sign-off separate); M1 waits on ADR-001. DN-TD-002 (Gradle/CI
+tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -112,7 +121,8 @@ terms and dev-only keys (product evaluation owner: the Product Lead; Legal sign-
 - Detekt: `./gradlew detekt` (1.23.8, defaults + `config/detekt/detekt.yml`, `maxIssues: 0`).
 - Stub navigation app: `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug`; watch hand-offs with
   `adb -s emulator-5554 logcat -s StubNav` (a cold start of the debug APK can take ~10 s on the emulator).
-- CI runs `./gradlew detekt lintDebug testDebugUnitTest assembleDebug` on every PR; the `build` check is required on `main`.
+- CI runs `./gradlew detekt lintDebug testDebugUnitTest assembleDebug` on every PR; the `build` check is required
+  on `main`.
 - Repo git hooks do NOT run on this machine (global `core.hooksPath`); run checks yourself.
 - Before saying a task is done: detekt, test, build and lint must pass.
 
@@ -121,7 +131,8 @@ terms and dev-only keys (product evaluation owner: the Product Lead; Legal sign-
   then hold moving: `adb -s emulator-5554 shell cmd car_service inject-continuous-events 0x11600207 40 -s 5 -d 60`
 - Park: `adb -s emulator-5554 shell cmd car_service inject-vhal-event 0x11400400 4`
 - Check state: `adb -s emulator-5554 shell dumpsys car_service --services CarDrivingStateService`
-- Distraction-optimised check: `adb -s emulator-5554 shell cmd car_service get-do-activities com.kanyandula.discovernearby`
+- Distraction-optimised check:
+  `adb -s emulator-5554 shell cmd car_service get-do-activities com.kanyandula.discovernearby`
 - Never `adb reboot`; kill and relaunch the emulator instead.
 - Rotary behavioural runs: no `uiautomator` polling while the app launches. E1's preregistered classification
   was inconclusive, but launch-time polling strongly correlated with failures; report intentional controls
