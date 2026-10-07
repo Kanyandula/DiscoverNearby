@@ -204,4 +204,18 @@ class HerePlacesRepositoryTest {
             caller.shutdown()
         }
     }
+
+    // Review Focus 4 (DN-M1-001 review): an explicit null where a list is expected must not fail the whole response.
+    @Test
+    fun explicitNullsDoNotFailTheResponse() = runBlocking {
+        respond = {
+            reply(
+                it,
+                200,
+                """{"items": [{"id": "x", "title": "A", "position": {"lat": 1.0, "lng": 2.0},
+                    "categories": null, "openingHours": [{"text": null, "isOpen": null}]}]}""",
+            )
+        }
+        assertEquals(listOf("A"), repository.searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 1).map { it.name })
+    }
 }

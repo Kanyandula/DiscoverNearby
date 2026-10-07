@@ -35,7 +35,11 @@ class HerePlacesRepository(
     private val client: OkHttpClient = OkHttpClient(),
 ) : PlacesRepository {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    // An explicit null where a list is expected becomes the empty default instead of failing the response.
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     override suspend fun searchNearby(
         origin: GeoPoint,
