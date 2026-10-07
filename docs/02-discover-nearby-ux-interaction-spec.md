@@ -555,7 +555,9 @@ Provider attribution
 → applicable screens
 ```
 
-The attribution UI is designed once the provider is selected. Likely locations are a Place Details row or an action on Recommendations. Attribution is not invented before then.
+**HERE (ADR-001 V6a; DN-M1-003):** "© {current year} HERE", a muted line under the Recommendations list and at the
+bottom left of Place Details. It appears only when the data is HERE's; the fakes show none. HERE's guidance ties
+placement to a map or an "About HERE" settings section. Placement in an app without a map is pending Legal.
 
 ---
 

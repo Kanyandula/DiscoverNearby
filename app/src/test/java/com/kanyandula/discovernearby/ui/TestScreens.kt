@@ -14,7 +14,7 @@ import org.robolectric.RuntimeEnvironment
 /** Robolectric qualifiers for the reference AVD's automotive_1024p_landscape screen. */
 const val AUTOMOTIVE_1024P = "w1024dp-h768dp-land-mdpi"
 
-/** The app's own container, as MainActivity passes it (Robolectric creates DiscoverApplication). */
+/** The app's own container, as MainActivity passes it (Robolectric creates the keyless TestDiscoverApplication). */
 fun appContainer() = (RuntimeEnvironment.getApplication() as DiscoverApplication).container
 
 /** Rotary puts Compose in keyboard mode, where a clickable takes focus; touch never focuses one. */

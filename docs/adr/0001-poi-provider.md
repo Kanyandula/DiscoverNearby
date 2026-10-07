@@ -124,6 +124,20 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
   - No app/package restriction is documented.
 - **[H6]** Identity & Access Management, OAuth 2.0. <https://docs.here.com/identity-and-access-management/docs/how-to-authorize-with-oauth-20>. OAuth 2.0 bearer tokens are offered as an alternative (page title and URL from the index; page not fetched).
 - **[H7]** Pricing. <https://www.here.com/get-started/pricing>. The page text shows no figures (rendered by script). Free allowance and prices are unknown without an account or a browser. A 2018 HERE press release (<https://www.here.com/about/press-releases/2018-01-08>) announced a freemium plan; treat it as dated.
+- **[H8]** HERE brand guidance, Copyright. <https://brand.here.com/legal/copyright/> (the Platform Terms §13.1 link
+  to "HERE brand guidance" resolves here; no page date shown). Verbatim:
+  - "Any material (e.g. the Map canvas, Web pages, Presentations, Marketing Material, Advertising, etc.) owned by
+    HERE and used by external parties should have the following copyright notice: © 20XX HERE"
+  - "In tablet and desktop sized products showing the map canvas, the HERE copyright should be displayed on the
+    map. In mobile handsets, including watches and embedded in-car systems, the HERE copyright may alternatively be
+    displayed in the 'About HERE' section in the Settings."
+  - Nothing addresses an app that shows results without a map. **→ Legal.**
+- **[H9]** HERE brand guidance, Trademarks. <https://brand.here.com/legal/trademarks/>. Covers the use of the HERE
+  logo and wordmark. It does not require a logo to be displayed.
+- **[H10]** Geocoding & Search v7, Lookup. <https://docs.here.com/geocoding-and-search/docs/endpoint-lookup-brief>.
+  `GET https://lookup.search.hereapi.com/v1/lookup?id=…`. The sample response has `title`, `id`, `address`,
+  `position`, `access`, `categories`, `references`, `contacts`. `references` names data suppliers; there is no
+  copyright or attribution field to display.
 
 ### Geoapify
 
@@ -269,22 +283,24 @@ categories also run live from DN-M1-002, but are accepted in M2 (DN-M2-001, DN-M
 
 | Field | Value |
 | --- | --- |
-| Required text | → Legal. §13.1: "You will ensure that all HERE Marks and copyright notices are present in the HERE Materials and Result in accordance with HERE brand guidance" [H1]. The brand guidance was not read |
-| Required logo | → Legal; HERE brand guidance not read |
-| Must be always visible? | Not established (brand guidance not read) |
-| Can appear in About / Data Sources? | Not established |
+| Required text | "© 20XX HERE" [H8]; §13.1 requires notices "in accordance with HERE brand guidance" [H1]. The responses carry no notice of their own [H10] |
+| Required logo | Not required by [H8]; [H9] governs a logo if one is shown |
+| Must be always visible? | Not stated for an app without a map [H8] → Legal |
+| Can appear in About / Data Sources? | "In mobile handsets, including watches and embedded in-car systems, the HERE copyright may alternatively be displayed in the 'About HERE' section in the Settings" [H8]; tied to a map → Legal |
 | Required on Recommendations? | Not established. §6.4(a): when combined with non-HERE content, "the origin of the HERE Content and non-HERE content can be distinguished and correct attribution can be provided" [H1] |
 | Required on Place Details? | Not established |
 
-DN-M1-001: `PlaceDetails.attribution` stays null and no attribution UI is shown until the brand guidance is read
-(→ Legal); `/browse` and `/lookup` responses carry no copyright notice of their own in the fields mapped.
+**Implemented (DN-M1-003; Product Lead decision, 2026-10-07):** "© {current year} HERE", a muted line under the
+Recommendations list and at the bottom left of Place Details. It shows only for HERE data
+(`PlaceSummary.attribution`), so the fakes show none. Whether that satisfies [H8] for an app without a map is
+pending Legal.
 
 ## V6b — Caching and storage
 
 | Field | Value |
 | --- | --- |
 | May POI responses be persisted? For how long? | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days" … "unless Results are used solely for your internal testing, evaluation, or record retention for audit and legal compliance purposes" [H1]. POC: no persistence (in memory) |
-| May place IDs be stored? | → Legal. Not addressed in the sections read. The POC stores none |
+| May place IDs be stored? | → Legal. Not addressed in the sections read. The app writes no place data to storage. The opened place's summary (with its ID) travels in the navigation route, so it sits in the back stack's saved state while the task exists (DN-M0-005) |
 | May responses be recorded as test fixtures? | No: none recorded (public repo); revisit with Legal |
 | Caching-header rules | Exhibit 2 §1.3: only "as explicitly allowed by the caching headers (HTTP/1.1 standard) returned by HERE Location Services" [H1]; headers not recorded in this run |
 

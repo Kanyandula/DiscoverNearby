@@ -55,6 +55,8 @@ in place (DN-M0-012, DN-M0-001).
   - **Tests:** Robolectric uses `TestDiscoverApplication` (keyless) by its `Test<ApplicationName>` convention, so
     tests always get the fakes.
   - **Live categories:** Coffee is the first live category (ADR-001); the others are live but are accepted in M2.
+  - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
+    for HERE data only (`PlaceSummary.attribution`). Placement without a map is pending Legal.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
@@ -70,9 +72,9 @@ on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to
 limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 
-Next: DN-M1-003 (live place details: verify `/lookup`; attribution once HERE's brand guidance is read). ADR-001
-provisionally selects HERE (Legal sign-off on provider terms pending before production). DN-TD-002 (Gradle/CI
-tuning) is P3.
+Next: M1's remaining items are Legal's: the terms before production, and attribution placement without a map.
+M2 (DN-M2-001, categories and ranking) follows. ADR-001 provisionally selects HERE. DN-TD-002 (Gradle/CI tuning) is
+P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
