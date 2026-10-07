@@ -144,7 +144,7 @@ app/
 │   ├── PlacesRepository                (interface)
 │   ├── fake/
 │   │   └── FakePlacesRepository        (M0: all six categories, fixed data per test location)
-│   └── <provider>/                     (added after provider ADR)
+│   └── here/                           HERE client + mapper (DN-M1-001, ADR-001)
 │       ├── <Provider>PlacesRepository
 │       └── <Provider>PlaceMapper
 │
@@ -492,7 +492,7 @@ data class PlaceDetails(
 
 ### Mapper
 
-Each provider implementation has a mapper from provider responses to domain models. Mapper tests use recorded fixture responses from the provider spike.
+Each provider implementation has a mapper from provider responses to domain models. Mapper tests use synthetic responses shaped like the documented ones: the spike recorded no fixtures (public repo; ADR-001 V6b).
 
 ---
 

@@ -272,6 +272,9 @@ on 2026-10-07, before the raw output was deleted; they cannot be re-derived from
 | Required on Recommendations? | Not established. §6.4(a): when combined with non-HERE content, "the origin of the HERE Content and non-HERE content can be distinguished and correct attribution can be provided" [H1] |
 | Required on Place Details? | Not established |
 
+DN-M1-001: `PlaceDetails.attribution` stays null and no attribution UI is shown until the brand guidance is read
+(→ Legal); `/browse` and `/lookup` responses carry no copyright notice of their own in the fields mapped.
+
 ## V6b — Caching and storage
 
 | Field | Value |
