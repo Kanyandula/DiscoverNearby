@@ -20,7 +20,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-// V7 (ADR-002): Back gives rotary focus back to the item selected by rotary, a frame after the screen returns.
+// V7 (ADR-002): Back gives rotary focus back to the item selected by rotary, once ReturnFocus's wait has passed.
 @RunWith(RobolectricTestRunner::class)
 class ReturnFocusTest {
 
@@ -76,10 +76,10 @@ class ReturnFocusTest {
     }
 
     @Test
-    fun touchSelectionReplacesARotarySelection() {
+    fun touchOnAnUnfocusedItemForgetsTheRotarySelection() {
         showItems()
         rotarySelect("B")
-        rule.onNodeWithText("C").performClick() // touch: switches to touch mode, so nothing is remembered
+        rule.onNodeWithText("C").performClick() // a touch on C, which isn't focused (B is): nothing is remembered
         leaveAndReturn()
         rule.onNodeWithText("B").assertIsNotFocused()
         rule.onNodeWithText("C").assertIsNotFocused()
