@@ -72,9 +72,10 @@ class AppSettingsTest {
         openSettings = rememberOpenAppSettings(onReturn = { returns++ })
     }
 
-    /** The app goes behind Settings and comes back to the front, as Back from App info does. */
-    private fun comeBack() {
+    /** The app is paused behind Settings, then resumes; [whileAway] runs in between. */
+    private fun comeBack(whileAway: () -> Unit = {}) {
         rule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+        whileAway()
         rule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
         rule.waitForIdle()
     }
@@ -113,10 +114,7 @@ class AppSettingsTest {
         val restoration = StateRestorationTester(rule)
         restoration.setContent { openSettings = rememberOpenAppSettings(onReturn = { returns++ }) }
         rule.runOnIdle { openSettings() }
-        rule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
-        restoration.emulateSavedInstanceStateRestore()
-        rule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
-        rule.waitForIdle()
+        comeBack(whileAway = restoration::emulateSavedInstanceStateRestore)
         assertEquals(1, returns)
     }
 }
