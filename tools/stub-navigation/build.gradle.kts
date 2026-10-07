@@ -12,9 +12,9 @@ android {
 
     defaultConfig {
         applicationId = "com.kanyandula.stubnavigation"
-        minSdk = 29
-        targetSdk = 36
-        // Unset, the version code is 0 and installs over an earlier stub fail as a downgrade.
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        // Without it the version code is 0, and installing over an earlier stub fails as a downgrade.
         versionCode = 1
     }
 
