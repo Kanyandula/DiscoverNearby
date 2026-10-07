@@ -35,18 +35,19 @@ const val HIGH_RATING_BONUS = 5.0
 /** Per-category tuning as data, not code branches (docs/03 §2, §10). */
 data class CategoryConfig(
     val radiusMeters: Int,
-    val desiredResults: Int,
+    val desiredResults: Int = DESIRED_RECOMMENDATIONS,
     /** The category match each target kind gives a place whose primary kind it is. */
     val kindWeights: Map<String, Int>,
     /** Added once per known amenity (PROVIDED or DERIVED); an absent one is unknown and adds nothing. */
     val amenityWeights: Map<AttributeType, Int> = emptyMap(),
     /** Time-sensitive: a place known to be closed now is dropped, not penalised (Product Lead, 2026-10-07). */
     val excludeClosed: Boolean,
-    /** At most this many results share a primary kind; null for no cap (Product Lead, 2026-10-07). */
+    /**
+     * At most this many results share a primary kind (or, without one, the kind they matched); null for no cap
+     * (Product Lead, 2026-10-07).
+     */
     val maxPerKind: Int?,
-) {
-    val targetKinds: Set<String> get() = kindWeights.keys
-}
+)
 
 private const val STRONG_MATCH = 30
 private const val WEAK_MATCH = 15
@@ -59,7 +60,6 @@ private fun strong(vararg kinds: String) = kinds.associateWith { STRONG_MATCH }
 val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     COFFEE to CategoryConfig(
         radiusMeters = 5_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         kindWeights = strong("cafe", "coffee_shop"),
         amenityWeights = mapOf(PARKING to 5),
         excludeClosed = true,
@@ -67,7 +67,6 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     ),
     FOOD to CategoryConfig(
         radiusMeters = 5_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         kindWeights = strong("restaurant", "fast_food", "takeaway"),
         amenityWeights = mapOf(PARKING to 5),
         excludeClosed = true,
@@ -75,14 +74,12 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     ),
     OUTDOORS to CategoryConfig(
         radiusMeters = 20_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         kindWeights = strong("park", "trail", "forest", "beach", "hiking_area", "outdoor_attraction"),
         excludeClosed = false,
         maxPerKind = DIVERSITY_CAP,
     ),
     FAMILY to CategoryConfig(
         radiusMeters = 15_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         kindWeights = strong("playground", "zoo", "aquarium", "family_attraction") + ("park" to WEAK_MATCH),
         amenityWeights = mapOf(TOILETS to 10, PARKING to 10, CAFE to 5),
         excludeClosed = true,
@@ -90,7 +87,6 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     ),
     SCENIC to CategoryConfig(
         radiusMeters = 30_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         // Scenic is for looking at: a landmark is a weaker match here than in Explore.
         kindWeights = strong("viewpoint", "scenic_spot", "coastal_overlook", "waterfall", "natural_attraction") +
             ("landmark" to WEAK_MATCH),
@@ -99,7 +95,6 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
     ),
     EXPLORE to CategoryConfig(
         radiusMeters = 15_000,
-        desiredResults = DESIRED_RECOMMENDATIONS,
         kindWeights = strong("tourist_attraction", "museum", "landmark", "heritage_site"),
         excludeClosed = true,
         maxPerKind = DIVERSITY_CAP,

@@ -17,7 +17,7 @@ class HereCategoriesTest {
         HERE_CATEGORIES.forEach { (category, codes) ->
             codes.split(",").forEach { code ->
                 val kind = kindFor(code)
-                assertTrue("$category $code -> $kind", kind in CategoryConfigs.getValue(category).targetKinds)
+                assertTrue("$category $code -> $kind", kind in CategoryConfigs.getValue(category).kindWeights.keys)
             }
         }
     }

@@ -18,6 +18,9 @@ data class PlaceSummary(
     val attribution: String? = null, // the data's copyright holder, e.g. "HERE"; null when no notice is needed
 )
 
+/** Each known attribute type once, in the provider's order, whatever its source. Unknown ones are absent. */
+fun PlaceSummary.attributeTypes() = attributes.map { it.type }.distinct()
+
 /** Richer fields, fetched only when a place is opened. */
 data class PlaceDetails(
     val summary: PlaceSummary,

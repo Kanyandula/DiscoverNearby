@@ -38,13 +38,13 @@ class CategoryConfigTest {
     // docs/03 §9 target kinds; Outdoors (do) and Scenic (look) stay distinct.
     @Test
     fun targetKindsFollowTheDocs() {
-        assertEquals(setOf("cafe", "coffee_shop"), CategoryConfigs.getValue(COFFEE).targetKinds)
-        assertTrue("park" in CategoryConfigs.getValue(OUTDOORS).targetKinds)
-        assertTrue("viewpoint" in CategoryConfigs.getValue(SCENIC).targetKinds)
-        assertTrue("viewpoint" !in CategoryConfigs.getValue(OUTDOORS).targetKinds)
-        assertTrue("playground" in CategoryConfigs.getValue(FAMILY).targetKinds)
-        assertTrue("museum" in CategoryConfigs.getValue(EXPLORE).targetKinds)
-        assertTrue(CategoryConfigs.values.all { it.targetKinds.isNotEmpty() })
+        assertEquals(setOf("cafe", "coffee_shop"), CategoryConfigs.getValue(COFFEE).kindWeights.keys)
+        assertTrue("park" in CategoryConfigs.getValue(OUTDOORS).kindWeights.keys)
+        assertTrue("viewpoint" in CategoryConfigs.getValue(SCENIC).kindWeights.keys)
+        assertTrue("viewpoint" !in CategoryConfigs.getValue(OUTDOORS).kindWeights.keys)
+        assertTrue("playground" in CategoryConfigs.getValue(FAMILY).kindWeights.keys)
+        assertTrue("museum" in CategoryConfigs.getValue(EXPLORE).kindWeights.keys)
+        assertTrue(CategoryConfigs.values.all { it.kindWeights.keys.isNotEmpty() })
     }
 
     // Product Lead, 2026-10-07: these categories drop known-closed places; Outdoors and Scenic keep them.

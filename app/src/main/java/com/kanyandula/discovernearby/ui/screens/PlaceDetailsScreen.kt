@@ -33,8 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
-import com.kanyandula.discovernearby.ui.attributeTypes
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.ProviderAttribution

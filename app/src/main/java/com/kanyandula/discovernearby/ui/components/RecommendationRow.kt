@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
+import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
-import com.kanyandula.discovernearby.ui.attributeTypes
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize

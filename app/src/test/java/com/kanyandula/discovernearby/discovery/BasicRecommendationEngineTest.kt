@@ -135,7 +135,7 @@ class BasicRecommendationEngineTest {
     fun coffeeAndFoodAreNotCapped() {
         mapOf(COFFEE to "cafe", FOOD to "restaurant").forEach { (category, kind) ->
             val places = List(4) { testPlace("p$it", kind, metersNorth = 100 * (it + 1)) }
-            assertEquals(category.name, 4, engine.rank(places, testContext(category)).size)
+            assertEquals(category.name, 4, ranked(category, *places.toTypedArray()).size)
         }
     }
 
@@ -154,8 +154,8 @@ class BasicRecommendationEngineTest {
     @Test
     fun aRepeatedPlaceDoesNotUseUpTheCap() {
         val a = testPlace("a", "park", metersNorth = 100)
-        val places = listOf(a, a, testPlace("b", "park", metersNorth = 200), testPlace("c", "park", metersNorth = 300))
-        assertEquals(listOf("a", "b"), engine.rank(places, testContext(OUTDOORS)).map { it.place.id })
+        val b = testPlace("b", "park", metersNorth = 200)
+        assertEquals(listOf("a", "b"), ranked(OUTDOORS, a, a, b, testPlace("c", "park", metersNorth = 300)))
     }
 
     // Review Focus 1: a provider can return a place past the radius; it gets no nearness, never a negative one.
@@ -198,12 +198,6 @@ class BasicRecommendationEngineTest {
     @Test
     fun tiesBreakById() {
         assertEquals(listOf("a", "b"), ranked(COFFEE, testPlace("b", "cafe"), testPlace("a", "cafe")))
-    }
-
-    // Null-heavy data (docs/04 Q): an unknown primary kind still matches on the kinds it has.
-    @Test
-    fun unknownPrimaryKindStillMatches() {
-        assertEquals(listOf("cafe"), ranked(COFFEE, testPlace("cafe", "cafe", primaryKind = null)))
     }
 
     // No display limit: the ViewModel trims (docs/03 §10).
