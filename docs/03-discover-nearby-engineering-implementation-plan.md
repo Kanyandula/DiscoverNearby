@@ -573,6 +573,14 @@ PROVIDED café                                        +5
 Rating ≥ 4.5 (if rating present)                     +5
 ```
 
+**Implemented (DN-M2-001):** the weights and rules live in `CategoryConfigs` (`discovery/CategoryConfig.kt`).
+Product Lead decisions (2026-10-07):
+
+- known-closed places are dropped in Coffee, Food, Family and Explore; Outdoors and Scenic keep them, with no
+  open-now bonus;
+- at most two results per primary kind in Outdoors, Family, Scenic and Explore; Coffee and Food have no cap;
+- a matching kind that isn't the place's primary counts half, and a category match below 10 is dropped.
+
 Rating aggregation (for example, Bayesian averaging of rating and count) is **not** a POC requirement. Investigate it only if the provider ADR shows that ratings and counts exist with useful coverage.
 
 ### Output

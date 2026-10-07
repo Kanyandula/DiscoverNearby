@@ -57,6 +57,9 @@ in place (DN-M0-012, DN-M0-001).
   - **Live categories:** Coffee is the first live category (ADR-001); the others are live but are accepted in M2.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map is pending Legal.
+- **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
+  amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
+  Explore; at most two per primary kind outside Coffee and Food; below a category match of 10 is dropped.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
@@ -72,9 +75,9 @@ on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to
 limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
 Record: `docs/adr/0002/v7-retest-2026-10-06/`.
 
-Next: M1's remaining items are Legal's: the terms before production, and attribution placement without a map.
-M2 (DN-M2-001, categories and ranking) follows. ADR-001 provisionally selects HERE. DN-TD-002 (Gradle/CI tuning) is
-P3.
+Next: DN-M2-002 (the relevance benchmark, Product sign-off is M2's exit). Legal still owes the terms before
+production and attribution placement without a map. ADR-001 provisionally selects HERE. DN-TD-002 (Gradle/CI
+tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -104,8 +107,8 @@ P3.
 - Only `ui/` imports Compose. Only `car/CarDrivingRestrictions` imports `android.car`.
   `discovery/`, `model/`, `places/`, `location/` have no Compose or Car API imports.
 - Provider response models never leave the provider package; map to domain models.
-- RecommendationEngine is pure Kotlin. Unknown data is neutral; known-closed places are excluded;
-  never pad results. It never sees driving state.
+- RecommendationEngine is pure Kotlin. Unknown data is neutral; known-closed places are excluded where the
+  category is time-sensitive (`CategoryConfig.excludeClosed`); never pad results. It never sees driving state.
 - The ViewModel applies the driving limit: `visible = take(min(5, drivingState.listLimit ?: MAX))`,
   and re-trims when the state changes.
 - Loading/content/error are states of ONE destination, never pushed destinations.
