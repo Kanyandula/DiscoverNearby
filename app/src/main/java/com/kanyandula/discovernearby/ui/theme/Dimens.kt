@@ -38,7 +38,9 @@ val DetailsImageIconSize = 96.dp
 val DetailsImageGap = 24.dp
 val DetailsInset = 16.dp
 val DetailsColumnGap = 40.dp
-val SectionPadding = 18.dp
+// The canvas has 18; 12 keeps a full set of facts, the summary-only note and the notice on the 4:3 reference panel
+// (PlaceDetailsFitTest) now that the kind of place sits under the distance.
+val SectionPadding = 12.dp
 val ActionColumnWidth = 400.dp
 val NavigateHeight = 88.dp
 val NavigateRadius = 20.dp

@@ -72,11 +72,21 @@ class PlaceDetailsScreenTest {
         state = Content(PlaceDetails(place, openingSummary = "Open until 18:00"))
         rule.onNodeWithText("The Daily Grind").assertIsDisplayed()
         rule.onNodeWithText("2.1 km away").assertIsDisplayed()
+        rule.onNodeWithText("Café").assertIsDisplayed()
         rule.onNodeWithText("4.6 ★ (342 reviews)").assertIsDisplayed()
-        rule.onNodeWithText("Open until 18:00").assertIsDisplayed()
+        // The status, as on the canvas; the provider's schedule only stands in when the status is unknown.
+        rule.onNodeWithText("Open now").assertIsDisplayed()
+        rule.onNodeWithText("Open until 18:00").assertDoesNotExist()
         rule.onNodeWithText("Parking · Family-friendly").assertIsDisplayed()
         rule.onNodeWithText("Amenities").assertIsDisplayed()
         rule.onNodeWithText("More details unavailable right now").assertDoesNotExist()
+    }
+
+    @Test
+    fun scheduleStandsInWhenTheStatusIsUnknown() {
+        state = Content(PlaceDetails(place.copy(isOpenNow = null), openingSummary = "Mon-Sun: 08:00 - 16:00"))
+        rule.onNodeWithText("Mon-Sun: 08:00 - 16:00").assertIsDisplayed()
+        rule.onNodeWithText("Open now").assertDoesNotExist()
     }
 
     // docs/02 §7: a failed details call keeps the summary and Navigate.

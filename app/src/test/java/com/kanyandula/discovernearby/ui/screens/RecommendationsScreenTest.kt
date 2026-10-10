@@ -105,11 +105,13 @@ class RecommendationsScreenTest {
         state = Content(requestId = 1, recommendations = listOf(row(full, 2_100), row(noCount, 900), row(bare, 400)))
 
         rule.onNodeWithText("Harbour Roasters").assertIsDisplayed()
-        rule.onNodeWithText("4.6 ★ (212) · Parking · Toilets · Café").assertIsDisplayed() // at most three
+        // The kind follows the rating; at most three attributes, and a label the kind already gave isn't repeated.
+        rule.onNodeWithText("4.6 ★ (212) · Café · Parking · Toilets").assertIsDisplayed()
         rule.onNodeWithText("2.1 km").assertIsDisplayed()
-        rule.onNodeWithText("4.1 ★").assertIsDisplayed()
+        rule.onNodeWithText("4.1 ★ · Café").assertIsDisplayed()
         rule.onNodeWithText("0.9 km").assertIsDisplayed()
         rule.onNodeWithText("Brew & Bloom").assertIsDisplayed()
+        rule.onNodeWithText("Café").assertIsDisplayed() // the kind alone, with no rating
         rule.onNodeWithText("0.4 km").assertIsDisplayed()
         rule.onAllNodesWithText("★", substring = true).assertCountEquals(2) // nothing blank on the bare row
     }

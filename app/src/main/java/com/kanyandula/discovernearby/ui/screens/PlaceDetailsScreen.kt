@@ -44,6 +44,7 @@ import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
+import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ActionColumnWidth
@@ -123,15 +124,22 @@ private val NavigationUnavailableMessage = Message(
     R.string.navigation_unavailable_body,
 )
 
-/** Distance; then rating and opening state; then amenities. Each only when known, with dividers between. */
+/**
+ * Distance and the kind of place; then rating and opening state; then amenities. Each only when known, with dividers
+ * between. The opening line is the status, as on the canvas ("Open now"); the provider's schedule (HERE sends the
+ * whole week) shows only when the status is unknown.
+ */
 @Composable
 private fun Facts(place: PlaceSummary, distanceMeters: Int, openingSummary: String?) {
-    Section(AnnotatedString(stringResource(R.string.distance_away, kilometres(distanceMeters))))
+    Section(
+        AnnotatedString(stringResource(R.string.distance_away, kilometres(distanceMeters))),
+        kindLabel(place.primaryKind)?.let { stringResource(it) },
+    )
     val rating = ratingLine(place)
-    val opening = openingSummary ?: when (place.isOpenNow) {
+    val opening = when (place.isOpenNow) {
         true -> stringResource(R.string.open_now)
         false -> stringResource(R.string.closed_now)
-        null -> null
+        null -> openingSummary
     }
     if (rating != null || opening != null) {
         HorizontalDivider(color = Raised)

@@ -79,11 +79,8 @@ fun RecommendationsScreen(
                         )
                     }
                 }
-                // HERE's notice with HERE's data (ADR-001 V6a); the fakes carry none.
-                ProviderAttribution(
-                    state.recommendations.firstNotNullOfOrNull { it.place.attribution },
-                    Modifier.align(Alignment.End),
-                )
+                // HERE's notice with HERE's data (ADR-001 V6a), bottom left as on the canvas; the fakes carry none.
+                ProviderAttribution(state.recommendations.firstNotNullOfOrNull { it.place.attribution })
             }
             RecommendationsUiState.Empty ->
                 MessageState(EmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)

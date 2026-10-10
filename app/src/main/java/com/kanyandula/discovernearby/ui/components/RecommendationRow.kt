@@ -24,6 +24,7 @@ import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.kilometres
+import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
 import com.kanyandula.discovernearby.ui.theme.RowImageHeight
@@ -94,16 +95,21 @@ fun RecommendationRow(
     }
 }
 
-/** Rating, only when the provider gives one, and up to three attributes; null when there is neither. */
+/**
+ * As on the canvas ("4.6 ★ (342) · Café · Parking"): the rating, only when the provider gives one; the kind of place;
+ * up to three attributes. Null when there is none of them.
+ */
 @Composable
 private fun detailsLine(place: PlaceSummary): String? {
     val rating = place.rating?.let { rating ->
         place.ratingCount?.let { stringResource(R.string.rating_with_count, rating, it) }
             ?: stringResource(R.string.rating, rating)
     }
+    val kind = kindLabel(place.primaryKind)?.let { stringResource(it) }
     val attributes = place.attributeTypes().take(MAX_ROW_ATTRIBUTES)
         .map { stringResource(it.label) }
-    return (listOfNotNull(rating) + attributes).joinToString(SEPARATOR).ifEmpty { null }
+    // distinct: a café's kind and a CAFE attribute would both say "Café".
+    return (listOfNotNull(rating, kind) + attributes).distinct().joinToString(SEPARATOR).ifEmpty { null }
 }
 
 @Composable
