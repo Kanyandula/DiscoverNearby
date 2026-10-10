@@ -221,6 +221,8 @@ Visitor Centre
 
 Each row contains only what is needed for an initial choice:
 
+- An image of the place, decorative: the provider's photo when a photo source exists (DN-SP-004), otherwise the
+  selected category's artwork (its icon on its tint), so no row looks empty (DN-UX-003)
 - Place name
 - Distance (or travel time, if the provider supplies it reliably)
 - Rating, only if the provider supplies it
@@ -275,6 +277,7 @@ Park · Playground · Parking
 
 ### Content, where available
 
+- An image panel above **Navigate**: the photo when a source exists, otherwise the category artwork, as on the rows
 - Place name
 - Distance (or travel time, if calculated)
 - Rating (if provided)

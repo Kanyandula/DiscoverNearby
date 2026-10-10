@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,11 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
+import com.kanyandula.discovernearby.ui.components.PlaceImage
 import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.components.focusRing
@@ -45,6 +48,10 @@ import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ActionColumnWidth
 import com.kanyandula.discovernearby.ui.theme.DetailsColumnGap
+import com.kanyandula.discovernearby.ui.theme.DetailsImageGap
+import com.kanyandula.discovernearby.ui.theme.DetailsImageHeight
+import com.kanyandula.discovernearby.ui.theme.DetailsImageIconSize
+import com.kanyandula.discovernearby.ui.theme.DetailsImageRadius
 import com.kanyandula.discovernearby.ui.theme.DetailsInset
 import com.kanyandula.discovernearby.ui.theme.InfoIconGap
 import com.kanyandula.discovernearby.ui.theme.NavigateHeight
@@ -62,12 +69,13 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
 /**
  * Place Details (canvas Place Details artboards): what is known about the place, with Navigate always there and
  * never waiting on the optional details call (docs/02 §7). One layout serves every state but the hand-off failure
- * message, so nothing moves when details arrive. ponytail: no photo or place-kind label until ADR-001
- * (DN-M2-001).
+ * message, so nothing moves when details arrive. The right column is the place's image with Navigate under it
+ * (03-place-details).
  */
 @Composable
 fun PlaceDetailsScreen(
     distanceMeters: Int,
+    category: DiscoveryCategory,
     state: PlaceDetailsUiState,
     onNavigate: () -> Unit,
     onBack: () -> Unit,
@@ -91,10 +99,18 @@ fun PlaceDetailsScreen(
                     // Bottom left, level with Navigate: HERE's notice with HERE's data (ADR-001 V6a).
                     ProviderAttribution(state.summary.attribution)
                 }
-                NavigateButton(
-                    onClick = onNavigate,
-                    modifier = Modifier.width(ActionColumnWidth).align(Alignment.Bottom),
-                )
+                Column(
+                    modifier = Modifier.width(ActionColumnWidth),
+                    verticalArrangement = Arrangement.spacedBy(DetailsImageGap),
+                ) {
+                    PlaceImage(
+                        category = category,
+                        radius = DetailsImageRadius,
+                        iconSize = DetailsImageIconSize,
+                        modifier = Modifier.fillMaxWidth().height(DetailsImageHeight),
+                    )
+                    NavigateButton(onClick = onNavigate, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }

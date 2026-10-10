@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.DERIVED
 import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
@@ -57,6 +58,7 @@ class PlaceDetailsScreenTest {
             DiscoverNearbyTheme {
                 PlaceDetailsScreen(
                     distanceMeters = 2_100,
+                    category = DiscoveryCategory.COFFEE,
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },

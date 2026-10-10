@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.kanyandula.discovernearby.R
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.model.attributeTypes
@@ -25,6 +26,10 @@ import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
+import com.kanyandula.discovernearby.ui.theme.RowImageHeight
+import com.kanyandula.discovernearby.ui.theme.RowImageIconSize
+import com.kanyandula.discovernearby.ui.theme.RowImageRadius
+import com.kanyandula.discovernearby.ui.theme.RowImageWidth
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 import com.kanyandula.discovernearby.ui.theme.RowPadding
 import com.kanyandula.discovernearby.ui.theme.RowRadius
@@ -33,12 +38,17 @@ import com.kanyandula.discovernearby.ui.theme.RowVerticalPadding
 private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or derived attributes
 
 /**
- * One recommendation (canvas Recommendations artboard): name; rating and attributes when known; distance.
- * Missing fields are left out, never shown blank. ponytail: no photo until ADR-001 says what the provider allows;
- * the provider's notice sits under the list, not on the row (ProviderAttribution).
+ * One recommendation (canvas Recommendations artboard): the place's image; name; rating and attributes when known;
+ * distance. Missing fields are left out, never shown blank. The provider's notice sits under the list, not on the
+ * row (ProviderAttribution).
  */
 @Composable
-fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun RecommendationRow(
+    recommendation: Recommendation,
+    category: DiscoveryCategory,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val place = recommendation.place
     val shape = RoundedCornerShape(RowRadius)
     Surface(
@@ -48,10 +58,22 @@ fun RecommendationRow(recommendation: Recommendation, onClick: () -> Unit, modif
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = RowPadding, vertical = RowVerticalPadding),
+            // The image sits as close to the edge as the row's top and bottom, as on the canvas.
+            modifier = Modifier.padding(
+                start = RowVerticalPadding,
+                end = RowPadding,
+                top = RowVerticalPadding,
+                bottom = RowVerticalPadding,
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(RowPadding),
         ) {
+            PlaceImage(
+                category = category,
+                radius = RowImageRadius,
+                iconSize = RowImageIconSize,
+                modifier = Modifier.size(width = RowImageWidth, height = RowImageHeight),
+            )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
                 Text(
                     text = place.name,

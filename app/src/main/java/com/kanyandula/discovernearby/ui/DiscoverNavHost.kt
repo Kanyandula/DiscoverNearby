@@ -36,9 +36,9 @@ data object DiscoverRoute
 data class RecommendationsRoute(val category: DiscoveryCategory)
 
 // The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
-// call or process death (docs/02 §7).
+// call or process death (docs/02 §7), and the category the user picked, for the place's image.
 @Serializable
-data class PlaceDetailsRoute(val place: PlaceSummary, val distanceMeters: Int)
+data class PlaceDetailsRoute(val place: PlaceSummary, val distanceMeters: Int, val category: DiscoveryCategory)
 
 private val PlaceDetailsTypes = mapOf(typeOf<PlaceSummary>() to JsonNavType(PlaceSummary.serializer()))
 
@@ -86,7 +86,7 @@ fun DiscoverNavHost(
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
                 onPlaceSelected = { picked ->
                     if (navController.isTop(entry)) {
-                        navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters))
+                        navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters, category))
                     }
                 },
                 onGrant = location.grant,
@@ -101,6 +101,7 @@ fun DiscoverNavHost(
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             PlaceDetailsScreen(
                 distanceMeters = route.distanceMeters,
+                category = route.category,
                 state = state,
                 onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },

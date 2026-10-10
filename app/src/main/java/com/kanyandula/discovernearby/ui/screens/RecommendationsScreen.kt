@@ -70,6 +70,7 @@ fun RecommendationsScreen(
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
                         RecommendationRow(
                             recommendation,
+                            category = category,
                             onClick = {
                                 returnFocus.selected(recommendation.place.id)
                                 onPlaceSelected(recommendation)
