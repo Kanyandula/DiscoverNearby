@@ -19,6 +19,9 @@ import com.kanyandula.discovernearby.model.AttributeType.FAMILY_FRIENDLY
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
+import com.kanyandula.discovernearby.model.PlaceEnrichment
+import com.kanyandula.discovernearby.model.PlacePhoto
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
@@ -49,6 +52,7 @@ class PlaceDetailsScreenTest {
         attributes = setOf(PlaceAttribute(PARKING, PROVIDED), PlaceAttribute(FAMILY_FRIENDLY, DERIVED)),
     )
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
+    private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var navigations = 0
     private var backs = 0
 
@@ -62,6 +66,7 @@ class PlaceDetailsScreenTest {
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },
+                    enrichment = enrichment,
                 )
             }
         }
@@ -80,6 +85,22 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithText("Parking · Family-friendly").assertIsDisplayed()
         rule.onNodeWithText("Amenities").assertIsDisplayed()
         rule.onNodeWithText("More details unavailable right now").assertDoesNotExist()
+    }
+
+    // DN-UX-004: the row's Tripadvisor photo and rating, credited, in place of the place's own text rating.
+    @Test
+    fun tripadvisorsRatingAndPhotoCreditShow() {
+        enrichment = PlaceEnrichment(
+            "Tripadvisor",
+            PlacePhoto("https://example.test/p.jpg"),
+            ProviderRating(4.5, 312, "https://example.test/b.png"),
+        )
+        state = Content(PlaceDetails(place, openingSummary = null))
+        rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists()
+        rule.onNodeWithText("(312 reviews)").assertIsDisplayed()
+        rule.onNodeWithText("4.6 ★ (342 reviews)").assertDoesNotExist()
+        rule.onNodeWithText("Photo: Tripadvisor").assertIsDisplayed()
+        rule.onNodeWithText("Navigate").assertIsDisplayed()
     }
 
     @Test

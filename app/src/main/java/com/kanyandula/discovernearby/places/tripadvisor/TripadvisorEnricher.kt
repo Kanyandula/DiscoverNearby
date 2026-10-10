@@ -81,8 +81,7 @@ class TripadvisorEnricher(
         val url = API_URL.newBuilder().addPathSegments("locations/$locationId/photos")
             .addQueryParameter("size", "1")
             .build()
-        val item = get<PhotosResponse>(url)?.data?.firstOrNull() ?: return null
-        return item.photo?.url?.let { PlacePhoto(it, item.user?.username) }
+        return get<PhotosResponse>(url)?.data?.firstOrNull()?.photo?.url?.let { PlacePhoto(it) }
     }
 
     /** The decoded body, or null for an HTTP error (a 429 included). */

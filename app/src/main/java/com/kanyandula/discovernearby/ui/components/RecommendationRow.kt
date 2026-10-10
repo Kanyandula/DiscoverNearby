@@ -19,7 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
@@ -27,6 +29,7 @@ import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
+import com.kanyandula.discovernearby.ui.theme.RatingChipGap
 import com.kanyandula.discovernearby.ui.theme.RowImageHeight
 import com.kanyandula.discovernearby.ui.theme.RowImageIconSize
 import com.kanyandula.discovernearby.ui.theme.RowImageRadius
@@ -40,12 +43,13 @@ private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or deriv
 
 /**
  * One recommendation (canvas Recommendations artboard): the place's image; name; rating and attributes when known;
- * distance. Missing fields are left out, never shown blank. The provider's notice sits under the list, not on the
- * row (ProviderAttribution).
+ * distance. Missing fields are left out, never shown blank. [enrichment] adds Tripadvisor's photo and rating
+ * (DN-UX-004). The provider's notice sits under the list, not on the row (ProviderAttribution).
  */
 @Composable
 fun RecommendationRow(
     recommendation: Recommendation,
+    enrichment: PlaceEnrichment?,
     category: DiscoveryCategory,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -71,6 +75,7 @@ fun RecommendationRow(
         ) {
             PlaceImage(
                 category = category,
+                photoUrl = enrichment?.photo?.url,
                 radius = RowImageRadius,
                 iconSize = RowImageIconSize,
                 modifier = Modifier.size(width = RowImageWidth, height = RowImageHeight),
@@ -82,7 +87,7 @@ fun RecommendationRow(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                detailsLine(place)?.let { SupportingLine(it) }
+                DetailsLine(place, enrichment?.rating)
                 SupportingLine(stringResource(R.string.distance_km, kilometres(recommendation.distanceMeters)))
             }
             // Decorative, as on the canvas.
@@ -96,12 +101,30 @@ fun RecommendationRow(
 }
 
 /**
- * As on the canvas ("4.6 ★ (342) · Café · Parking"): the rating, only when the provider gives one; the kind of place;
- * up to three attributes. Null when there is none of them.
+ * As on the canvas ("4.6 ★ (342) · Café · Parking"): the rating; the kind of place; up to three attributes. A
+ * Tripadvisor rating leads as Tripadvisor draws it; otherwise the place's own rating, if it has one, is text.
  */
 @Composable
-private fun detailsLine(place: PlaceSummary): String? {
-    val rating = place.rating?.let { rating ->
+private fun DetailsLine(place: PlaceSummary, providerRating: ProviderRating?) {
+    val rest = detailsText(place, withRating = providerRating == null)
+    if (providerRating == null) {
+        rest?.let { SupportingLine(it) }
+        return
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RatingChipGap)) {
+        TripadvisorRating(
+            rating = providerRating,
+            count = providerRating.count?.let { stringResource(R.string.review_count, it) },
+            countStyle = MaterialTheme.typography.titleMedium,
+        )
+        rest?.let { SupportingLine("${SEPARATOR.trim()} $it") }
+    }
+}
+
+/** The text part of [DetailsLine]: the place's rating when [withRating], its kind and attributes; null when empty. */
+@Composable
+private fun detailsText(place: PlaceSummary, withRating: Boolean): String? {
+    val rating = place.rating?.takeIf { withRating }?.let { rating ->
         place.ratingCount?.let { stringResource(R.string.rating_with_count, rating, it) }
             ?: stringResource(R.string.rating, rating)
     }

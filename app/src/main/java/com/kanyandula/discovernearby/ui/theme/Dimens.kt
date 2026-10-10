@@ -31,6 +31,14 @@ val RowImageHeight = 100.dp
 val RowImageRadius = 10.dp
 val RowImageIconSize = 44.dp
 
+// Tripadvisor's rating (DN-UX-004): its display rules want the Ollie mark at least 20 px high, beside the bubbles,
+// on white on a dark background.
+val RatingMarkHeight = 20.dp
+val RatingChipPaddingHorizontal = 10.dp
+val RatingChipPaddingVertical = 4.dp
+val RatingChipGap = 6.dp
+val PhotoCreditGap = 8.dp
+
 // Place Details artboards.
 val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details); it spans the action column
 val DetailsImageRadius = 16.dp

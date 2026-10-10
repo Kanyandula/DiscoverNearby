@@ -35,10 +35,7 @@ internal data class OverallRating(
 internal data class PhotosResponse(val data: List<PhotoItem> = emptyList())
 
 @Serializable
-internal data class PhotoItem(val photo: Photo? = null, val user: PhotoUser? = null)
+internal data class PhotoItem(val photo: Photo? = null)
 
 @Serializable
 internal data class Photo(@SerialName("original_size_url") val url: String? = null)
-
-@Serializable
-internal data class PhotoUser(val username: String? = null)

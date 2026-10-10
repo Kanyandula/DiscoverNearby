@@ -70,6 +70,7 @@ fun RecommendationsScreen(
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
                         RecommendationRow(
                             recommendation,
+                            enrichment = state.enrichments[recommendation.place.id],
                             category = category,
                             onClick = {
                                 returnFocus.selected(recommendation.place.id)

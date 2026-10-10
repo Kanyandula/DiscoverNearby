@@ -55,7 +55,7 @@ class TripadvisorEnricherTest {
         assertEquals(
             PlaceEnrichment(
                 source = "Tripadvisor",
-                photo = PlacePhoto("https://example.test/photo-22.jpg", credit = "traveller"),
+                photo = PlacePhoto("https://example.test/photo-22.jpg"),
                 rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.svg"),
             ),
             enrichment,

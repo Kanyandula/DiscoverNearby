@@ -13,9 +13,9 @@ data class PlaceEnrichment(
     val rating: ProviderRating? = null,
 )
 
-/** A photo to show as is; [credit] names who took it, when the provider says. */
+/** A photo to show as is, credited to the enrichment's source (Tripadvisor masks who took it). */
 @Serializable
-data class PlacePhoto(val url: String, val credit: String? = null)
+data class PlacePhoto(val url: String)
 
 /** The provider's own rating: its [iconUrl] is the provider's rating graphic, which its display rules require. */
 @Serializable

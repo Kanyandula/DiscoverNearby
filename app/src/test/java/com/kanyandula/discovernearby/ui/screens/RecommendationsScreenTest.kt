@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.kanyandula.discovernearby.discovery.DiscoverError
@@ -20,7 +21,9 @@ import com.kanyandula.discovernearby.model.AttributeType.DRIVE_THROUGH
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.AttributeType.TOILETS
 import com.kanyandula.discovernearby.model.PlaceAttribute
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.hereNotice
@@ -114,6 +117,18 @@ class RecommendationsScreenTest {
         rule.onNodeWithText("Café").assertIsDisplayed() // the kind alone, with no rating
         rule.onNodeWithText("0.4 km").assertIsDisplayed()
         rule.onAllNodesWithText("★", substring = true).assertCountEquals(2) // nothing blank on the bare row
+    }
+
+    // DN-UX-004: Tripadvisor's rating as Tripadvisor draws it (its graphic, then the count), then the kind.
+    @Test
+    fun aTripadvisorRatingLeadsTheRow() {
+        val place = testPlace("Harbour Roasters", "cafe")
+        val enrichment = PlaceEnrichment("Tripadvisor", rating = ProviderRating(4.5, 312, "https://example.test/b.png"))
+        state = Content(requestId = 1, recommendations = listOf(row(place, 2_100)), mapOf(place.id to enrichment))
+        rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists() // its graphic, drawn on load
+        rule.onNodeWithText("(312)").assertIsDisplayed()
+        rule.onNodeWithText("· Café").assertIsDisplayed()
+        rule.onAllNodesWithText("★", substring = true).assertCountEquals(0) // no text rating beside Tripadvisor's
     }
 
     @Test

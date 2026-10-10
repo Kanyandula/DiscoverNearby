@@ -75,6 +75,10 @@
         <item quantity="one">(%d review)</item>
         <item quantity="other">(%d reviews)</item>
     </plurals>
+    <!-- Tripadvisor's photos and ratings (DN-UX-004, ADR-003). -->
+    <string name="tripadvisor_rating">Tripadvisor rating %1$.1f of 5</string>
+    <string name="review_count">(%1$d)</string>
+    <string name="photo_source">Photo: %1$s</string>
     <string name="open_now">Open now</string>
     <string name="closed_now">Closed now</string>
     <string name="amenities">Amenities</string>
