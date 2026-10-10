@@ -13,7 +13,7 @@
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. The app now owns layout, focus and driving-restriction handling, which the template host used to provide. Product scope, the provider spike and the relevance benchmark are unchanged.
 
-> **Current target (2026-10-06):** This iteration is a sideloaded debug POC on the `AAOS_AOSP_33_userdebug` emulator. Production distribution is undecided and outside this POC; Product must choose a supported route before production planning. An OEM-preinstall route requires OEM confirmation. The UI-stack decision in ADR-002 applies to the POC and does not settle the production route. No install or demo in a physical vehicle until HERE confirms in-vehicle rights (ADR-001). Current status: docs/05 §9.
+> **Current target:** This iteration is a sideloaded debug POC on the `AAOS_AOSP_33_userdebug` emulator. Production distribution is undecided and outside this POC; Product must choose a supported route before production planning. An OEM-preinstall route requires OEM confirmation. The UI-stack decision in ADR-002 applies to the POC and does not settle the production route. Current status: docs/05 §9.
 
 ---
 

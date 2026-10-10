@@ -7,7 +7,7 @@
 **Owners:** Product Lead + Android/Tech Lead  
 **Last Updated:** 2026-10-10
 
-> **Current status (2026-10-10):** the verification register (§9) is the single status source. In short: M0 exited under ADR-002's product waiver (V7 failed and is waived); M1 and M3 are done; M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10). HERE is provisionally selected (ADR-001); production licensing is parked. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator, not a physical vehicle; production distribution (V8) is undecided and outside this POC.
+> **Current status:** see the [verification register](#9-verification-register) (§9).
 >
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
@@ -337,10 +337,10 @@ flowchart TD
     uiwork --> v7[Clean re-test against the V7 gate — failed]
     v7 -->|failed| waiver[ADR-002 decided: Compose with a product waiver]
     waiver --> m0exit[M0 exit — under the waiver]
-    spike --> adr1[ADR-001: HERE, provisionally selected]
-    adr1 --> m1[M1 Live POI Discovery — done]
-    m1 --> m2[M2 Categories, ranking, benchmark — open: DN-M2-004, then a re-run]
-    seam[Navigation seam and stub] --> m3[M3 Navigation Handoff — done]
+    spike --> adr1[ADR-001 provider decision]
+    adr1 --> m1[M1 Live POI Discovery]
+    m1 --> m2[M2 Categories, ranking, benchmark]
+    seam[Navigation seam and stub] --> m3[M3 Navigation Handoff]
     m2 --> m4[M4 Automotive Validation]
     m3 --> m4
     m0exit --> m4
@@ -348,23 +348,23 @@ flowchart TD
     go -->|optional after GO| m5[M5 Along Route]
 ```
 
-M0 exited under ADR-002's product waiver. M1 (live HERE data) and M3 (provider-independent) are done. M2 is open: DN-M2-004, then another re-run, which the Product Lead judges. M4 validates the complete core flow once M2 exits.
+M3 is provider-independent. M4 validates the complete core flow after the provider, ranking, navigation and M0 gates are satisfied. Current milestone status is in §9.
 
 ---
 
 ## 9. Verification Register
 
-**Current milestone gates (2026-10-10; this register is the single status source):** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. M1 and M3 are done. M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10; benchmark records in `docs/benchmarks/`). V4: HERE provisionally selected; production licensing parked (ADR-001). V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates (2026-10-10):** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. M1 and M3 are done. M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10; benchmark records in `docs/benchmarks/`). V4: HERE provisionally selected; production licensing parked (ADR-001). V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
 | ID | Decision / item | Status | Owner | Blocks |
 | --- | --- | --- | --- | --- |
-| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; M1 done on it. Production licensing parked: Product picks the route (V8), HERE confirms in-vehicle rights in writing, then Legal reviews ([ADR-001](adr/0001-poi-provider.md#production-licensing)). No install or demo in a physical vehicle until then. | Product/Legal/Business owner (licence); Tech Lead (technical) | Production; any install or demo in a physical vehicle |
+| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; M1 done on it. Production licensing parked ([ADR-001](adr/0001-poi-provider.md#production-licensing)). | Product/Legal/Business owner (licence); Tech Lead (technical) | Production; any install or demo in a physical vehicle |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
-| V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
-| V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |
-| V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. Until then: dev-only key (§2a). | Tech Lead | M1 integration |
+| V6a | Provider attribution requirements | 🟡 Captured by ADR-001; "© {year} HERE" shipped in M1. HERE confirms placement without a map before production. | Tech Lead | Production |
+| V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. The POC persists nothing (§2a). | Tech Lead | Nothing |
+| V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. The POC uses a dev-only key (§2a); production chooses a proxy or OAuth (ADR-001 V6c). | Tech Lead | Production |
 | V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Failed (clean re-test, 2026-10-06); waived by Product for this iteration** ([ADR-002](adr/0002-ui-stack-after-v7.md#decision)): the focus jump after Back to Discover is a known limitation of the emulator POC; the record stays failed. After one bounded Compose fix (DN-M0-011: a focus ring on every actionable control; rotary focus returned to the selected item after Back), four behavioural runs (3 parked, 1 in Drive; adb-injected, no `uiautomator`): Navigate reached and activated 4/4; visible focus on every control; Back to Details and to Recommendations without a lost turn 4/4, fixing E1's lost turn. Back to Discover failed in 1 of 4 runs: the ring was restored on Family, but Compose reported only the host to the rotary service, so the next turn jumped to Coffee. The rule fixed before the run needs all four runs to pass. The `uiautomator` control is reported separately; the manual Extended Controls run is pending and recorded separately. Details: [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06). Earlier E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time polling but did not prove the underlying cause. | Product Lead (waiver) | M0 exit (waived, 2026-10-06); GO ("AAOS flow works") |
 | V8 | Production distribution path. **Constraint confirmed (2026-10-02):** Play permits `distractionOptimized` only on the Car App Library's `CarAppActivity`; a Compose POI UI therefore needs a compatible template UI for Play or a supported alternate route such as OEM preinstall ([AAOS guide](https://developer.android.com/training/cars/platforms/automotive-os)). | 🟡 Constraint captured; production route undecided and outside this POC. Product must choose before production planning; OEM preinstall needs OEM confirmation. Not blocking POC work. | Product Lead | Production planning |
 | V1 | `minCarApiLevel = 4` supports AAOS | 🟢 Closed for the current Compose baseline (Rev 4; no Car App API level required). Reopens only if ADR-002 reopens and chooses Car App Library templates. | — | Revisit if ADR-002 reopens |

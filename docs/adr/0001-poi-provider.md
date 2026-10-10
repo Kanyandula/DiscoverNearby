@@ -1,9 +1,9 @@
 # ADR-001: POI Provider
 
-**Status:** Provisionally selected, pending licensing confirmation (2026-10-07), from the live matrix; production licensing parked (see [Production licensing](#production-licensing))  
+**Status:** Provisionally selected, pending licensing confirmation (2026-10-07), from the live matrix; see [Production licensing](#production-licensing)  
 *(Outcome at end of the 3-day spike, exactly one of: **Selected** · **Provisionally selected, pending licensing confirmation** · **No viable provider**)*  
 **Date:** 2026-10-05 (documentation phase); 2026-10-07 (live matrix and outcome); 2026-10-10 (production licensing route)  
-**Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; product evaluation owner: the Product Lead, 2026-10-06; Legal sign-off on terms separate)
+**Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; product evaluation owner: the Product Lead, 2026-10-06; Legal reviews HERE's confirmation, see [Production licensing](#production-licensing))
 
 ---
 
@@ -35,20 +35,20 @@ production, by the route in [Production licensing](#production-licensing).
 Parked while the POC is under way (2026-10-10). HERE's Platform Terms let developers integrate its APIs into
 applications, but §6.3(a) needs the subscription plan or a separate agreement with HERE before HERE Materials are
 integrated into a vehicle system or its display; the phone-projection exception does not appear to cover a native
-AAOS app [H1]. In-car use of HERE is normally licensed through such an agreement, with HERE or through the car maker,
-so this is a commercial step, not a reason to doubt the provider. The reading above is for planning, not a legal
+AAOS app [H1]. In-vehicle use is licensed through such an agreement, with HERE or through the OEM (general practice,
+not from the sources here), so this is a commercial step, not a reason to doubt the provider. The reading above is for planning, not a legal
 answer.
 
-- **Now (POC):** development and demos on the AAOS emulator under HERE's Base Plan. No install or demonstration in a
-  physical vehicle, and no distribution, until HERE confirms in-vehicle rights in writing.
+- **Now (POC):** development and demos on the AAOS emulator with the POC's HERE account. No install or demonstration
+  in a physical vehicle, and no distribution, until HERE confirms in-vehicle rights in writing.
 - **Before production, in order:**
   1. Product picks the distribution route (docs/05 V8: our own distribution or an OEM preinstall).
   2. HERE confirms in writing that route, native AAOS use, the plan and its fees, and the attribution for an app
      without a map ([V6a](#v6a--attribution)).
   3. Legal reviews that confirmation against §6.3(a), §6.4, the Acceptable Use Policy and the Supplier Terms [H1].
-- **Out of scope:** the Base Plan excludes asset management (locating or tracking people or vehicles, route
-  calculation), telematics and route optimisation [H11]. The app takes one location fix per search and hands
-  navigation off with a `geo:` intent.
+- **Out of scope:** what HERE's Base Plan excludes [H11]: tracking people or vehicles (asset management),
+  telematics and route optimisation. The app tracks nothing and calculates no routes: one location fix per search,
+  and navigation handed off with a `geo:` intent.
 
 ## One-sheet comparison
 
@@ -351,10 +351,10 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 - Some results are miscategorised businesses (for example, roofing contractors and a restaurant under Scenic Point).
 - The nearest Scenic result from Greystones is 11.9 km away.
 - No rating, parking or toilet data in `/browse` responses, and no photos without the restricted Tripadvisor
-  enrichment [H4]; the mockups' photos, ratings and parking can't be filled from HERE (`docs/design/README.md`).
+  enrichment [H4] (effect on the mockups: `docs/design/README.md`).
 - Latency (116–304 ms) was measured from a development Mac on a home connection, not in the vehicle.
-- The POC runs on HERE's Base Plan [H11]; production pricing comes with the licensing route
-  ([Production licensing](#production-licensing)).
+- Production pricing comes with the licensing route ([Production licensing](#production-licensing)); [H7] predates
+  the POC's account.
 - **HERE data quality (DN-M2-003 investigation, 2026-10-07).** These are provider data limitations; the app has no
   field to detect them:
   - Some records carry a wrong position that agrees with their own address and access point: a Scenic Point about
@@ -379,5 +379,5 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 | Question | Name | Result | Date |
 | --- | --- | --- | --- |
 | Data good enough (Product) | Product Lead | Yes for HERE (Coffee, Family and Scenic overall); No for TomTom and Geoapify | 2026-10-07 |
-| Licence suitable for embedded automotive use (Product/Legal/Business) | Legal | Pending, parked until the production route ([Production licensing](#production-licensing)); risk accepted by the Product Lead for the emulator POC | — |
+| Licence suitable for embedded automotive use (Product/Legal/Business) | Legal | Parked until the production route ([Production licensing](#production-licensing)); risk accepted by the Product Lead for the emulator POC | — |
 | API technically workable (Tech Lead) | Tech Lead | Yes, with the limits listed (no ratings, parking or toilets; key in the APK) | 2026-10-07 |

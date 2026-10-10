@@ -1,23 +1,16 @@
 # Discover Nearby — AAOS POC Documentation Pack
 
-**Baseline revision:** 4.1 (2026-10-02) · **Current status checked:** 2026-10-10
+**Baseline revision:** 4.1 (2026-10-02)
 
 This folder contains the product and engineering documentation for the Discover Nearby Android Automotive OS proof of concept.
 
 The pack is deliberately scoped for an **emulator-first proof of concept**, not a production AAOS release.
 
-## Current Status (2026-10-10)
+## Current Status
 
-The [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) (docs/05 §9) is the single
-status source; the ADRs hold the decisions. In short:
-
-- **POC target:** a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator, not a physical vehicle.
-- **Milestones:** M0 exited under ADR-002's product waiver (Compose kept; V7 failed and is waived). M1 and M3 are
-  done. M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10); see `benchmarks/`.
-- **Provider:** HERE, provisionally selected (ADR-001). Production licensing is parked; its route is in
-  [ADR-001](adr/0001-poi-provider.md#production-licensing).
-- **Production distribution (V8):** undecided and outside this POC; Product chooses a route before production
-  planning.
+Current status is in the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register), the
+single status source. Decisions are in the ADRs: ADR-001 (the provider and
+[production licensing](adr/0001-poi-provider.md#production-licensing)) and ADR-002 (the UI stack).
 
 Older implementation plans and revision summaries record what was true when those tasks ran; they are historical
 evidence, not current status.
@@ -99,8 +92,6 @@ At the time Revision 4 was adopted, V4 was the only decision identified as block
 ---
 
 ## Revision 3 Change Summary
-
-*History: what Revision 3 changed. For current status, see docs/05 §9.*
 
 Revision 3 resolves the planning blockers left after Revision 2. **Only live-provider integration (M1) waits for the provider decision. Everything else starts now.**
 

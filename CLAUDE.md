@@ -42,7 +42,7 @@ in place (DN-M0-012, DN-M0-001).
 - **Rotary (DN-M0-011):** `focusRing` on every actionable control; `ReturnFocus` (after Back, rotary focus returns
   to the item selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's
   semantics snapshot); `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for
-  the emulator POC, with a product waiver**.
+  the emulator POC, with a product waiver**; the V7 re-test record is `docs/adr/0002/v7-retest-2026-10-06/`.
 - **Stub navigation app (DN-M0-008):** module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
   (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
 - **Smoke baseline (DN-M0-007):** reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it
@@ -57,9 +57,9 @@ in place (DN-M0-012, DN-M0-001).
     tests always get the fakes.
   - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
-    for HERE data only (`PlaceSummary.attribution`). HERE confirms placement without a map before production.
-  - **Not from HERE:** photos, ratings, review counts and amenities such as parking. The mockups' versions wait for
-    a Product decision (`docs/design/README.md`).
+    for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
+  - **Not from HERE:** see ADR-001's field availability; the mockups' photos, ratings and amenities wait for a
+    Product decision (`docs/design/README.md`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
@@ -68,18 +68,13 @@ in place (DN-M0-012, DN-M0-001).
 - **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
   cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
   Place names stay in the private vault. DN-M2-003's daytime re-run (`docs/benchmarks/2026-10-10-m2-rerun.md`, 10
-  cells): 1 fails (Galway Scenic, a known HERE position error); both Family cells pass with caveats. M2 stays open
-  for DN-M2-004 and another re-run (Product Lead, 2026-10-10).
+  cells): 1 fails (Galway Scenic, a known HERE position error); both Family cells pass with caveats.
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-V7 failed its clean re-test (2026-10-06) and is waived for this iteration (ADR-002): the focus jump after Back
-to Discover is a known limitation. Further rotary changes need a new Product decision. Record:
-`docs/adr/0002/v7-retest-2026-10-06/`.
-
 Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit)
-and a UI-gap pass against `docs/design/`; the user sets their order. Parked until production: HERE in-vehicle
-licensing (ADR-001) and the distribution route (V8). DN-TD-002 (Gradle/CI tuning) is P3.
+and a UI-gap pass against `docs/design/` (not ticketed yet; order to be decided).
+DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).

@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status:** the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) (docs/05 §9) is the single status source. The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`, not a physical vehicle. Rotary: V7 failed and is waived for this iteration ([ADR-002](adr/0002-ui-stack-after-v7.md)).
+> **Current status:** see the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register).
 
 ---
 
@@ -585,9 +585,8 @@ Product Lead decisions (2026-10-07):
   (amusement park, aquarium, water park, children's museum). An amusement park weighs 20, since HERE files
   non-family businesses under it; the others weigh 30. The open-now bonus is 2, so it breaks near-ties without
   outweighing a few kilometres.
-- **With HERE (ADR-001):** `/browse` has no rating or amenities, so `qualitySignal` and `amenitySignal` are always
-  0. A HERE place scores on category match, nearness and open now; the rating and amenity weights apply only to
-  the fakes.
+- **With HERE (ADR-001):** `/browse` has no rating or amenities, so `qualitySignal` and `amenitySignal` are 0 and a
+  HERE place scores on category match, nearness and open now. Only the fakes exercise those weights.
 
 Rating aggregation (for example, Bayesian averaging of rating and count) is **not** a POC requirement. Investigate it only if the provider ADR shows that ratings and counts exist with useful coverage.
 
