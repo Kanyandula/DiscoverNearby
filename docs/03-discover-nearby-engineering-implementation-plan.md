@@ -594,6 +594,8 @@ Rating aggregation (for example, Bayesian averaging of rating and count) is **no
 
 Every place that passes the score floor and diversity rule, in ranked order. The engine is pure Kotlin and has no display limit; the ViewModel shows the first `min(5, uxLimit)` (§6). Fewer if fewer pass the score floor. Never padded.
 
+**Enrichment after ranking (DN-UX-004, ADR-003):** the ViewModel then asks a `PlaceEnricher` (`places/`) for each of the top rows, one at a time, in order, and shows each answer as it arrives. With live HERE data that is `places/tripadvisor/TripadvisorEnricher` (a photo and Tripadvisor's rating); the fakes get none. It runs in the request's coroutine, so a retry or Back cancels it. Ranking never sees it, and nothing it returns is stored.
+
 ---
 
 ## 11. Navigation Handoff
