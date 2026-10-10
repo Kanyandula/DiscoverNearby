@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Primary Test Environment:** Android Automotive OS Emulator  
 **Owner:** Product  
-**Last Updated:** 2026-10-06
+**Last Updated:** 2026-10-10
 
 > **Revision 2:** The POI/routing provider is now unselected and chosen through a licensing spike. Recommendation quality is validated with a small relevance benchmark. The result count is "up to 3–5" and never padded. Attributes carry provenance. A location-permission state is added. Generic voice discovery and maps are deferred. See `README.md` for the full change summary.
 >
@@ -13,7 +13,7 @@
 >
 > **Revision 4:** The UI is built in Kotlin + Jetpack Compose as a distraction-optimized AAOS activity, replacing Car App Library templates. The app now owns layout, focus and driving-restriction handling, which the template host used to provide. Product scope, the provider spike and the relevance benchmark are unchanged.
 
-> **Current target (2026-10-06):** This iteration is a sideloaded debug POC on the `AAOS_AOSP_33_userdebug` emulator. Production distribution is undecided and outside this POC; Product must choose a supported route before production planning. An OEM-preinstall route requires OEM confirmation. The UI-stack decision in ADR-002 applies to the POC and does not settle the production route.
+> **Current target:** This iteration is a sideloaded debug POC on the `AAOS_AOSP_33_userdebug` emulator. Production distribution is undecided and outside this POC; Product must choose a supported route before production planning. An OEM-preinstall route requires OEM confirmation. The UI-stack decision in ADR-002 applies to the POC and does not settle the production route. Current status: docs/05 §9.
 
 ---
 

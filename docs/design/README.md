@@ -2,7 +2,9 @@
 
 PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exported 2026-10-02. Screens are 1408 × 792.
 
-**How to read these (Revision 4):** the app draws its own UI in Jetpack Compose, so these mockups are the visual spec: layout, hierarchy, copy, states, icons and colours. System chrome still comes from the vehicle. The template names below and in artboard titles date from Revision 3; read them as layout patterns. Photos and attribution are placeholders until ADR-001.
+**How to read these (Revision 4):** the app draws its own UI in Jetpack Compose, so these mockups are the visual spec: layout, hierarchy, copy, states, icons and colours. System chrome still comes from the vehicle. The template names below and in artboard titles date from Revision 3; read them as layout patterns.
+
+**With HERE data (ADR-001):** the attribution is "© {year} HERE" under the list and on Place Details. HERE supplies no photos, ratings, review counts or amenities such as parking, so those parts of `02` and `03` stay empty until Product decides; rows and details render cleanly without them (UX spec §6, §7). The kind of place (for example, "Café") and open now are available.
 
 | File | Screen | Layout pattern (Rev 3 template name) |
 | --- | --- | --- |

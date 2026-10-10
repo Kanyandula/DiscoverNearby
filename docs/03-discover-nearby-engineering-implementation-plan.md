@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owner:** Engineering  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-06
+**Last Updated:** 2026-10-10
 
 > **Revision 2:** The plan no longer assumes a provider; a provider spike and ADR now come before live POI integration. It names the templates and documents the template-step budget, and makes navigation handoff explicit via `ACTION_NAVIGATE`, verified with a stub navigation app. It adds a permission flow, timeout, stale-request protection, attribute provenance and the `PlaceSummary` / `PlaceDetails` split. Ranking now works with whatever data the provider has, and `RouteRepository` is deferred to M5.
 >
@@ -15,7 +15,7 @@
 >
 > **Revision 4.1:** "Parked" in the engineering sense now means *the UX restrictions don't require distraction optimization* (`DrivingState.distractionOptimizationRequired == false`). The app reads UX restrictions, not the gear; AOSP advises against inferring driving state from them ([AOSP](https://source.android.com/docs/automotive/driver_distraction/consume)). V8 is confirmed from the AAOS developer guide.
 
-> **Current status (2026-10-06):** The POC target is a sideloaded debug build on `AAOS_AOSP_33_userdebug`; production distribution remains undecided and outside this POC. V7 failed its clean re-test after the one bounded Compose fix; ADR-002 keeps Compose for the emulator POC with a product waiver (the focus jump after Back to Discover is a known limitation), and M0 exits under it. The [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md) records the attempt, while the [re-test record](adr/0002/v7-retest-2026-10-06/results.md), [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and [ADR-002](adr/0002-ui-stack-after-v7.md) give the current outcome and gate.
+> **Current status:** see the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register).
 
 ---
 
@@ -585,6 +585,8 @@ Product Lead decisions (2026-10-07):
   (amusement park, aquarium, water park, children's museum). An amusement park weighs 20, since HERE files
   non-family businesses under it; the others weigh 30. The open-now bonus is 2, so it breaks near-ties without
   outweighing a few kilometres.
+- **With HERE (ADR-001):** `/browse` has no rating or amenities, so `qualitySignal` and `amenitySignal` are 0 and a
+  HERE place scores on category match, nearness and open now. Only the fakes exercise those weights.
 
 Rating aggregation (for example, Bayesian averaging of rating and count) is **not** a POC requirement. Investigate it only if the provider ADR shows that ratings and counts exist with useful coverage.
 

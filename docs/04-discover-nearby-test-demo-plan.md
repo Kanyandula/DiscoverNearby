@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owners:** Engineering + Product  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-06
+**Last Updated:** 2026-10-10
 
 > **Revision 2:** This revision defines a reproducible emulator configuration and verifies navigation handoff with a stub navigation app. It adds a relevance benchmark, plus permission, timeout, stale-response, sparse-data, details-failure and deepest-path scenarios. Performance is now recorded as observations rather than used as a gate.
 >
@@ -171,6 +171,8 @@ Proves recommendations are **useful**, not just returned.
 
 Run it at M2 and again before the demo. **Product owns the judgement**: engineering produces and records the recommendations, and the Product Lead marks each result ACCEPT or REJECT. Product's sign-off is the M2 exit condition.
 
+Capture every cell on the reference emulator (§2) in Park, with the live provider key, in daytime (11:00–17:00 local). An evening run drops places that are closed at that hour in the time-sensitive categories.
+
 Recording format, per cell:
 
 ```text
@@ -258,7 +260,7 @@ Without touch: navigate the categories → select → navigate the recommendatio
 
 **Expected:** the journey completes with rotary only. Verify the app's focus handling against the V7 gate (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Record where focus lands after Back; it is not gated. Controller rotation only; nudging is not a POC requirement.
 
-Current V7 status and gate: docs/05 §9 and ADR-002. The 2026-10-06 adb-driven re-test after the bounded Compose fix **failed**: in one of four runs, after Back to Discover, the rotary service stayed on the host and the next turn jumped to the first tile. V7 stays recorded as failed; Product waived that focus jump for this iteration (ADR-002). Record the hand-driven Extended Controls journey separately, as supplementary evidence; it remains pending and does not replace or overwrite that result. The bounded-fix plan and detailed re-test evidence are linked from ADR-002. Keep `uiautomator` out of behavioural rotary runs; intentional controls are reported separately. E1's pre-registered classification was inconclusive, though its run pattern strongly implicates launch-time polling.
+Current V7 status and gate: docs/05 §9 and ADR-002. Record the hand-driven Extended Controls journey separately, as supplementary evidence; it does not replace or overwrite the re-test result. Keep `uiautomator` out of behavioural rotary runs; intentional controls are reported separately.
 
 ### G — Touch Interaction
 
@@ -544,7 +546,7 @@ These run as local tests with no emulator, using NyasaPlayer's setup (delivery p
 
 ## 12. Demo Recording Script
 
-One continuous flow on the recorded emulator configuration:
+One continuous flow on the recorded emulator configuration. The demo stays on the emulator (ADR-001, Production licensing).
 
 1. Show the AAOS emulator (Park).
 2. Launch Discover Nearby.
@@ -565,7 +567,7 @@ One continuous flow on the recorded emulator configuration:
 - native AAOS execution (a distraction-optimized Compose app)
 - intent-based discovery
 - real location context
-- real data from a provider licensed for in-vehicle use
+- real data from HERE (provisionally selected, ADR-001)
 - useful recommendations (relevance benchmark)
 - driver-oriented interaction
 - rotary support

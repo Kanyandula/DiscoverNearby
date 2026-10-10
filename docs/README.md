@@ -1,35 +1,19 @@
 # Discover Nearby — AAOS POC Documentation Pack
 
-**Baseline revision:** 4.1 (2026-10-02) · **Current status checked:** 2026-10-06
+**Baseline revision:** 4.1 (2026-10-02)
 
 This folder contains the product and engineering documentation for the Discover Nearby Android Automotive OS proof of concept.
 
 The pack is deliberately scoped for an **emulator-first proof of concept**, not a production AAOS release.
 
-## Current Status (2026-10-06)
+## Current Status
 
-- **POC target:** a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator.
-- **Production distribution:** undecided and outside this POC. Product must choose a supported route before
-  production planning; any OEM-preinstall route needs OEM confirmation.
-- **UI stack:** ADR-002 (Product Lead, 2026-10-06, after the V7 re-test) keeps **Compose for the emulator POC,
-  with a product waiver**. Production distribution and OEM validation stay open.
-- **V7 (after the re-test, 2026-10-06):** **failed under its original criteria, and waived by Product for this
-  iteration**; M0 exits under the waiver. The one bounded Compose fix removed the
-  lost turn after Back to Recommendations and made focus visible on every control. But in one of four clean runs,
-  Back to Discover left the rotary service on the host, so the next turn jumped to Coffee. See
-  [ADR-002](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06).
-- **Before the V7 re-test (historical):** Product allowed one bounded Compose fix after E1. E1's pre-registered
-  classification was inconclusive, though its pattern strongly implicated launch-time `uiautomator` polling
-  (no-poll 20/20; launch-poll failures 14/19; mid-journey dump 9/9). It did not establish the cause or pass V7.
-  The bounded fix and clean re-test are complete; the re-test failed, as recorded above. See the
-  [implementation plan](superpowers/plans/2026-10-06-dn-m0-011-bounded-v7-fix.md),
-  [verification register](05-discover-nearby-delivery-plan.md#9-verification-register) and
-  [ADR-002](adr/0002-ui-stack-after-v7.md).
-- **Current gates:** M0 has exited under the waiver (V7 failed and waived). V4: HERE is provisionally selected
-  (ADR-001, 2026-10-07), with Legal sign-off on provider terms pending before production; M1 can start. V8 does not block the POC.
+Current status is in the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register), the
+single status source. Decisions are in the ADRs: ADR-001 (the provider and
+[production licensing](adr/0001-poi-provider.md#production-licensing)) and ADR-002 (the UI stack).
 
-The verification register and ADRs are the status sources. Older implementation plans and revision summaries
-record what was true when those tasks ran; they are historical evidence, not current status.
+Older implementation plans and revision summaries record what was true when those tasks ran; they are historical
+evidence, not current status.
 
 ## Documents
 
@@ -48,7 +32,7 @@ record what was true when those tasks ran; they are historical evidence, not cur
 5. **05-discover-nearby-delivery-plan.md**  
    Kickoff decisions, build baseline, test baseline, provider spike bounds, ownership, go/iterate/stop, timeline and the verification register.
 
-6. **adr/0001-poi-provider.md** — ADR-001 provider comparison and open licensing gate.
+6. **adr/0001-poi-provider.md** — ADR-001: provider comparison, the HERE decision and the production licensing route.
 
 7. **adr/0002-ui-stack-after-v7.md** and **adr/0002/** — ADR-002 and its rotary evidence, screenshots, run record, and retained harness scripts.
 

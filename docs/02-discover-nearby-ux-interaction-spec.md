@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owners:** Product + Design  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-02
+**Last Updated:** 2026-10-10
 
 > **Revision 2:** This revision names the template for each screen. It adds a Permission Required state and a Timeout state, and makes Loading/Error states of the same screen rather than new screens. The result count is now "up to 3–5", with no padding. Distance replaces travel time until the latter is calculated. Attributes are shown only when provided or derived. Outdoors and Scenic are now distinct categories, the second screen is consistently called "Recommendations", and maps are deferred.
 >
@@ -557,7 +557,8 @@ Provider attribution
 
 **HERE (ADR-001 V6a; DN-M1-003):** "© {current year} HERE", a muted line under the Recommendations list and at the
 bottom left of Place Details. It appears only when the data is HERE's; the fakes show none. HERE's guidance ties
-placement to a map or an "About HERE" settings section. Placement in an app without a map is pending Legal.
+placement to a map or an "About HERE" settings section. HERE confirms placement in an app without a map before
+production (ADR-001, Production licensing).
 
 ---
 
