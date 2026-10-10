@@ -13,8 +13,10 @@ import com.kanyandula.discovernearby.discovery.PROVIDER_TIMEOUT_MILLIS
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.location.LocationResult
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.places.NetworkUnavailable
+import com.kanyandula.discovernearby.places.PlaceEnricher
 import com.kanyandula.discovernearby.places.ProviderFailure
 import com.kanyandula.discovernearby.places.ScriptedPlaces
 import com.kanyandula.discovernearby.places.fake.SLOW_DELAY_MILLIS
@@ -52,10 +54,19 @@ class RecommendationsViewModelTest {
         cafes(count)
     }
 
+    private val enriched = mutableListOf<String>()
+
+    // Enriches every place but p1, in the order asked.
+    private val enricher = PlaceEnricher { place, _ ->
+        enriched += place.id
+        if (place.id == "p1") null else PlaceEnrichment(source = "Test")
+    }
+
     private fun newViewModel() = RecommendationsViewModel(
         category = COFFEE,
         discover = DiscoverUseCase(places, location, BasicRecommendationEngine()),
         drivingRestrictions = restrictions,
+        enricher = enricher,
     )
 
     /** [vm] with the UI collecting its state, after its first request ran as far as it can. */
@@ -87,6 +98,27 @@ class RecommendationsViewModelTest {
         val vm = collected()
         assertEquals(CategoryConfigs.getValue(COFFEE).desiredResults, vm.shown.size)
         assertEquals(listOf("p0", "p1", "p2", "p3", "p4"), vm.shown)
+    }
+
+    @Test
+    fun enrichesTheTopRowsInOrderAfterRanking() = runTest {
+        places.reply = { cafes(7) }
+        val vm = collected()
+        assertEquals(listOf("p0", "p1", "p2", "p3", "p4"), enriched) // the shown five, not all seven
+        assertEquals(setOf("p0", "p2", "p3", "p4"), (vm.uiState.value as Content).enrichments.keys)
+    }
+
+    @Test
+    fun aNewRequestDropsTheOldEnrichments() = runTest {
+        places.reply = { cafes(2) }
+        val vm = collected()
+        places.reply = slowCafes(2)
+        vm.retry()
+        runCurrent()
+        assertEquals(Loading, vm.uiState.value)
+        advanceTimeBy(1_001)
+        assertEquals(setOf("p0"), (vm.uiState.value as Content).enrichments.keys) // refilled, not carried over
+        assertEquals(listOf("p0", "p1", "p0", "p1"), enriched)
     }
 
     @Test
