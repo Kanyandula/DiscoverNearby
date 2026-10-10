@@ -32,7 +32,7 @@ val RowImageRadius = 10.dp
 val RowImageIconSize = 44.dp
 
 // Place Details artboards.
-val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details), the action column's width
+val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details); it spans the action column
 val DetailsImageRadius = 16.dp
 val DetailsImageIconSize = 96.dp
 val DetailsImageGap = 24.dp

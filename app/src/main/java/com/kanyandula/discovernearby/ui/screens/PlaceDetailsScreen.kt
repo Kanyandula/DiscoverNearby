@@ -96,7 +96,7 @@ fun PlaceDetailsScreen(
                     Facts(state.summary, distanceMeters, openingSummary)
                     if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
                     Spacer(Modifier.weight(1f))
-                    // Bottom left, level with Navigate: HERE's notice with HERE's data (ADR-001 V6a).
+                    // Bottom left: HERE's notice with HERE's data (ADR-001 V6a).
                     ProviderAttribution(state.summary.attribution)
                 }
                 Column(
