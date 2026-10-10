@@ -21,7 +21,8 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-// HERE's nearest 20 covered only about 200 m of a dense city centre (DN-M2-003); 100 is its maximum.
+// In a dense city centre HERE's nearest 20 sat within about 200 m, too few to survive the closed filter and the
+// per-kind caps (DN-M2-003); 100 is its maximum.
 private const val SEARCH_LIMIT = 50
 
 // The app's only UI language (strings.xml). Without it HERE answers in the place's own language, such as Irish.

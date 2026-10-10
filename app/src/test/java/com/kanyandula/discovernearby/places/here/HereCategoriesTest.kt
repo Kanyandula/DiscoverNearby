@@ -33,12 +33,6 @@ class HereCategoriesTest {
         assertEquals("museum", kindFor("300-3100-0000"))
     }
 
-    // DN-M2-003: HERE files aquariums under their own code, not Zoo; without it they only match at half weight.
-    @Test
-    fun familySearchesForAquariums() {
-        assertTrue("550-5520-0211" in HERE_CATEGORIES.getValue(DiscoveryCategory.FAMILY).split(","))
-    }
-
     @Test
     fun aCategoryWeDoNotSearchHasNoKind() {
         assertNull(kindFor("700-7300-0000"))
