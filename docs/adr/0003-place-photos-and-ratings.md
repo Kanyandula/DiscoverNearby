@@ -47,12 +47,16 @@ re-sorting of its results, and the call budget).
   match on the same words, on one added word (a town), or on nearly the same spelling; two added words is no match.
   The best match wins, the nearer on a tie.
 - **Failures** (no match, HTTP 429, network, timeout) leave the row as it was, with the category artwork; nothing is
-  retried. The nearby endpoint allows one call a second in bursts of five.
+  retried. Each call has its own 4 s timeout, so a slow photo keeps the rating. The nearby endpoint allows one call a
+  second in bursts of five. Names that differ in a number ("Studio 1", "Studio 2") never match.
+- **Photo size:** the image server's resizing (`?w=800&h=-1&s=1`): 800 px wide for the Details panel, which the row
+  reuses. An original can be 2,000 px wide and ten times the bytes.
 - **Nothing is stored.** Tripadvisor's caching policy allows only its location ID. The app keeps none, and images load
   through a memory-only cache (no disk cache).
 - **No calls in development or tests.** The fakes, CI and Robolectric get no enrichment.
 - **Display:** Tripadvisor's own rating graphic (its owl mark and bubbles, from the API) on a white chip with the review
-  count; "Photo: Tripadvisor" under the Place Details photo. The API masks who took a photo.
+  count; a rating without that graphic isn't shown. "Photo: Tripadvisor" under the Place Details photo; the API masks
+  who took a photo.
 
 Risk accepted by the Product Lead on 2026-10-10 for the emulator POC, as for HERE.
 
@@ -84,6 +88,9 @@ costs up to 10 calls (5 places × 2). Development and tests use the fakes; live 
 - HERE's position errors carry over: a place HERE puts in the wrong spot can still match Tripadvisor by name and show
   its photo at HERE's distance (ADR-001 Known limitations).
 - Tripadvisor's nearby search is not strict about category; the name match is what keeps the result right.
+- A row opened before its photo and rating arrive shows Place Details without them (Details makes no lookup of its
+  own, to save calls).
+- Entering the same category again looks the places up again (about 7 calls a list): nothing is kept.
 
 ## Evidence
 

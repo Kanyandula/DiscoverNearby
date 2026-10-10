@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoverError
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
@@ -51,7 +52,7 @@ fun RecommendationsScreen(
     state: RecommendationsUiState,
     onRetry: () -> Unit,
     onBack: () -> Unit,
-    onPlaceSelected: (Recommendation) -> Unit,
+    onPlaceSelected: (Recommendation, PlaceEnrichment?) -> Unit,
     onGrant: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -68,13 +69,14 @@ fun RecommendationsScreen(
             ) {
                 LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowGap)) {
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
+                        val enrichment = state.enrichments[recommendation.place.id]
                         RecommendationRow(
                             recommendation,
-                            enrichment = state.enrichments[recommendation.place.id],
+                            enrichment = enrichment,
                             category = category,
                             onClick = {
                                 returnFocus.selected(recommendation.place.id)
-                                onPlaceSelected(recommendation)
+                                onPlaceSelected(recommendation, enrichment)
                             },
                             modifier = returnFocus.item(recommendation.place.id),
                         )

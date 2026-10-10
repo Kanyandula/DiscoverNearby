@@ -4,7 +4,6 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory.COFFEE
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory.SCENIC
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.PlaceEnrichment
-import com.kanyandula.discovernearby.model.PlacePhoto
 import com.kanyandula.discovernearby.model.ProviderRating
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
@@ -24,7 +23,7 @@ private const val KEY = "TEST-KEY-not-real"
 private const val NEARBY = """{"data": [
   {"location": {"id": 11, "names": [{"value": "Harbour Lane Deli", "primary": true}]}},
   {"location": {"id": 22, "names": [{"value": "Harbour Coffee Seaview", "primary": true}],
-    "traveler_ratings": {"overall": {"rating": 4.5, "count": 312, "icon_url": "https://example.test/bubbles-4.5.svg"}}}}
+    "traveler_ratings": {"overall": {"rating": 4.5, "count": 312, "icon_url": "https://example.test/bubbles-4.5.png"}}}}
 ]}"""
 private const val PHOTOS = """{"data": [{"photo": {"original_size_url": "https://example.test/photo-22.jpg"},
   "user": {"username": "traveller"}}]}"""
@@ -54,9 +53,8 @@ class TripadvisorEnricherTest {
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertEquals(
             PlaceEnrichment(
-                source = "Tripadvisor",
-                photo = PlacePhoto("https://example.test/photo-22.jpg"),
-                rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.svg"),
+                photoUrl = "https://example.test/photo-22.jpg?w=800&h=-1&s=1", // resized by the image server
+                rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.png"),
             ),
             enrichment,
         )
@@ -104,8 +102,20 @@ class TripadvisorEnricherTest {
             if (request.url.encodedPath.endsWith("/photos")) reply(request, 500, "{}") else reply(request, 200, NEARBY)
         }
         val enrichment = enricher.enrich(cafe, COFFEE)
-        assertNull(enrichment?.photo)
+        assertNull(enrichment?.photoUrl)
         assertEquals(4.5, enrichment?.rating?.value)
+    }
+
+    // Tripadvisor's rules require its rating graphic, so a rating without one isn't shown; the photo still is.
+    @Test
+    fun aRatingWithoutItsGraphicIsDropped() = runBlocking {
+        respond = { request ->
+            val nearby = NEARBY.replace(""", "icon_url": "https://example.test/bubbles-4.5.png"""", "")
+            reply(request, 200, if (request.url.encodedPath.endsWith("/photos")) PHOTOS else nearby)
+        }
+        val enrichment = enricher.enrich(cafe, COFFEE)
+        assertNull(enrichment?.rating)
+        assertEquals("https://example.test/photo-22.jpg?w=800&h=-1&s=1", enrichment?.photoUrl)
     }
 
     @Test

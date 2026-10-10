@@ -7,7 +7,6 @@ import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceEnrichment
-import com.kanyandula.discovernearby.model.PlacePhoto
 import com.kanyandula.discovernearby.model.PlaceSummary
 import kotlinx.serialization.builtins.nullable
 import org.junit.Assert.assertEquals
@@ -33,8 +32,8 @@ class JsonNavTypeTest {
     // DN-UX-004: the row's Tripadvisor photo and rating ride to Details, and a row without them carries null.
     @Test
     fun aNullableEnrichmentSurvivesTheRouteAndSavedState() {
-        val enrichmentType = JsonNavType(PlaceEnrichment.serializer().nullable, isNullableAllowed = true)
-        val enrichment = PlaceEnrichment("Tripadvisor", PlacePhoto("https://example.test/p.jpg?w=1&h=2"))
+        val enrichmentType = JsonNavType(PlaceEnrichment.serializer().nullable)
+        val enrichment = PlaceEnrichment(photoUrl = "https://example.test/p.jpg?w=800&h=-1&s=1")
         assertEquals(enrichment, enrichmentType.parseValue(Uri.decode(enrichmentType.serializeAsValue(enrichment))))
         val bundle = Bundle()
         enrichmentType.put(bundle, "enrichment", null)

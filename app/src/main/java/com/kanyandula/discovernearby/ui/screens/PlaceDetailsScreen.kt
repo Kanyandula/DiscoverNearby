@@ -75,7 +75,7 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
  * Place Details (canvas Place Details artboards): what is known about the place, with Navigate always there and
  * never waiting on the optional details call (docs/02 §7). One layout serves every state but the hand-off failure
  * message, so nothing moves when details arrive. The right column is the place's image with Navigate under it
- * (03-place-details). [enrichment] is the row's Tripadvisor photo and rating (DN-UX-004), shown with its credit.
+ * (03-place-details). [enrichment] is the row's Tripadvisor photo and rating (DN-UX-004), the photo credited.
  */
 @Composable
 fun PlaceDetailsScreen(
@@ -112,12 +112,12 @@ fun PlaceDetailsScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                         PlaceImage(
                             category = category,
-                            photoUrl = enrichment?.photo?.url,
+                            photoUrl = enrichment?.photoUrl,
                             radius = DetailsImageRadius,
                             iconSize = DetailsImageIconSize,
                             modifier = Modifier.fillMaxWidth().height(DetailsImageHeight),
                         )
-                        if (enrichment?.photo != null) PhotoCredit(enrichment.source)
+                        if (enrichment?.photoUrl != null) PhotoCredit()
                     }
                     NavigateButton(onClick = onNavigate, modifier = Modifier.fillMaxWidth())
                 }
@@ -162,7 +162,6 @@ private fun Facts(place: PlaceSummary, distanceMeters: Int, openingSummary: Stri
                     TripadvisorRating(
                         rating = tripadvisor,
                         count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
-                        countStyle = MaterialTheme.typography.titleMedium,
                     )
                 }
             },
@@ -228,11 +227,11 @@ private fun Section(
     }
 }
 
-/** "Photo: Tripadvisor": whose content the photo is. */
+/** Whose content the photo is; Tripadvisor masks who took it. */
 @Composable
-private fun PhotoCredit(source: String) {
+private fun PhotoCredit() {
     Text(
-        text = stringResource(R.string.photo_source, source),
+        text = stringResource(R.string.photo_tripadvisor),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,

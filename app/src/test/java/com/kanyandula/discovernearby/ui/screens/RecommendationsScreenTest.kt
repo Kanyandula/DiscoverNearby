@@ -68,7 +68,7 @@ class RecommendationsScreenTest {
                     state = state,
                     onRetry = { retries++ },
                     onBack = { backs++ },
-                    onPlaceSelected = { selected = it },
+                    onPlaceSelected = { picked, _ -> selected = picked },
                     onGrant = { grants++ },
                     onOpenSettings = { settings++ },
                 )
@@ -123,7 +123,7 @@ class RecommendationsScreenTest {
     @Test
     fun aTripadvisorRatingLeadsTheRow() {
         val place = testPlace("Harbour Roasters", "cafe")
-        val enrichment = PlaceEnrichment("Tripadvisor", rating = ProviderRating(4.5, 312, "https://example.test/b.png"))
+        val enrichment = PlaceEnrichment(rating = ProviderRating(4.5, 312, "https://example.test/b.png"))
         state = Content(requestId = 1, recommendations = listOf(row(place, 2_100)), mapOf(place.id to enrichment))
         rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists() // its graphic, drawn on load
         rule.onNodeWithText("(312)").assertIsDisplayed()

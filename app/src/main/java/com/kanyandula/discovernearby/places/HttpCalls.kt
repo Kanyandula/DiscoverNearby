@@ -1,12 +1,19 @@
 package com.kanyandula.discovernearby.places
 
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+
+/** How the providers' JSON is read: unknown fields ignored, and an explicit null where a list is expected is empty. */
+internal val ProviderJson = Json {
+    ignoreUnknownKeys = true
+    coerceInputValues = true
+}
 
 /**
  * The body of a successful response, or null for an HTTP error. The body is read on OkHttp's thread, so the caller

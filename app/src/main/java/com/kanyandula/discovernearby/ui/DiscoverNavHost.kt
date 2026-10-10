@@ -26,7 +26,6 @@ import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
-import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState
 import com.kanyandula.discovernearby.ui.screens.RecommendationsViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.nullable
@@ -51,7 +50,7 @@ data class PlaceDetailsRoute(
 
 private val PlaceDetailsTypes = mapOf(
     typeOf<PlaceSummary>() to JsonNavType(PlaceSummary.serializer()),
-    typeOf<PlaceEnrichment?>() to JsonNavType(PlaceEnrichment.serializer().nullable, isNullableAllowed = true),
+    typeOf<PlaceEnrichment?>() to JsonNavType(PlaceEnrichment.serializer().nullable),
 )
 
 /**
@@ -94,9 +93,8 @@ fun DiscoverNavHost(
                 state = state,
                 onRetry = viewModel::retry,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
-                onPlaceSelected = { picked ->
+                onPlaceSelected = { picked, enrichment ->
                     if (navController.isTop(entry)) {
-                        val enrichment = (state as? RecommendationsUiState.Content)?.enrichments?.get(picked.place.id)
                         navController.navigate(
                             PlaceDetailsRoute(picked.place, picked.distanceMeters, category, enrichment),
                         )

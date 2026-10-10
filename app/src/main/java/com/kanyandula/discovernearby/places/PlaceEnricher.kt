@@ -11,6 +11,3 @@ import com.kanyandula.discovernearby.model.PlaceSummary
 fun interface PlaceEnricher {
     suspend fun enrich(place: PlaceSummary, category: DiscoveryCategory): PlaceEnrichment?
 }
-
-/** The fakes, CI and Robolectric: no second provider, no calls. */
-val NoEnrichment = PlaceEnricher { _, _ -> null }

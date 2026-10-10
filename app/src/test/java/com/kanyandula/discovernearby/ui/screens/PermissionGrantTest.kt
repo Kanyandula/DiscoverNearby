@@ -46,7 +46,7 @@ class PermissionGrantTest {
             FakeLocationProvider(LocationResult.PermissionMissing),
             BasicRecommendationEngine(),
         )
-        val viewModel = RecommendationsViewModel(COFFEE, discover, restrictions)
+        val viewModel = RecommendationsViewModel(COFFEE, discover, restrictions, enricher = { _, _ -> null })
         rule.setContent {
             DiscoverNearbyTheme {
                 val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,7 +55,7 @@ class PermissionGrantTest {
                     state = state,
                     onRetry = {},
                     onBack = {},
-                    onPlaceSelected = {},
+                    onPlaceSelected = { _, _ -> },
                     onGrant = { grants++ },
                     onOpenSettings = {},
                 )

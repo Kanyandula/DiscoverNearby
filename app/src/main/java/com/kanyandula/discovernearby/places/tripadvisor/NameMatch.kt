@@ -7,6 +7,8 @@ import java.util.Locale
 // "beach" stay, so a beach doesn't match the park next to it.
 private val GENERIC_WORDS = setOf("the", "a", "an", "of", "and", "ltd", "co", "cafe", "coffee", "restaurant", "bar")
 private const val MIN_SHARED_CHARS = 4
+private val ACCENTS = Regex("\\p{M}")
+private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
 private const val MIN_SIMILARITY = 0.8
 private const val SAME_WORDS = 3
 private const val ONE_EXTRA_WORD = 2
@@ -21,7 +23,8 @@ private const val SIMILAR_SPELLING = 1
 internal fun nameMatch(a: String, b: String): Int {
     val wordsA = words(a)
     val wordsB = words(b)
-    if (wordsA.isEmpty() || wordsB.isEmpty()) return 0
+    // "Studio 1" is not "Studio 2", however alike the rest.
+    if (wordsA.isEmpty() || wordsB.isEmpty() || numbers(wordsA) != numbers(wordsB)) return 0
     val (shorter, longer) = if (wordsA.size <= wordsB.size) wordsA to wordsB else wordsB to wordsA
     val addsOneWord = longer.size - shorter.size == 1 && longer.containsAll(shorter)
     return when {
@@ -34,10 +37,12 @@ internal fun nameMatch(a: String, b: String): Int {
 
 private fun words(name: String): List<String> =
     Normalizer.normalize(name, Normalizer.Form.NFKD)
-        .replace(Regex("\\p{M}"), "") // accents: "Café" is "Cafe"
+        .replace(ACCENTS, "") // accents: "Café" is "Cafe"
         .lowercase(Locale.ROOT)
-        .split(Regex("[^a-z0-9]+"))
+        .split(NON_ALPHANUMERIC)
         .filter { it.isNotEmpty() && it !in GENERIC_WORDS }
+
+private fun numbers(words: List<String>) = words.filter { word -> word.all { it.isDigit() } }.toSet()
 
 /** 1 for the same text, 0 for nothing in common: one minus the edit distance over the longer length. */
 private fun similarity(a: String, b: String): Double {

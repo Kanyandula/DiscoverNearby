@@ -19,7 +19,7 @@ open class DiscoverApplication : Application(), SingletonImageLoader.Factory {
     protected open fun createContainer() =
         AppContainer(this, BuildConfig.HERE_API_KEY, BuildConfig.TRIPADVISOR_API_KEY)
 
-    // Place photos (DN-UX-004) are kept in memory only: no disk cache, as nothing is stored (docs/03), and
+    // Place photos (DN-UX-004) are kept in memory only: no disk cache, as nothing is stored (docs/05 §2a), and
     // Tripadvisor's caching policy allows no copy of its photos.
     override fun newImageLoader(context: PlatformContext) = ImageLoader.Builder(context).diskCache(null).build()
 }

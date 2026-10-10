@@ -9,12 +9,10 @@ import kotlinx.serialization.json.Json
 /**
  * Carries a @Serializable value in a type-safe route as JSON (routes otherwise take only primitives). The value
  * also lives in the back stack's saved state, so the destination keeps it across process death. A nullable [T] takes
- * the nullable serializer and [isNullableAllowed].
+ * the nullable serializer, which also makes the route value nullable.
  */
-internal class JsonNavType<T>(
-    private val serializer: KSerializer<T>,
-    isNullableAllowed: Boolean = false,
-) : NavType<T>(isNullableAllowed) {
+internal class JsonNavType<T>(private val serializer: KSerializer<T>) :
+    NavType<T>(isNullableAllowed = serializer.descriptor.isNullable) {
 
     override fun put(bundle: Bundle, key: String, value: T) =
         bundle.putString(key, Json.encodeToString(serializer, value))

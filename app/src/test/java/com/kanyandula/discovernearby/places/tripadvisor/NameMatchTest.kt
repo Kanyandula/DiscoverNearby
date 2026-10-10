@@ -33,6 +33,7 @@ class NameMatchTest {
         assertFalse(sameName("Seaview Beach", "Seaview Harbour"))
         assertFalse(sameName("Juniper Pear", "Juniper Lane Deli"))
         assertFalse(sameName("Harbour", "Harbour Lane Deli")) // two extra words: another place on Harbour Lane
+        assertFalse(sameName("Seaview Studio 1", "Seaview Studio 2")) // branches differ by their number
     }
 
     @Test

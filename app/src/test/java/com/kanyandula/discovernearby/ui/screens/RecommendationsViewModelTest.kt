@@ -59,7 +59,7 @@ class RecommendationsViewModelTest {
     // Enriches every place but p1, in the order asked.
     private val enricher = PlaceEnricher { place, _ ->
         enriched += place.id
-        if (place.id == "p1") null else PlaceEnrichment(source = "Test")
+        if (place.id == "p1") null else PlaceEnrichment(photoUrl = "https://example.test/${place.id}.jpg")
     }
 
     private fun newViewModel() = RecommendationsViewModel(

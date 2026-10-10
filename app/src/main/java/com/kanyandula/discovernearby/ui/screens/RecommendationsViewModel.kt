@@ -11,7 +11,6 @@ import com.kanyandula.discovernearby.discovery.DiscoverUseCase
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.Recommendation
-import com.kanyandula.discovernearby.places.NoEnrichment
 import com.kanyandula.discovernearby.places.PlaceEnricher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +43,7 @@ class RecommendationsViewModel(
     private val category: DiscoveryCategory,
     private val discover: DiscoverUseCase,
     drivingRestrictions: DrivingRestrictions,
-    private val enricher: PlaceEnricher = NoEnrichment,
+    private val enricher: PlaceEnricher,
 ) : ViewModel() {
 
     private val result = MutableStateFlow<DiscoverResult?>(null) // null while a request runs

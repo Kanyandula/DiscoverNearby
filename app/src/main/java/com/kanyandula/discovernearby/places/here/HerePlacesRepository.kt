@@ -7,9 +7,9 @@ import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.PlacesRepository
 import com.kanyandula.discovernearby.places.ProviderFailure
+import com.kanyandula.discovernearby.places.ProviderJson
 import com.kanyandula.discovernearby.places.awaitBody
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -35,11 +35,6 @@ class HerePlacesRepository(
     private val client: OkHttpClient = OkHttpClient(),
 ) : PlacesRepository {
 
-    // An explicit null where a list is expected becomes the empty default instead of failing the response.
-    private val json = Json {
-        ignoreUnknownKeys = true
-        coerceInputValues = true
-    }
 
     override suspend fun searchNearby(
         origin: GeoPoint,
@@ -64,7 +59,7 @@ class HerePlacesRepository(
         val withKey = url.newBuilder().addQueryParameter("lang", RESPONSE_LANGUAGE).addQueryParameter("apiKey", apiKey)
         val body = if (apiKey.isBlank()) null else fetch(withKey.build())
         return try {
-            json.decodeFromString<T>(body ?: throw ProviderFailure())
+            ProviderJson.decodeFromString<T>(body ?: throw ProviderFailure())
         } catch (ignored: SerializationException) {
             throw ProviderFailure()
         }

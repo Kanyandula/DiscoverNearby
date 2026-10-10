@@ -19,7 +19,7 @@ internal data class TripadvisorLocation(
 )
 
 @Serializable
-internal data class LocationName(val value: String? = null)
+internal data class LocationName(val value: String = "")
 
 @Serializable
 internal data class TravelerRatings(val overall: OverallRating? = null)

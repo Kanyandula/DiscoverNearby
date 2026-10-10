@@ -75,7 +75,7 @@ fun RecommendationRow(
         ) {
             PlaceImage(
                 category = category,
-                photoUrl = enrichment?.photo?.url,
+                photoUrl = enrichment?.photoUrl,
                 radius = RowImageRadius,
                 iconSize = RowImageIconSize,
                 modifier = Modifier.size(width = RowImageWidth, height = RowImageHeight),
@@ -102,29 +102,27 @@ fun RecommendationRow(
 
 /**
  * As on the canvas ("4.6 ★ (342) · Café · Parking"): the rating; the kind of place; up to three attributes. A
- * Tripadvisor rating leads as Tripadvisor draws it; otherwise the place's own rating, if it has one, is text.
+ * Tripadvisor rating leads as Tripadvisor draws it. (Only live HERE places get one, and they carry no rating of
+ * their own, so the two never show together.)
  */
 @Composable
 private fun DetailsLine(place: PlaceSummary, providerRating: ProviderRating?) {
-    val rest = detailsText(place, withRating = providerRating == null)
+    val text = detailsText(place)
     if (providerRating == null) {
-        rest?.let { SupportingLine(it) }
+        text?.let { SupportingLine(it) }
         return
     }
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RatingChipGap)) {
-        TripadvisorRating(
-            rating = providerRating,
-            count = providerRating.count?.let { stringResource(R.string.review_count, it) },
-            countStyle = MaterialTheme.typography.titleMedium,
-        )
-        rest?.let { SupportingLine("${SEPARATOR.trim()} $it") }
+        val count = providerRating.count?.let { stringResource(R.string.review_count, it) }
+        TripadvisorRating(providerRating, count)
+        text?.let { SupportingLine("${SEPARATOR.trim()} $it") }
     }
 }
 
-/** The text part of [DetailsLine]: the place's rating when [withRating], its kind and attributes; null when empty. */
+/** The text of [DetailsLine]: the place's own rating, its kind and attributes; null when there is none of them. */
 @Composable
-private fun detailsText(place: PlaceSummary, withRating: Boolean): String? {
-    val rating = place.rating?.takeIf { withRating }?.let { rating ->
+private fun detailsText(place: PlaceSummary): String? {
+    val rating = place.rating?.let { rating ->
         place.ratingCount?.let { stringResource(R.string.rating_with_count, rating, it) }
             ?: stringResource(R.string.rating, rating)
     }

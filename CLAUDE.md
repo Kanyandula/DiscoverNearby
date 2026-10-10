@@ -69,8 +69,9 @@ in place (DN-M0-012, DN-M0-001).
     top rows one by one through `PlaceEnricher`: a nearby search 200 m around HERE's position, a strict name match
     (`nameMatch`), the first photo. Two calls a place; display only, never ranked; nothing stored; failures and 429
     leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
-  - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count;
-    "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Coil loads images, memory cache only.
+  - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
+    graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
+    800 px wide through the image server's resizing; Coil loads them with a memory cache only.
   - **Cost:** 1,000 free calls a month, then charged. The fakes, CI and Robolectric get `NoEnrichment`: develop on
     the fakes, keep live checks few.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,

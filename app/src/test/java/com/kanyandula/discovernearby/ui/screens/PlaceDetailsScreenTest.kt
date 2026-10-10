@@ -20,7 +20,6 @@ import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.PlaceEnrichment
-import com.kanyandula.discovernearby.model.PlacePhoto
 import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.hereNotice
@@ -91,9 +90,8 @@ class PlaceDetailsScreenTest {
     @Test
     fun tripadvisorsRatingAndPhotoCreditShow() {
         enrichment = PlaceEnrichment(
-            "Tripadvisor",
-            PlacePhoto("https://example.test/p.jpg"),
-            ProviderRating(4.5, 312, "https://example.test/b.png"),
+            photoUrl = "https://example.test/p.jpg",
+            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
         )
         state = Content(PlaceDetails(place, openingSummary = null))
         rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists()
