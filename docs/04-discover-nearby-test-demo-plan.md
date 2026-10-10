@@ -209,6 +209,8 @@ The benchmark evaluates the concept. It is not a statistically rigorous ranking 
 **M2 run (DN-M2-002, 2026-10-07):** `docs/benchmarks/2026-10-07-m2.md`. Place names are kept privately (public repo,
 HERE content); the record holds verdicts, counts and notes.
 
+**M2 re-run (DN-M2-003, 2026-10-10):** `docs/benchmarks/2026-10-10-m2-rerun.md`.
+
 ---
 
 ## 5. Demo Scenarios — Core Flow

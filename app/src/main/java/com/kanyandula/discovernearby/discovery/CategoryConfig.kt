@@ -25,8 +25,11 @@ const val SCORE_FLOOR = 10.0
 /** Nearness adds up to this: all of it at the origin, none at the category's radius or beyond. */
 const val NEARNESS_WEIGHT = 20.0
 
-/** Added when the provider says the place is open now; unknown or closed adds nothing. */
-const val OPEN_NOW_BONUS = 5.0
+/**
+ * Added when the provider says the place is open now; unknown or closed adds nothing. It breaks near-ties, worth about
+ * 1.5 km in Explore (Product Lead, 2026-10-07, DN-M2-003).
+ */
+const val OPEN_NOW_BONUS = 2.0
 
 /** A rating at or above [HIGH_RATING] adds [HIGH_RATING_BONUS]; no rating adds nothing. */
 const val HIGH_RATING = 4.5
@@ -51,7 +54,15 @@ data class CategoryConfig(
 
 private const val STRONG_MATCH = 30
 private const val WEAK_MATCH = 15
+
+// HERE files salons, cafés and escape rooms under Amusement Park, often as their primary category; at 20 a zoo or
+// play centre a few km away outranks one next door, and as a secondary category (10) it still passes the floor
+// (Product Lead, 2026-10-07, DN-M2-003).
+private const val AMUSEMENT_MATCH = 20
 private const val DIVERSITY_CAP = 2
+
+// A city's parks fill HERE's Outdoors results (Product Lead, 2026-10-07, DN-M2-003).
+private const val OUTDOORS_CAP = 3
 
 private fun strong(vararg kinds: String) = kinds.associateWith { STRONG_MATCH }
 
@@ -76,11 +87,12 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
         radiusMeters = 20_000,
         kindWeights = strong("park", "trail", "forest", "beach", "hiking_area", "outdoor_attraction"),
         excludeClosed = false,
-        maxPerKind = DIVERSITY_CAP,
+        maxPerKind = OUTDOORS_CAP,
     ),
     FAMILY to CategoryConfig(
         radiusMeters = 15_000,
-        kindWeights = strong("playground", "zoo", "aquarium", "family_attraction") + ("park" to WEAK_MATCH),
+        kindWeights = strong("playground", "zoo", "aquarium", "water_park", "childrens_museum", "family_attraction") +
+            mapOf("park" to WEAK_MATCH, "amusement_park" to AMUSEMENT_MATCH),
         amenityWeights = mapOf(TOILETS to 10, PARKING to 10, CAFE to 5),
         excludeClosed = true,
         maxPerKind = DIVERSITY_CAP,

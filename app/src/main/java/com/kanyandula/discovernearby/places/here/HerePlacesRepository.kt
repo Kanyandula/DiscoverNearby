@@ -21,7 +21,12 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-private const val SEARCH_LIMIT = 20
+// In a dense city centre HERE's nearest 20 sat within about 200 m, too few to survive the closed filter and the
+// per-kind caps (DN-M2-003); 100 is its maximum.
+private const val SEARCH_LIMIT = 50
+
+// The app's only UI language (strings.xml). Without it HERE answers in the place's own language, such as Irish.
+private const val RESPONSE_LANGUAGE = "en"
 private val BROWSE_URL = "https://browse.search.hereapi.com/v1/browse".toHttpUrl()
 private val LOOKUP_URL = "https://lookup.search.hereapi.com/v1/lookup".toHttpUrl()
 
@@ -61,7 +66,8 @@ class HerePlacesRepository(
 
     /** The decoded body. No key, an HTTP error or an unreadable body is a [ProviderFailure]. */
     private suspend inline fun <reified T> get(url: HttpUrl): T {
-        val body = if (apiKey.isBlank()) null else fetch(url.newBuilder().addQueryParameter("apiKey", apiKey).build())
+        val withKey = url.newBuilder().addQueryParameter("lang", RESPONSE_LANGUAGE).addQueryParameter("apiKey", apiKey)
+        val body = if (apiKey.isBlank()) null else fetch(withKey.build())
         return try {
             json.decodeFromString<T>(body ?: throw ProviderFailure())
         } catch (ignored: SerializationException) {
