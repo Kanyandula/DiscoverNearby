@@ -9,6 +9,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType
@@ -55,6 +56,7 @@ class PlaceDetailsFitTest {
                 Box(modifier = Modifier.height(ReferencePanelHeight)) {
                     PlaceDetailsScreen(
                         distanceMeters = 1_400,
+                        category = DiscoveryCategory.FAMILY,
                         state = SummaryOnly(everything),
                         onNavigate = {},
                         onBack = {},
@@ -70,5 +72,9 @@ class PlaceDetailsFitTest {
         notice.assertHeightIsAtLeast(16.dp) // one whole labelMedium line: the last child is squeezed first
         assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= notice.getUnclippedBoundsInRoot().top)
+        // Navigate sits under the image (03-place-details) and must stay whole on the panel.
+        val navigate = rule.onNodeWithText("Navigate")
+        navigate.assertIsDisplayed()
+        assertTrue(navigate.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
     }
 }

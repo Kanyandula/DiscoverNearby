@@ -26,8 +26,16 @@ val SpinnerStroke = 7.dp // the canvas arc: stroke 2 on a 24 viewBox, drawn at 8
 val ButtonMinWidth = 260.dp
 val ButtonRadius = 16.dp
 val ButtonGap = 16.dp
+val RowImageWidth = 156.dp // the row photo ("[Provider photo]") on the Recommendations artboard
+val RowImageHeight = 100.dp
+val RowImageRadius = 10.dp
+val RowImageIconSize = 44.dp
 
 // Place Details artboards.
+val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details); it spans the action column
+val DetailsImageRadius = 16.dp
+val DetailsImageIconSize = 96.dp
+val DetailsImageGap = 24.dp
 val DetailsInset = 16.dp
 val DetailsColumnGap = 40.dp
 val SectionPadding = 18.dp

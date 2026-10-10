@@ -101,7 +101,7 @@ class FocusRingTest {
     fun focusedRecommendationRowShowsTheRing() {
         val place = testPlace("cafe-1", "cafe")
         val recommendation = Recommendation(place, 1.0, distanceMeters = 500, null, null, null)
-        show { RecommendationRow(recommendation, onClick = {}) }
+        show { RecommendationRow(recommendation, DiscoveryCategory.COFFEE, onClick = {}) }
         val row = rule.onNodeWithText(place.name)
         row.requestFocus()
         assertArrayEquals(Accent.rgb(), row.edgePixel().rgb(), TOLERANCE)
@@ -123,6 +123,7 @@ class FocusRingTest {
         show {
             PlaceDetailsScreen(
                 distanceMeters = 500,
+                category = DiscoveryCategory.COFFEE,
                 state = PlaceDetailsUiState.SummaryOnly(place),
                 onNavigate = {},
                 onBack = {},

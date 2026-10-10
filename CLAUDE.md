@@ -58,8 +58,11 @@ in place (DN-M0-012, DN-M0-001).
   - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
-  - **Not from HERE:** see ADR-001's field availability; the mockups' photos, ratings and amenities wait for a
-    Product decision (`docs/design/README.md`).
+  - **Not from HERE:** see ADR-001's field availability; the mockups' ratings and amenities wait for a Product
+    decision (`docs/design/README.md`).
+  - **Photo slot (DN-UX-003):** `PlaceImage` on rows (156 × 100 dp) and above Navigate on Place Details
+    (400 × 240 dp) shows the picked category's artwork; `PlaceDetailsRoute` carries the category. A provider photo
+    replaces the artwork once DN-SP-004 picks a source (Tripadvisor or Foursquare keys pending).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
