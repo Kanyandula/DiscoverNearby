@@ -19,6 +19,8 @@ import com.kanyandula.discovernearby.model.AttributeType.FAMILY_FRIENDLY
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.PlaceAttribute
 import com.kanyandula.discovernearby.model.PlaceDetails
+import com.kanyandula.discovernearby.model.PlaceEnrichment
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
@@ -49,6 +51,7 @@ class PlaceDetailsScreenTest {
         attributes = setOf(PlaceAttribute(PARKING, PROVIDED), PlaceAttribute(FAMILY_FRIENDLY, DERIVED)),
     )
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
+    private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var navigations = 0
     private var backs = 0
 
@@ -62,6 +65,7 @@ class PlaceDetailsScreenTest {
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },
+                    enrichment = enrichment,
                 )
             }
         }
@@ -72,11 +76,36 @@ class PlaceDetailsScreenTest {
         state = Content(PlaceDetails(place, openingSummary = "Open until 18:00"))
         rule.onNodeWithText("The Daily Grind").assertIsDisplayed()
         rule.onNodeWithText("2.1 km away").assertIsDisplayed()
+        rule.onNodeWithText("Café").assertIsDisplayed()
         rule.onNodeWithText("4.6 ★ (342 reviews)").assertIsDisplayed()
-        rule.onNodeWithText("Open until 18:00").assertIsDisplayed()
+        // The status, as on the canvas; the provider's schedule only stands in when the status is unknown.
+        rule.onNodeWithText("Open now").assertIsDisplayed()
+        rule.onNodeWithText("Open until 18:00").assertDoesNotExist()
         rule.onNodeWithText("Parking · Family-friendly").assertIsDisplayed()
         rule.onNodeWithText("Amenities").assertIsDisplayed()
         rule.onNodeWithText("More details unavailable right now").assertDoesNotExist()
+    }
+
+    // DN-UX-004: the row's Tripadvisor photo and rating, credited, in place of the place's own text rating.
+    @Test
+    fun tripadvisorsRatingAndPhotoCreditShow() {
+        enrichment = PlaceEnrichment(
+            photoUrl = "https://example.test/p.jpg",
+            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
+        )
+        state = Content(PlaceDetails(place, openingSummary = null))
+        rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists()
+        rule.onNodeWithText("(312 reviews)").assertIsDisplayed()
+        rule.onNodeWithText("4.6 ★ (342 reviews)").assertDoesNotExist()
+        rule.onNodeWithText("Photo: Tripadvisor").assertIsDisplayed()
+        rule.onNodeWithText("Navigate").assertIsDisplayed()
+    }
+
+    @Test
+    fun scheduleStandsInWhenTheStatusIsUnknown() {
+        state = Content(PlaceDetails(place.copy(isOpenNow = null), openingSummary = "Mon-Sun: 08:00 - 16:00"))
+        rule.onNodeWithText("Mon-Sun: 08:00 - 16:00").assertIsDisplayed()
+        rule.onNodeWithText("Open now").assertDoesNotExist()
     }
 
     // docs/02 §7: a failed details call keeps the summary and Navigate.

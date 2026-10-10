@@ -10,12 +10,14 @@ plugins {
 // The project's one compile SDK (gradle/libs.versions.toml); the android.car.jar path below derives from it.
 val compileApi = libs.versions.android.compileSdk.get().toInt()
 
-// Dev-only provider key (docs/03 §19): local.properties → BuildConfig, never committed or logged. Empty without
-// local.properties (CI); the HERE repository then fails without making a request.
-val hereApiKey: String = Properties().apply {
+// Dev-only provider keys (docs/03 §19): local.properties → BuildConfig, never committed or logged. Empty without
+// local.properties (CI); the app then serves the fakes and makes no provider request.
+val localProperties = Properties().apply {
     providers.fileContents(rootProject.layout.projectDirectory.file("local.properties")).asText.orNull
         ?.let { load(it.reader()) }
-}.getProperty("here.apiKey", "").trim()
+}
+val hereApiKey: String = localProperties.getProperty("here.apiKey", "").trim()
+val tripadvisorApiKey: String = localProperties.getProperty("tripadvisor.apiKey", "").trim()
 
 android {
     namespace = "com.kanyandula.discovernearby"
@@ -30,6 +32,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "HERE_API_KEY", "\"$hereApiKey\"")
+        buildConfigField("String", "TRIPADVISOR_API_KEY", "\"$tripadvisorApiKey\"")
     }
 
     buildTypes {
@@ -87,6 +90,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

@@ -31,6 +31,14 @@ val RowImageHeight = 100.dp
 val RowImageRadius = 10.dp
 val RowImageIconSize = 44.dp
 
+// Tripadvisor's rating (DN-UX-004): its display rules want its owl mark at least 20 px high (20 dp is at least
+// that), beside the bubbles, on white on a dark background.
+val RatingMarkHeight = 20.dp
+val RatingChipPaddingHorizontal = 10.dp
+val RatingChipPaddingVertical = 4.dp
+val RatingChipGap = 6.dp
+val PhotoCreditGap = 8.dp
+
 // Place Details artboards.
 val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details); it spans the action column
 val DetailsImageRadius = 16.dp
@@ -38,7 +46,9 @@ val DetailsImageIconSize = 96.dp
 val DetailsImageGap = 24.dp
 val DetailsInset = 16.dp
 val DetailsColumnGap = 40.dp
-val SectionPadding = 18.dp
+// The canvas has 18; 12 keeps a full set of facts, the summary-only note and the notice on the 4:3 reference panel
+// (PlaceDetailsFitTest) now that the kind of place sits under the distance.
+val SectionPadding = 12.dp
 val ActionColumnWidth = 400.dp
 val NavigateHeight = 88.dp
 val NavigateRadius = 20.dp

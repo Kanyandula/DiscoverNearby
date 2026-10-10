@@ -58,11 +58,22 @@ in place (DN-M0-012, DN-M0-001).
   - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
-  - **Not from HERE:** see ADR-001's field availability; the mockups' ratings and amenities wait for a Product
+  - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). Amenities wait for a Product
     decision (`docs/design/README.md`).
-  - **Photo slot (DN-UX-003):** `PlaceImage` on rows (156 × 100 dp) and above Navigate on Place Details
-    (400 × 240 dp) shows the picked category's artwork; `PlaceDetailsRoute` carries the category. A provider photo
-    replaces the artwork once DN-SP-004 picks a source (Tripadvisor or Foursquare keys pending).
+  - **Kind and opening (DN-UX-004):** rows and Details name the kind of place (`kindLabel`); Details shows "Open
+    now"/"Closed now" first, HERE's weekly schedule only when the status is unknown.
+- **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 400 × 240 dp above
+  Navigate) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
+  - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
+    `BuildConfig.TRIPADVISOR_API_KEY`, sent in `X-API-Key`). After ranking, `RecommendationsViewModel` enriches the
+    top rows one by one through `PlaceEnricher`: a nearby search 200 m around HERE's position, a strict name match
+    (`nameMatch`), the first photo. Two calls a place; display only, never ranked; nothing stored; failures and 429
+    leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
+  - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
+    graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
+    800 px wide through the image server's resizing; Coil loads them with a memory cache only.
+  - **Cost:** 1,000 free calls a month, then charged. The fakes, CI and Robolectric get `NoEnrichment`: develop on
+    the fakes, keep live checks few.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
@@ -75,9 +86,9 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit)
-and a UI-gap pass against `docs/design/` (not ticketed yet; order to be decided).
-DN-TD-002 (Gradle/CI tuning) is P3.
+Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
+The concept image's extra elements (travel time, price, description) are parked by the user. DN-TD-002 (Gradle/CI
+tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -87,7 +98,7 @@ DN-TD-002 (Gradle/CI tuning) is P3.
 - minSdk 29. One compileSdk for the whole project.
 - State: one Jetpack `ViewModel` per content screen exposing `StateFlow`; screens use
   `collectAsStateWithLifecycle()`. ViewModels created via `viewModelFactory` from `AppContainer`.
-- Networking: OkHttp + kotlinx.serialization, REST only. No provider SDK.
+- Networking: OkHttp + kotlinx.serialization, REST only. No provider SDK. Images: Coil 3, memory cache only.
 - DI: manual constructor injection, single wiring point `AppContainer` (created in
   `DiscoverApplication`). No Hilt.
 - Persistence: none. Provider responses are in-memory only.
@@ -98,9 +109,10 @@ DN-TD-002 (Gradle/CI tuning) is P3.
 - `car/` — `DrivingRestrictions` (interface + `DrivingState`, no android.car) and
   `CarDrivingRestrictions` (CarUxRestrictionsManager → StateFlow)
 - `discovery/` — DiscoverUseCase, RecommendationEngine, DiscoveryCategory, DiscoveryContext, CategoryConfig
-- `places/` — PlacesRepository; `fake/FakePlacesRepository` (M0); `here/` HERE client + mapper (DN-M1-001, ADR-001)
+- `places/` — PlacesRepository, PlaceEnricher; `fake/FakePlacesRepository` (M0); `here/` HERE client + mapper
+  (DN-M1-001, ADR-001); `tripadvisor/` photos and ratings (DN-UX-004, ADR-003)
 - `location/`, `navigation/` — interfaces + Android implementations (`IntentNavigationLauncher`)
-- `model/` — GeoPoint, PlaceSummary, PlaceDetails, PlaceAttribute, Recommendation
+- `model/` — GeoPoint, PlaceSummary, PlaceDetails, PlaceAttribute, Recommendation, PlaceEnrichment
 - `tools/stub-navigation/` — separate test APK: ACTION_VIEW `geo:` handler, distractionOptimized
 
 ## Architecture rules (do not break)

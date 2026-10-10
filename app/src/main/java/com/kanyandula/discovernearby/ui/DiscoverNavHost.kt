@@ -20,6 +20,7 @@ import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
@@ -27,6 +28,7 @@ import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsViewModel
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.nullable
 import kotlin.reflect.typeOf
 
 @Serializable
@@ -36,11 +38,20 @@ data object DiscoverRoute
 data class RecommendationsRoute(val category: DiscoveryCategory)
 
 // The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
-// call or process death (docs/02 §7), and the category the user picked, for the place's image.
+// call or process death (docs/02 §7); the category the user picked, for the place's artwork; and the row's
+// Tripadvisor photo and rating, so Details shows them without a second lookup (DN-UX-004).
 @Serializable
-data class PlaceDetailsRoute(val place: PlaceSummary, val distanceMeters: Int, val category: DiscoveryCategory)
+data class PlaceDetailsRoute(
+    val place: PlaceSummary,
+    val distanceMeters: Int,
+    val category: DiscoveryCategory,
+    val enrichment: PlaceEnrichment? = null,
+)
 
-private val PlaceDetailsTypes = mapOf(typeOf<PlaceSummary>() to JsonNavType(PlaceSummary.serializer()))
+private val PlaceDetailsTypes = mapOf(
+    typeOf<PlaceSummary>() to JsonNavType(PlaceSummary.serializer()),
+    typeOf<PlaceEnrichment?>() to JsonNavType(PlaceEnrichment.serializer().nullable),
+)
 
 /**
  * A destination acts only while it is the top of the back stack. navigate and popBackStack change the
@@ -74,9 +85,7 @@ fun DiscoverNavHost(
         composable<RecommendationsRoute> { entry ->
             val category = entry.toRoute<RecommendationsRoute>().category
             // Scoped to this back-stack entry: Back clears it, which cancels its request (docs/04 Scenario P).
-            val viewModel = viewModel {
-                RecommendationsViewModel(category, container.discoverUseCase, container.drivingRestrictions)
-            }
+            val viewModel = viewModel { container.recommendationsViewModel(category) }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             val location = rememberLocationActions(viewModel)
             RecommendationsScreen(
@@ -84,9 +93,11 @@ fun DiscoverNavHost(
                 state = state,
                 onRetry = viewModel::retry,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
-                onPlaceSelected = { picked ->
+                onPlaceSelected = { picked, enrichment ->
                     if (navController.isTop(entry)) {
-                        navController.navigate(PlaceDetailsRoute(picked.place, picked.distanceMeters, category))
+                        navController.navigate(
+                            PlaceDetailsRoute(picked.place, picked.distanceMeters, category, enrichment),
+                        )
                     }
                 },
                 onGrant = location.grant,
@@ -102,6 +113,7 @@ fun DiscoverNavHost(
             PlaceDetailsScreen(
                 distanceMeters = route.distanceMeters,
                 category = route.category,
+                enrichment = route.enrichment,
                 state = state,
                 onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
@@ -109,6 +121,9 @@ fun DiscoverNavHost(
         }
     }
 }
+
+private fun AppContainer.recommendationsViewModel(category: DiscoveryCategory) =
+    RecommendationsViewModel(category, discoverUseCase, drivingRestrictions, placeEnricher)
 
 /** What the Recommendations destination can do about location access (docs/02 §10). */
 private class LocationActions(val grant: () -> Unit, val openSettings: () -> Unit)

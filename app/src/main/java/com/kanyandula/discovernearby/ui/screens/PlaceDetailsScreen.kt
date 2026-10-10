@@ -34,7 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.components.Message
@@ -42,8 +44,10 @@ import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.PlaceImage
 import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
+import com.kanyandula.discovernearby.ui.components.TripadvisorRating
 import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
+import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ActionColumnWidth
@@ -61,6 +65,7 @@ import com.kanyandula.discovernearby.ui.theme.NavigateRadius
 import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
+import com.kanyandula.discovernearby.ui.theme.PhotoCreditGap
 import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
@@ -70,7 +75,7 @@ import com.kanyandula.discovernearby.ui.theme.SectionPadding
  * Place Details (canvas Place Details artboards): what is known about the place, with Navigate always there and
  * never waiting on the optional details call (docs/02 §7). One layout serves every state but the hand-off failure
  * message, so nothing moves when details arrive. The right column is the place's image with Navigate under it
- * (03-place-details).
+ * (03-place-details). [enrichment] is the row's Tripadvisor photo and rating (DN-UX-004), the photo credited.
  */
 @Composable
 fun PlaceDetailsScreen(
@@ -80,6 +85,7 @@ fun PlaceDetailsScreen(
     onNavigate: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    enrichment: PlaceEnrichment? = null,
 ) {
     val openingSummary = (state as? PlaceDetailsUiState.Content)?.details?.openingSummary
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
@@ -93,7 +99,7 @@ fun PlaceDetailsScreen(
                 horizontalArrangement = Arrangement.spacedBy(DetailsColumnGap),
             ) {
                 Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                    Facts(state.summary, distanceMeters, openingSummary)
+                    Facts(state.summary, distanceMeters, openingSummary, enrichment?.rating)
                     if (state is PlaceDetailsUiState.SummaryOnly) DetailsUnavailable()
                     Spacer(Modifier.weight(1f))
                     // Bottom left: HERE's notice with HERE's data (ADR-001 V6a).
@@ -103,12 +109,16 @@ fun PlaceDetailsScreen(
                     modifier = Modifier.width(ActionColumnWidth),
                     verticalArrangement = Arrangement.spacedBy(DetailsImageGap),
                 ) {
-                    PlaceImage(
-                        category = category,
-                        radius = DetailsImageRadius,
-                        iconSize = DetailsImageIconSize,
-                        modifier = Modifier.fillMaxWidth().height(DetailsImageHeight),
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
+                        PlaceImage(
+                            category = category,
+                            photoUrl = enrichment?.photoUrl,
+                            radius = DetailsImageRadius,
+                            iconSize = DetailsImageIconSize,
+                            modifier = Modifier.fillMaxWidth().height(DetailsImageHeight),
+                        )
+                        if (enrichment?.photoUrl != null) PhotoCredit()
+                    }
                     NavigateButton(onClick = onNavigate, modifier = Modifier.fillMaxWidth())
                 }
             }
@@ -123,19 +133,39 @@ private val NavigationUnavailableMessage = Message(
     R.string.navigation_unavailable_body,
 )
 
-/** Distance; then rating and opening state; then amenities. Each only when known, with dividers between. */
+/**
+ * Distance and the kind of place; then rating and opening state; then amenities. Each only when known, with dividers
+ * between. The opening line is the status, as on the canvas ("Open now"); the provider's schedule (HERE sends the
+ * whole week) shows only when the status is unknown.
+ */
 @Composable
-private fun Facts(place: PlaceSummary, distanceMeters: Int, openingSummary: String?) {
-    Section(AnnotatedString(stringResource(R.string.distance_away, kilometres(distanceMeters))))
+private fun Facts(place: PlaceSummary, distanceMeters: Int, openingSummary: String?, providerRating: ProviderRating?) {
+    Section(
+        AnnotatedString(stringResource(R.string.distance_away, kilometres(distanceMeters))),
+        kindLabel(place.primaryKind)?.let { stringResource(it) },
+    )
     val rating = ratingLine(place)
-    val opening = openingSummary ?: when (place.isOpenNow) {
+    val opening = when (place.isOpenNow) {
         true -> stringResource(R.string.open_now)
         false -> stringResource(R.string.closed_now)
-        null -> null
+        null -> openingSummary
     }
-    if (rating != null || opening != null) {
+    if (providerRating != null || rating != null || opening != null) {
         HorizontalDivider(color = Raised)
-        Section(rating, opening, secondaryColor = if (place.isOpenNow == true) OpenNow else Color.Unspecified)
+        Section(
+            primary = rating,
+            secondary = opening,
+            secondaryColor = if (place.isOpenNow == true) OpenNow else Color.Unspecified,
+            // Tripadvisor's rating as Tripadvisor draws it, in place of the text rating.
+            primaryContent = providerRating?.let { tripadvisor ->
+                {
+                    TripadvisorRating(
+                        rating = tripadvisor,
+                        count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
+                    )
+                }
+            },
+        )
     }
     val amenities = place.attributeTypes().map { stringResource(it.label) }
     if (amenities.isNotEmpty()) {
@@ -165,14 +195,21 @@ private fun ratingLine(place: PlaceSummary): AnnotatedString? {
  * scroll, and a wrapped amenity list would push the summary-only note off it.
  */
 @Composable
-private fun Section(primary: AnnotatedString?, secondary: String? = null, secondaryColor: Color = Color.Unspecified) {
+private fun Section(
+    primary: AnnotatedString?,
+    secondary: String? = null,
+    secondaryColor: Color = Color.Unspecified,
+    primaryContent: (@Composable () -> Unit)? = null,
+) {
     Column(
         modifier = Modifier.padding(vertical = SectionPadding),
         verticalArrangement = Arrangement.spacedBy(RowLineGap),
     ) {
-        primary?.let {
+        if (primaryContent != null) {
+            primaryContent()
+        } else if (primary != null) {
             Text(
-                text = it,
+                text = primary,
                 style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -188,6 +225,18 @@ private fun Section(primary: AnnotatedString?, secondary: String? = null, second
             )
         }
     }
+}
+
+/** Whose content the photo is; Tripadvisor masks who took it. */
+@Composable
+private fun PhotoCredit() {
+    Text(
+        text = stringResource(R.string.photo_tripadvisor),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 @Composable

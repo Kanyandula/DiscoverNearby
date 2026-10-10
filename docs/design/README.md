@@ -4,7 +4,9 @@ PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exporte
 
 **How to read these (Revision 4):** the app draws its own UI in Jetpack Compose, so these mockups are the visual spec: layout, hierarchy, copy, states, icons and colours. System chrome still comes from the vehicle. The template names below and in artboard titles date from Revision 3; read them as layout patterns.
 
-**With HERE data (ADR-001):** the attribution is "© {year} HERE" under the list and on Place Details. HERE supplies no photos, ratings, review counts or amenities such as parking. The photo slot shows the category's artwork until a photo source is chosen (DN-SP-004); ratings and amenities stay empty until Product decides; rows and details render cleanly without them (UX spec §6, §7). The kind of place (for example, "Café") and open now are available.
+**With HERE data (ADR-001):** the attribution is "© {year} HERE" under the list and on Place Details. HERE supplies no photos, ratings, review counts or amenities such as parking. Photos and ratings come from Tripadvisor for the places it knows (ADR-003, about half of them); the others show the category's artwork and no rating. Amenities stay empty until Product decides; rows and details render cleanly without them (UX spec §6, §7). The kind of place (for example, "Café") and open now come from HERE.
+
+**Deviation (DN-UX-004):** Place Details sections use 12 dp vertical padding, not the canvas's 18, so a full set of facts, the summary-only note and the HERE notice fit the 4:3 reference screen (`PlaceDetailsFitTest`) now that the kind of place sits under the distance.
 
 | File | Screen | Layout pattern (Rev 3 template name) |
 | --- | --- | --- |

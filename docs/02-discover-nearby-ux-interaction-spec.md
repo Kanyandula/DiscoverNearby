@@ -221,11 +221,12 @@ Visitor Centre
 
 Each row contains only what is needed for an initial choice:
 
-- An image of the place, decorative: the provider's photo when a photo source exists (DN-SP-004), otherwise the
+- An image of the place, decorative: Tripadvisor's photo when Tripadvisor has the place (ADR-003), otherwise the
   selected category's artwork (its icon on its tint), so no row looks empty (DN-UX-003)
 - Place name
 - Distance (or travel time, if the provider supplies it reliably)
-- Rating, only if the provider supplies it
+- Rating, only if the provider supplies it; Tripadvisor's is shown as Tripadvisor draws it, with its review count
+  (ADR-003)
 - 1–3 provided or derived attributes
 - Optional route relevance / detour (stretch only)
 
@@ -277,7 +278,8 @@ Park · Playground · Parking
 
 ### Content, where available
 
-- An image panel above **Navigate**: the photo when a source exists, otherwise the category artwork, as on the rows
+- An image panel above **Navigate**: Tripadvisor's photo, credited "Photo: Tripadvisor", otherwise the category
+  artwork, as on the rows (ADR-003)
 - Place name
 - Distance (or travel time, if calculated)
 - Rating (if provided)
