@@ -12,6 +12,7 @@ open class DiscoverApplication : Application() {
         container = createContainer()
     }
 
-    /** The wiring point (docs/03 §3) with the dev-only HERE key; Robolectric's application builds it keyless. */
-    protected open fun createContainer() = AppContainer(this, BuildConfig.HERE_API_KEY)
+    /** The wiring point (docs/03 §3) with the dev-only provider keys; Robolectric's application builds it keyless. */
+    protected open fun createContainer() =
+        AppContainer(this, BuildConfig.HERE_API_KEY, BuildConfig.TRIPADVISOR_API_KEY)
 }

@@ -13,10 +13,12 @@ import com.kanyandula.discovernearby.location.LocationProvider
 import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.navigation.IntentNavigationLauncher
 import com.kanyandula.discovernearby.navigation.NavigationLauncher
+import com.kanyandula.discovernearby.places.PlaceEnricher
 import com.kanyandula.discovernearby.places.PlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakeScenario
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
+import com.kanyandula.discovernearby.places.tripadvisor.TripadvisorEnricher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +26,7 @@ import kotlinx.coroutines.SupervisorJob
 /**
  * The single wiring point (docs/03 §3): every app-scoped dependency is constructed here by hand.
  */
-class AppContainer(context: Context, private val hereApiKey: String) {
+class AppContainer(context: Context, private val hereApiKey: String, private val tripadvisorApiKey: String = "") {
     init {
         // Without a key the app serves the fakes; say so once per process, so a keyless build isn't taken for live
         // data. A requested scenario (useFakeScenario) is deliberate, so it isn't logged.
@@ -43,7 +45,18 @@ class AppContainer(context: Context, private val hereApiKey: String) {
      * no key (CI, Robolectric) or once a debug launch names a scenario, warm relaunches included.
      */
     val placesRepository: PlacesRepository
-        get() = if (hereApiKey.isBlank() || fakesRequested) fakePlaces else livePlaces
+        get() = if (servesFakes) fakePlaces else livePlaces
+
+    private val servesFakes get() = hereApiKey.isBlank() || fakesRequested
+    private val tripadvisor by lazy { TripadvisorEnricher(tripadvisorApiKey) }
+
+    /**
+     * Tripadvisor's photos and ratings for live HERE places when its key is set (DN-UX-004, ADR-003); nothing for the
+     * fakes, so development, CI and Robolectric make no Tripadvisor call. Decided per call, like the places source.
+     */
+    val placeEnricher = PlaceEnricher { place, category ->
+        if (servesFakes || tripadvisorApiKey.isBlank()) null else tripadvisor.enrich(place, category)
+    }
 
     // The use case asks for the current source on every call, so a scenario named later still applies.
     private val selectedPlaces = object : PlacesRepository {

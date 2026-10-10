@@ -75,7 +75,12 @@ fun DiscoverNavHost(
             val category = entry.toRoute<RecommendationsRoute>().category
             // Scoped to this back-stack entry: Back clears it, which cancels its request (docs/04 Scenario P).
             val viewModel = viewModel {
-                RecommendationsViewModel(category, container.discoverUseCase, container.drivingRestrictions)
+                RecommendationsViewModel(
+                    category,
+                    container.discoverUseCase,
+                    container.drivingRestrictions,
+                    container.placeEnricher,
+                )
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             val location = rememberLocationActions(viewModel)
