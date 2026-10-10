@@ -1,8 +1,8 @@
 # ADR-001: POI Provider
 
-**Status:** Provisionally selected, pending licensing confirmation (2026-10-07), from the live matrix; Legal sign-off on provider terms pending before production  
+**Status:** Provisionally selected, pending licensing confirmation (2026-10-07), from the live matrix; production licensing parked (see [Production licensing](#production-licensing))  
 *(Outcome at end of the 3-day spike, exactly one of: **Selected** · **Provisionally selected, pending licensing confirmation** · **No viable provider**)*  
-**Date:** 2026-10-05 (documentation phase); 2026-10-07 (live matrix and outcome)  
+**Date:** 2026-10-05 (documentation phase); 2026-10-07 (live matrix and outcome); 2026-10-10 (production licensing route)  
 **Deciders:** Android/Tech Lead (API practicality) · Product Lead (data usefulness) · Product/Legal/Business owner (in-vehicle licensing; product evaluation owner: the Product Lead, 2026-10-06; Legal sign-off on terms separate)
 
 ---
@@ -27,8 +27,28 @@ Candidates, in order:
 
 **HERE** (Geocoding & Search v7 `/browse`), outcome: **Provisionally selected, pending licensing confirmation**
 
-Risk accepted by the Product Lead on 2026-10-07; licensing clarification pending from Legal (HERE Platform Terms
-§6.3(a), §6.4, Acceptable Use Policy and Supplier Terms [H1]). Legal sign-off is required before production.
+Risk accepted by the Product Lead on 2026-10-07 for the emulator POC. In-vehicle rights are settled before
+production, by the route in [Production licensing](#production-licensing).
+
+## Production licensing
+
+Parked while the POC is under way (2026-10-10). HERE's Platform Terms let developers integrate its APIs into
+applications, but §6.3(a) needs the subscription plan or a separate agreement with HERE before HERE Materials are
+integrated into a vehicle system or its display; the phone-projection exception does not appear to cover a native
+AAOS app [H1]. In-car use of HERE is normally licensed through such an agreement, with HERE or through the car maker,
+so this is a commercial step, not a reason to doubt the provider. The reading above is for planning, not a legal
+answer.
+
+- **Now (POC):** development and demos on the AAOS emulator under HERE's Base Plan. No install or demonstration in a
+  physical vehicle, and no distribution, until HERE confirms in-vehicle rights in writing.
+- **Before production, in order:**
+  1. Product picks the distribution route (docs/05 V8: our own distribution or an OEM preinstall).
+  2. HERE confirms in writing that route, native AAOS use, the plan and its fees, and the attribution for an app
+     without a map ([V6a](#v6a--attribution)).
+  3. Legal reviews that confirmation against §6.3(a), §6.4, the Acceptable Use Policy and the Supplier Terms [H1].
+- **Out of scope:** the Base Plan excludes asset management (locating or tracking people or vehicles, route
+  calculation), telematics and route optimisation [H11]. The app takes one location fix per search and hands
+  navigation off with a `geo:` intent.
 
 ## One-sheet comparison
 
@@ -139,6 +159,11 @@ Read on 2026-10-05 from each provider's public pages, without an account. These 
   `GET https://lookup.search.hereapi.com/v1/lookup?id=…`. The sample response has `title`, `id`, `address`,
   `position`, `access`, `categories`, `references`, `contacts`. `references` names data suppliers; there is no
   copyright or attribution field to display.
+- **[H11]** Base Plan usage restrictions. <https://www.here.com/get-started/pricing/base-plan-restrictions> (read
+  2026-10-10; no effective date shown). Excluded use cases: Asset Management ("locating, tracking and/or displaying on
+  a map", route calculations, analytics, driver safety alerts), Usage Based Insurance/Telematics and Optimization
+  (route or stop ordering). An Asset includes "a means of transportation, a vehicle". Each application needs its own
+  app ID.
 
 ### Geoapify
 
@@ -294,7 +319,7 @@ categories also run live from DN-M1-002, but are accepted in M2 (DN-M2-001, DN-M
 **Implemented (DN-M1-003; Product Lead decision, 2026-10-07):** "© {current year} HERE", a muted line under the
 Recommendations list and at the bottom left of Place Details. It shows only for HERE data
 (`PlaceSummary.attribution`), so the fakes show none. Whether that satisfies [H8] for an app without a map is
-pending Legal.
+confirmed with HERE before production ([Production licensing](#production-licensing)).
 
 ## V6b — Caching and storage
 
@@ -325,16 +350,17 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 - Scenic is thin around Galway (2 relevant of 3), and one result's position looks wrong.
 - Some results are miscategorised businesses (for example, roofing contractors and a restaurant under Scenic Point).
 - The nearest Scenic result from Greystones is 11.9 km away.
-- No rating, parking or toilet data in `/browse` responses.
+- No rating, parking or toilet data in `/browse` responses, and no photos without the restricted Tripadvisor
+  enrichment [H4]; the mockups' photos, ratings and parking can't be filled from HERE (`docs/design/README.md`).
 - Latency (116–304 ms) was measured from a development Mac on a home connection, not in the vehicle.
-- HERE's free allowance and pricing are not established [H7].
-- Licence: the §6.3(a) quote goes to Legal before production.
+- The POC runs on HERE's Base Plan [H11]; production pricing comes with the licensing route
+  ([Production licensing](#production-licensing)).
 - **HERE data quality (DN-M2-003 investigation, 2026-10-07).** These are provider data limitations; the app has no
   field to detect them:
   - Some records carry a wrong position that agrees with their own address and access point: a Scenic Point about
     60 km from where it shows, and several Dublin places at one street-level point.
   - Non-family businesses carry Amusement Park, sometimes as their primary category; it weighs less in Family.
-  - Some places have duplicate records.
+  - Some places have duplicate records; in Family they can fill a kind's cap (DN-M2-004).
 
   They are to be reported through HERE's map feedback (Product Lead decision, 2026-10-07); none is filed yet. The
   re-run records whether they still appear.
@@ -353,5 +379,5 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 | Question | Name | Result | Date |
 | --- | --- | --- | --- |
 | Data good enough (Product) | Product Lead | Yes for HERE (Coffee, Family and Scenic overall); No for TomTom and Geoapify | 2026-10-07 |
-| Licence suitable for embedded automotive use (Product/Legal/Business) | Legal | Pending: risk accepted by the Product Lead until then | — |
+| Licence suitable for embedded automotive use (Product/Legal/Business) | Legal | Pending, parked until the production route ([Production licensing](#production-licensing)); risk accepted by the Product Lead for the emulator POC | — |
 | API technically workable (Tech Lead) | Tech Lead | Yes, with the limits listed (no ratings, parking or toilets; key in the APK) | 2026-10-07 |

@@ -1,13 +1,13 @@
 # Discover Nearby — AAOS POC Delivery Plan
 
-**Status:** Proposed — Revision 4.1 (current-status amendments through 2026-10-07)
+**Status:** Proposed — Revision 4.1 (current-status amendments through 2026-10-10)
 
 **Platform:** Android Automotive OS  
 **Phase:** Proof of Concept  
 **Owners:** Product Lead + Android/Tech Lead  
-**Last Updated:** 2026-10-07
+**Last Updated:** 2026-10-10
 
-> **Current gates (2026-10-07):** **ADR-002 is decided: stay on Compose for the emulator POC, with a product waiver.** V7 failed its clean re-test after the one bounded Compose fix and stays recorded as failed; Product waives the focus jump after Back to Discover for this iteration, so **M0 exits under the waiver**. E1's pre-registered classification was inconclusive, but its results strongly implicate `uiautomator` polling at launch rather than wait duration (no-poll arms 20/20; launch-poll arms 14/19 failures; mid-journey dump 9/9). E1 is diagnostic and does not establish the underlying cause or pass V7. That decision allowed one bounded Compose fix, then a clean re-test, which V7 failed. V4: HERE is provisionally selected (ADR-001, 2026-10-07; Legal sign-off on provider terms pending before production), so M1 can start. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator; production distribution is undecided and outside this POC. V8 does not block POC work.
+> **Current status (2026-10-10):** the verification register (§9) is the single status source. In short: M0 exited under ADR-002's product waiver (V7 failed and is waived); M1 and M3 are done; M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10). HERE is provisionally selected (ADR-001); production licensing is parked. The POC target is a sideloaded debug build on the `AAOS_AOSP_33_userdebug` emulator, not a physical vehicle; production distribution (V8) is undecided and outside this POC.
 >
 > Items marked **⚠ Verify** are assumptions that have not been confirmed against primary documentation or a licence. They are tracked in §9 and must not be treated as settled.
 >
@@ -337,9 +337,9 @@ flowchart TD
     uiwork --> v7[Clean re-test against the V7 gate — failed]
     v7 -->|failed| waiver[ADR-002 decided: Compose with a product waiver]
     waiver --> m0exit[M0 exit — under the waiver]
-    spike --> adr1[ADR-001 provider decision]
-    adr1 --> m1[M1 Live POI Discovery]
-    m1 --> m2[M2 Categories, ranking, benchmark]
+    spike --> adr1[ADR-001: HERE, provisionally selected]
+    adr1 --> m1[M1 Live POI Discovery — done]
+    m1 --> m2[M2 Categories, ranking, benchmark — open: DN-M2-004, then a re-run]
     seam[Navigation seam and stub] --> m3[M3 Navigation Handoff — done]
     m2 --> m4[M4 Automotive Validation]
     m3 --> m4
@@ -348,19 +348,19 @@ flowchart TD
     go -->|optional after GO| m5[M5 Along Route]
 ```
 
-M0's implementation is largely complete. E1 is done; V7 failed its clean re-test after the one bounded fix, and ADR-002 keeps Compose with a product waiver, so M0 exits under the waiver. M3 is complete and provider-independent. M1 waits on ADR-001; M4 validates the complete core flow after the provider, ranking, navigation, and M0 gates are satisfied.
+M0 exited under ADR-002's product waiver. M1 (live HERE data) and M3 (provider-independent) are done. M2 is open: DN-M2-004, then another re-run, which the Product Lead judges. M4 validates the complete core flow once M2 exits.
 
 ---
 
 ## 9. Verification Register
 
-**Current milestone gates:** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. V4: HERE provisionally selected (Legal pending before production); M1 can start. V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates (2026-10-10; this register is the single status source):** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. M1 and M3 are done. M2 is open for DN-M2-004 and another re-run (Product Lead, 2026-10-10; benchmark records in `docs/benchmarks/`). V4: HERE provisionally selected; production licensing parked (ADR-001). V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
 | ID | Decision / item | Status | Owner | Blocks |
 | --- | --- | --- | --- | --- |
-| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; Legal sign-off on provider terms pending before production | Product/Legal/Business owner (licence); Tech Lead (technical) | Production (Legal sign-off); M1 may start under the provisional selection |
+| **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; M1 done on it. Production licensing parked: Product picks the route (V8), HERE confirms in-vehicle rights in writing, then Legal reviews ([ADR-001](adr/0001-poi-provider.md#production-licensing)). No install or demo in a physical vehicle until then. | Product/Legal/Business owner (licence); Tech Lead (technical) | Production; any install or demo in a physical vehicle |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001 | Tech Lead | M1 completion |
 | V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. Until then: no persistence (§2a). | Tech Lead | M1 completion |

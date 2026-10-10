@@ -2,9 +2,10 @@
 
 AAOS proof of concept: intent-based nearby-place discovery (Coffee, Food, Outdoors,
 Family, Scenic, Explore) → up to 3–5 recommendations → place details → navigation handoff.
-This iteration targets a sideloaded debug POC on the AAOS userdebug emulator. Production distribution is
+This iteration targets a sideloaded debug POC on the AAOS userdebug emulator. No install or demo in a physical
+vehicle until HERE confirms in-vehicle rights (ADR-001, Production licensing). Production distribution is
 undecided and outside this POC's scope; Product must choose a supported route before production planning.
-An OEM-preinstall route requires OEM confirmation.
+An OEM-preinstall route requires OEM confirmation. Current status lives in docs/05 §9.
 
 Source of truth: `docs/` — **Revision 4.1** (brief, UX spec, engineering plan, test plan,
 delivery plan, `docs/adr/`, `docs/design/` = visual spec). Read `docs/03-…` §2, §3, §6 before
@@ -54,9 +55,11 @@ in place (DN-M0-012, DN-M0-001).
     `--es scenario`, warm relaunches included.
   - **Tests:** Robolectric uses `TestDiscoverApplication` (keyless) by its `Test<ApplicationName>` convention, so
     tests always get the fakes.
-  - **Live categories:** Coffee is the first live category (ADR-001); the others are live but are accepted in M2.
+  - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
-    for HERE data only (`PlaceSummary.attribution`). Placement without a map is pending Legal.
+    for HERE data only (`PlaceSummary.attribution`). HERE confirms placement without a map before production.
+  - **Not from HERE:** photos, ratings, review counts and amenities such as parking. The mockups' versions wait for
+    a Product decision (`docs/design/README.md`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
@@ -70,21 +73,13 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-V7 **failed** its clean re-test after the one bounded fix (2026-10-06):
-- Navigate reached and activated 4/4; visible focus everywhere; no lost turn after Back to Details or Back to
-  Recommendations.
-- In 1 of 4 runs, after Back to Discover, the service stayed on the host and the turn jumped to Coffee.
+V7 failed its clean re-test (2026-10-06) and is waived for this iteration (ADR-002): the focus jump after Back
+to Discover is a known limitation. Further rotary changes need a new Product decision. Record:
+`docs/adr/0002/v7-retest-2026-10-06/`.
 
-E1's pre-registered classification was inconclusive; its run pattern strongly implicated launch-time
-`uiautomator` polling but did not prove the underlying cause. The gate stays: rotation reaches Navigate, select
-activates the focused control, Back loses no turn, visible focus on every actionable control; controller rotation
-on Android 13 only. V7 stays recorded as failed. The waiver accepts that Back to Discover jump as a known
-limitation for this iteration, and M0 exits under it. Further rotary changes need a new decision.
-Record: `docs/adr/0002/v7-retest-2026-10-06/`.
-
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
-Legal still owes the terms before production and attribution placement without a map. ADR-001
-provisionally selects HERE. DN-TD-002 (Gradle/CI tuning) is P3.
+Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit)
+and a UI-gap pass against `docs/design/`; the user sets their order. Parked until production: HERE in-vehicle
+licensing (ADR-001) and the distribution route (V8). DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -148,6 +143,8 @@ provisionally selects HERE. DN-TD-002 (Gradle/CI tuning) is P3.
 - Before saying a task is done: detekt, test, build and lint must pass.
 
 ## Emulator (AVD `AAOS_AOSP_33_userdebug`, x86_64 — this Mac is Intel; always `adb -s emulator-5554`)
+- First check the AVD: `adb -s emulator-5554 emu avd name` must print `AAOS_AOSP_33_userdebug`. Another AVD can
+  hold port 5554, and a `user` image (such as a Play Store one) refuses `inject-vhal-event`.
 - Drive: `adb -s emulator-5554 shell cmd car_service inject-vhal-event 0x11400400 8`
   then hold moving: `adb -s emulator-5554 shell cmd car_service inject-continuous-events 0x11600207 40 -s 5 -d 60`
 - Park: `adb -s emulator-5554 shell cmd car_service inject-vhal-event 0x11400400 4`

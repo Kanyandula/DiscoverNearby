@@ -5,7 +5,7 @@
 **Phase:** Proof of Concept  
 **Owners:** Engineering + Product  
 **Primary Test Environment:** AAOS Emulator  
-**Last Updated:** 2026-10-06
+**Last Updated:** 2026-10-10
 
 > **Revision 2:** This revision defines a reproducible emulator configuration and verifies navigation handoff with a stub navigation app. It adds a relevance benchmark, plus permission, timeout, stale-response, sparse-data, details-failure and deepest-path scenarios. Performance is now recorded as observations rather than used as a gate.
 >
@@ -170,6 +170,8 @@ Provider key in `local.properties` (not committed). Network access enabled unles
 Proves recommendations are **useful**, not just returned.
 
 Run it at M2 and again before the demo. **Product owns the judgement**: engineering produces and records the recommendations, and the Product Lead marks each result ACCEPT or REJECT. Product's sign-off is the M2 exit condition.
+
+Capture every cell on the reference emulator (§2) in Park, with the live provider key, in daytime (11:00–17:00 local). An evening run drops places that are closed then in the time-sensitive categories (the 2026-10-07 run, at about 21:00).
 
 Recording format, per cell:
 
@@ -544,7 +546,7 @@ These run as local tests with no emulator, using NyasaPlayer's setup (delivery p
 
 ## 12. Demo Recording Script
 
-One continuous flow on the recorded emulator configuration:
+One continuous flow on the recorded emulator configuration. The demo stays on the emulator: no install or demonstration in a physical vehicle until HERE confirms in-vehicle rights (ADR-001, Production licensing).
 
 1. Show the AAOS emulator (Park).
 2. Launch Discover Nearby.
@@ -565,7 +567,7 @@ One continuous flow on the recorded emulator configuration:
 - native AAOS execution (a distraction-optimized Compose app)
 - intent-based discovery
 - real location context
-- real data from a provider licensed for in-vehicle use
+- real data from the selected provider (HERE, provisionally selected; in-vehicle rights are settled before production, ADR-001)
 - useful recommendations (relevance benchmark)
 - driver-oriented interaction
 - rotary support
