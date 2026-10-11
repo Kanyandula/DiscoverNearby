@@ -82,14 +82,15 @@ internal fun NavHostController.selectedTab(): RailTab = try {
     RailTab.DISCOVER
 }
 
-/** Saved sits on Discover, single top; Discover pops back to the grid. Neither builds a stack (DN-UX-006). */
+/**
+ * Discover pops back to the grid; Saved goes back to the Saved screen when it is on the stack (its list, scroll and focus
+ * stay), else opens it on Discover. Neither builds a stack (DN-UX-006).
+ */
 internal fun NavHostController.openTab(tab: RailTab) {
-    when (tab) {
-        RailTab.DISCOVER -> popBackStack<DiscoverRoute>(inclusive = false)
-        RailTab.SAVED -> navigate(SavedRoute) {
-            popUpTo<DiscoverRoute>()
-            launchSingleTop = true
-        }
+    when {
+        tab == RailTab.DISCOVER -> popBackStack<DiscoverRoute>(inclusive = false)
+        selectedTab() == RailTab.SAVED -> popBackStack<SavedRoute>(inclusive = false)
+        else -> navigate(SavedRoute) { popUpTo<DiscoverRoute>() }
     }
 }
 
