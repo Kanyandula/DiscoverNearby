@@ -312,7 +312,7 @@ Candidates may include TomTom, HERE, Foursquare, OpenStreetMap-based data, or an
 | Kotlin / async | Kotlin, Coroutines |
 | HTTP / JSON | **REST only:** OkHttp + kotlinx.serialization through our own provider client. No provider SDK in M1–M4 (V5 closed); any SDK need in M5 gets its own ADR. |
 | DI | Manual constructor injection; no framework |
-| Persistence | None initially |
+| Persistence | Allowed in the POC (ADR-004): Room for saved places (DN-UX-006). Search results stay in memory |
 | Navigation between screens | Navigation Compose |
 
 There is no Car App Library dependency, so there is no Car App API level. `minSdk 29` is the only platform floor.
@@ -443,6 +443,8 @@ interface PlacesRepository {
     suspend fun getPlaceDetails(
         placeId: String,
     ): PlaceDetails
+
+    suspend fun hasCarParkNear(location: GeoPoint): Boolean // within CAR_PARK_RADIUS_METERS (150); display only
 }
 ```
 
@@ -486,6 +488,7 @@ data class PlaceSummary(
 data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
+    val openingPeriods: List<OpeningPeriod>,  // HERE's structured hours, for today's closing time (DN-UX-005)
 )
 ```
 
@@ -594,7 +597,7 @@ Rating aggregation (for example, Bayesian averaging of rating and count) is **no
 
 Every place that passes the score floor and diversity rule, in ranked order. The engine is pure Kotlin and has no display limit; the ViewModel shows the first `min(5, uxLimit)` (§6). Fewer if fewer pass the score floor. Never padded.
 
-**Enrichment after ranking (DN-UX-004, ADR-003):** the ViewModel then asks a `PlaceEnricher` (`places/`) for each of the top rows, one at a time, in order, and shows each answer as it arrives. With live HERE data that is `places/tripadvisor/TripadvisorEnricher` (a photo and Tripadvisor's rating); the fakes get none. It runs in the request's coroutine, so a retry or Back cancels it. Ranking never sees it, and nothing it returns is stored.
+**Enrichment after ranking (DN-UX-004, ADR-003):** the ViewModel then asks a `PlaceEnricher` (`places/`) for each of the top rows, one at a time, in order, and shows each answer as it arrives. With live HERE data that is `places/tripadvisor/TripadvisorEnricher` (a photo, Tripadvisor's rating, its price level and description). Keyless fakes get none; `--es scenario` fakes get made-up prices and descriptions (`FakeEnricher`, DN-UX-005). It runs in the request's coroutine, so a retry or Back cancels it. Ranking never sees it, and search results are not stored (ADR-004).
 
 ---
 
@@ -703,15 +706,17 @@ Goals: avoid unnecessary data use, reduce API cost, reduce latency, keep the imp
 
 Production caching is out of scope.
 
-**Default until ADR-001 says otherwise: do not persist provider POI responses.**
+**The POC may store data on the device, provider data included, where a feature needs it (ADR-004).** Search results
+stay in memory:
 
 ```text
 in-memory response → display → discard when the session ends
 ```
 
-- Place identifiers are stored only if the provider's terms allow it.
-- Recorded test fixtures are created only after confirming the provider permits storing responses for testing.
+- Saved places are stored on the device (DN-UX-006).
+- No recorded provider responses in the repository (it is public); tests use made-up data.
 - Do not build a local mirror of third-party POI data.
+- Providers' storage terms go to Legal before production (ADR-004, docs/05 V6b).
 
 ---
 
@@ -746,7 +751,11 @@ enum class DiscoverError {
 
 sealed interface PlaceDetailsUiState {
     data class Loading(val summary: PlaceSummary) : PlaceDetailsUiState
-    data class Content(val details: PlaceDetails) : PlaceDetailsUiState
+    data class Content(                         // closing and car park: DN-UX-005
+        val details: PlaceDetails,
+        val closing: Closing? = null,             // today's closing time, from the schedule
+        val carParkNearby: Boolean? = null,       // its own call; null until it answers
+    ) : PlaceDetailsUiState
     data class SummaryOnly(val summary: PlaceSummary) : PlaceDetailsUiState  // details failed
     data class NavigationUnavailable(val summary: PlaceSummary) : PlaceDetailsUiState  // keeps the header
 }

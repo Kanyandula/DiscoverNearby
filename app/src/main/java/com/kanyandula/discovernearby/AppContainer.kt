@@ -15,6 +15,7 @@ import com.kanyandula.discovernearby.navigation.IntentNavigationLauncher
 import com.kanyandula.discovernearby.navigation.NavigationLauncher
 import com.kanyandula.discovernearby.places.PlaceEnricher
 import com.kanyandula.discovernearby.places.PlacesRepository
+import com.kanyandula.discovernearby.places.fake.FakeEnricher
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakeScenario
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
@@ -51,11 +52,16 @@ class AppContainer(context: Context, private val hereApiKey: String, private val
     private val tripadvisor by lazy { TripadvisorEnricher(tripadvisorApiKey) }
 
     /**
-     * Tripadvisor's photos and ratings for live HERE places when its key is set (DN-UX-004, ADR-003); nothing for the
-     * fakes, so development, CI and Robolectric make no Tripadvisor call. Decided per call, like the places source.
+     * Tripadvisor's data for live HERE places when its key is set (DN-UX-004, ADR-003). A named scenario gets made-up
+     * prices and descriptions (DN-UX-005); keyless fakes (CI, Robolectric) get nothing, so no test calls Tripadvisor.
+     * Decided per call, like the places source.
      */
     val placeEnricher = PlaceEnricher { place, category ->
-        if (servesFakes || tripadvisorApiKey.isBlank()) null else tripadvisor.enrich(place, category)
+        when {
+            fakesRequested -> FakeEnricher.enrich(place, category)
+            servesFakes || tripadvisorApiKey.isBlank() -> null
+            else -> tripadvisor.enrich(place, category)
+        }
     }
 
     // The use case asks for the current source on every call, so a scenario named later still applies.
@@ -64,6 +70,8 @@ class AppContainer(context: Context, private val hereApiKey: String, private val
             placesRepository.searchNearby(origin, category, radiusMeters)
 
         override suspend fun getPlaceDetails(placeId: String) = placesRepository.getPlaceDetails(placeId)
+
+        override suspend fun hasCarParkNear(location: GeoPoint) = placesRepository.hasCarParkNear(location)
     }
     val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)

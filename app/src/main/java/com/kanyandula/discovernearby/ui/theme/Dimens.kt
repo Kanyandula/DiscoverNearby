@@ -39,18 +39,16 @@ val RatingChipPaddingVertical = 4.dp
 val RatingChipGap = 6.dp
 val PhotoCreditGap = 8.dp
 
-// Place Details artboards.
-val DetailsImageHeight = 240.dp // the photo panel above Navigate (03-place-details); it spans the action column
+// Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005), sized so the whole concept
+// fits the 4:3 reference panel beside DN-UX-006's rail (PlaceDetailsFitTest).
+val DetailsGap = 12.dp
+val DetailsImageWidth = 240.dp
+val DetailsImageHeight = 150.dp
 val DetailsImageRadius = 16.dp
-val DetailsImageIconSize = 96.dp
-val DetailsImageGap = 24.dp
-val DetailsInset = 16.dp
-val DetailsColumnGap = 40.dp
-// The canvas has 18; 12 keeps a full set of facts, the summary-only note and the notice on the 4:3 reference panel
-// (PlaceDetailsFitTest) now that the kind of place sits under the distance.
-val SectionPadding = 12.dp
-val ActionColumnWidth = 400.dp
-val NavigateHeight = 88.dp
+val DetailsImageIconSize = 72.dp
+val AmenityTileHeight = 72.dp
+val AmenityTileRadius = 14.dp
+val AmenityIconSize = 24.dp
 val NavigateRadius = 20.dp
 val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp

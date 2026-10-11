@@ -3,6 +3,7 @@ package com.kanyandula.discovernearby.places.tripadvisor
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.places.PlaceEnricher
 import com.kanyandula.discovernearby.places.ProviderJson
@@ -20,14 +21,15 @@ private const val SEARCH_RADIUS_KM = "0.2" // around HERE's position: the same p
 private const val NEARBY_RESULTS = 10
 private const val CALL_TIMEOUT_MILLIS = 4_000L
 
-// The image server's resizing (Terra docs): the Details panel's width, which the row's smaller slot reuses. The
-// original can be 2,000 px wide and ten times the bytes.
-private const val PHOTO_SIZE = "?w=800&h=-1&s=1"
+// The image server's resizing (Terra docs): about twice the Details photo's 240 dp, for denser car screens; the row's
+// smaller slot reuses it. The server takes only some widths: 300, 400, 500, 550, 600, 700 and 800 answer, while 250,
+// 360, 450 and 480 are refused with HTTP 400 (checked 2026-10-11). An original can be 2,000 px wide and much heavier.
+private const val PHOTO_SIZE = "?w=500&h=-1&s=1"
 
 /**
- * Tripadvisor (Terra) photo and rating for a HERE place (DN-UX-004, ADR-003): a nearby search around the place, a
- * strict name match ([nameMatch]), then the location's first photo. The key goes in the `X-API-Key` header and is
- * never logged. Any failure is no answer for that part, and nothing is retried or stored (ADR-003).
+ * Tripadvisor (Terra) photo, rating, price level and description for a HERE place (DN-UX-004, DN-UX-005, ADR-003): a
+ * nearby search around the place, a strict name match ([nameMatch]), then the location's first photo. The key goes in
+ * the `X-API-Key` header and is never logged. Any failure is no answer for that part, and nothing is retried.
  */
 class TripadvisorEnricher(
     private val apiKey: String,
@@ -46,7 +48,10 @@ class TripadvisorEnricher(
         }
         // Its own call and timeout, so a slow photo keeps the rating.
         val photoUrl = location.id?.let { id -> call { firstPhotoUrl(id) } }
-        return if (photoUrl == null && rating == null) null else PlaceEnrichment(photoUrl, rating)
+        val priceLevel = priceLevel(location.priceLevel)
+        val description = location.descriptions.firstOrNull { it.language.startsWith("en") }?.value?.trim()
+            ?.takeIf { it.isNotEmpty() }
+        return PlaceEnrichment(photoUrl, rating, priceLevel, description).takeUnless { it == PlaceEnrichment() }
     }
 
     /** The location within the radius whose name best matches the place's (the nearer on a tie), or null. */
@@ -96,6 +101,14 @@ class TripadvisorEnricher(
             .build()
         return client.newCall(request).awaitBody()?.let { ProviderJson.decodeFromString<T>(it) }
     }
+}
+
+// Tripadvisor's words for its levels (Location Details, `price_level`, restaurants only); anything else is unknown.
+internal fun priceLevel(text: String?): PriceLevel? = when (text) {
+    "Cheap Eats" -> PriceLevel.CHEAP
+    "Mid Range" -> PriceLevel.MID
+    "Fine Dining" -> PriceLevel.FINE
+    else -> null
 }
 
 // Tripadvisor files cafés under restaurants; everything else the app looks for is an attraction.

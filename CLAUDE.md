@@ -58,22 +58,25 @@ in place (DN-M0-012, DN-M0-001).
   - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
-  - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). Amenities wait for a Product
-    decision (`docs/design/README.md`).
-  - **Kind and opening (DN-UX-004):** rows and Details name the kind of place (`kindLabel`); Details shows "Open
-    now"/"Closed now" first, HERE's weekly schedule only when the status is unknown.
-- **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 400 × 240 dp above
-  Navigate) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
+  - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). No source has Wi-Fi, outdoor
+    seating or family friendly (DN-SP-005); the one amenity shown is "Car park nearby" (DN-UX-005).
+  - **Kind (DN-UX-004):** rows name the kind of place (`kindLabel`).
+  - **Place Details (DN-UX-005):** laid out as the concept (`docs/design/03b-place-details-concept.png`). The kind,
+    Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured hours
+    (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m); Tripadvisor's description,
+    two lines, hidden while driving. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
+- **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 240 × 150 dp beside
+  the facts) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
     `BuildConfig.TRIPADVISOR_API_KEY`, sent in `X-API-Key`). After ranking, `RecommendationsViewModel` enriches the
     top rows one by one through `PlaceEnricher`: a nearby search 200 m around HERE's position, a strict name match
-    (`nameMatch`), the first photo. Two calls a place; display only, never ranked; nothing stored; failures and 429
-    leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
+    (`nameMatch`), the first photo. Two calls a place; display only, never ranked; search results not stored; failures
+    and 429 leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
   - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
     graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
-    800 px wide through the image server's resizing; Coil loads them with a memory cache only.
-  - **Cost:** 1,000 free calls a month, then charged. The fakes, CI and Robolectric get `NoEnrichment`: develop on
-    the fakes, keep live checks few.
+    500 px wide through the image server's resizing; Coil loads them with a memory cache only.
+  - **Cost:** 1,000 free calls a month, then charged. Keyless fakes, CI and Robolectric get no enrichment, and
+    `--es scenario` fakes get `FakeEnricher`'s made-up data: develop on the fakes, keep live checks few.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
@@ -86,9 +89,10 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
-The concept image's extra elements (travel time, price, description) are parked by the user. DN-TD-002 (Gradle/CI
-tuning) is P3.
+Next: DN-UX-006 (the app rail, Save and the Saved screen, in Room; spec
+`docs/superpowers/specs/2026-10-11-place-details-and-saved-design.md`), then DN-M2-004 (duplicate HERE records and the
+amusement cap in Family, then another re-run before M2 can exit). Travel time stays parked by the user. DN-TD-002
+(Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -101,7 +105,8 @@ tuning) is P3.
 - Networking: OkHttp + kotlinx.serialization, REST only. No provider SDK. Images: Coil 3, memory cache only.
 - DI: manual constructor injection, single wiring point `AppContainer` (created in
   `DiscoverApplication`). No Hilt.
-- Persistence: none. Provider responses are in-memory only.
+- Persistence: allowed in the POC (ADR-004, Product Lead 2026-10-11); Room for saved places (DN-UX-006). Search
+  results stay in memory. Providers' storage terms go to Legal before production.
 - Testing: JUnit, coroutines-test, Robolectric, Compose UI test (`ui-test-junit4`, `createComposeRule`).
 
 ## Structure (single module `app/`, package per concern — docs/03 §3)

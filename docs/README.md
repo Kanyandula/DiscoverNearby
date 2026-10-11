@@ -10,8 +10,8 @@ The pack is deliberately scoped for an **emulator-first proof of concept**, not 
 
 Current status is in the [verification register](05-discover-nearby-delivery-plan.md#9-verification-register), the
 single status source. Decisions are in the ADRs: ADR-001 (the provider and
-[production licensing](adr/0001-poi-provider.md#production-licensing)), ADR-002 (the UI stack) and ADR-003 (photos and
-ratings).
+[production licensing](adr/0001-poi-provider.md#production-licensing)), ADR-002 (the UI stack), ADR-003 (photos and
+ratings) and ADR-004 (storing data in the POC).
 
 Older implementation plans and revision summaries record what was true when those tasks ran; they are historical
 evidence, not current status.
@@ -38,6 +38,8 @@ evidence, not current status.
 7. **adr/0002-ui-stack-after-v7.md** and **adr/0002/** — ADR-002 and its rotary evidence, screenshots, run record, and retained harness scripts.
 
 8. **adr/0003-place-photos-and-ratings.md** — ADR-003: Tripadvisor for the photos and ratings of the places on screen.
+
+9. **adr/0004-storing-data-in-the-poc.md** — ADR-004: the POC may store data on the device; providers' storage terms go to Legal before production.
 
 `archive/rev1/`, `archive/rev2/` and `archive/rev3/` hold earlier revisions for reference.
 
@@ -124,7 +126,7 @@ See the verification register in `05-discover-nearby-delivery-plan.md` §9.
 | V3 | **Resolved — NyasaPlayer setup reused:** `AAOS_AOSP_33_userdebug` AVD with proven adb driving-state commands (see NyasaPlayer `docs/AAOS_DRIVING_STATE_TESTING.md`). This **replaces** the Revision 2 recommendation of an API 35 Google APIs image. Template-host behaviour (step budget, stub-navigation routing) remains a normal test (Scenarios T, E). |
 | V4 | 🔴 **Open — the one provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS app? Spike order: TomTom → HERE → one named OSM-backed option. 3 days, no extensions. Blocks M1 only. |
 | V5 | 🟢 **Closed:** core POC uses REST only (OkHttp + kotlinx.serialization), no provider SDK. Any M5 SDK need gets its own ADR. |
-| V6a–c | 🟡 **Captured by ADR-001**, not separate decisions: attribution, caching/storage (default: no persistence), API-key/auth model (default: dev-only key). |
+| V6a–c | 🟡 **Captured by ADR-001**, not separate decisions: attribution, caching/storage (the POC may store data, ADR-004), API-key/auth model (default: dev-only key). |
 
 The UX & Interaction Spec (02) changes only by adding design references (§22).
 

@@ -25,4 +25,5 @@ fun PlaceSummary.attributeTypes() = attributes.map { it.type }.distinct()
 data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
+    val openingPeriods: List<OpeningPeriod> = emptyList(), // the weekly schedule, for today's closing time
 )

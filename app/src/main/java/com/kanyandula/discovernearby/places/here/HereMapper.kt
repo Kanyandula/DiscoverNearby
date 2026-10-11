@@ -35,10 +35,11 @@ internal fun HereItem.toSummary(): PlaceSummary? {
     )
 }
 
-/** Details add the opening-hours text; the copyright notice comes with the summary. */
+/** Details add the opening hours, as text and as periods; the copyright notice comes with the summary. */
 internal fun HereItem.toDetails(): PlaceDetails? = toSummary()?.let { summary ->
     PlaceDetails(
         summary = summary,
         openingSummary = openingHours.flatMap { it.text }.joinToString("; ").ifEmpty { null },
+        openingPeriods = openingHours.flatMap { it.structured }.mapNotNull { it.toPeriod() },
     )
 }

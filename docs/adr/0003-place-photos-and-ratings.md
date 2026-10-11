@@ -49,14 +49,21 @@ re-sorting of its results, and the call budget).
 - **Failures** (no match, HTTP 429, network, timeout) leave the row as it was, with the category artwork; nothing is
   retried. Each call has its own 4 s timeout, so a slow photo keeps the rating. The nearby endpoint allows one call a
   second in bursts of five. Names that differ in a number ("Studio 1", "Studio 2") never match.
-- **Photo size:** the image server's resizing (`?w=800&h=-1&s=1`): 800 px wide for the Details panel, which the row
-  reuses. An original can be 2,000 px wide and ten times the bytes.
-- **Nothing is stored.** Tripadvisor's caching policy allows only its location ID. The app keeps none, and images load
-  through a memory-only cache (no disk cache).
+- **Photo size:** the image server's resizing (`?w=500&h=-1&s=1`): 500 px wide, about twice the Details photo's 240 dp
+  (DN-UX-005), which the row reuses. The server takes only some widths (480 is refused). An original can be 2,000 px
+  wide and ten times the bytes.
+- **Search results are not stored**, and images load through a memory-only cache (no disk cache). Saved places keep
+  their Tripadvisor photo link, rating, price and description on the device
+  ([ADR-004](0004-storing-data-in-the-poc.md)), although Tripadvisor's caching policy allows only its location ID: a
+  production item (→ Legal).
 - **No calls in development or tests.** The fakes, CI and Robolectric get no enrichment.
 - **Display:** Tripadvisor's own rating graphic (its owl mark and bubbles, from the API) on a white chip with the review
   count; a rating without that graphic isn't shown. "Photo: Tripadvisor" under the Place Details photo; the API masks
   who took a photo.
+- **Price and description (DN-UX-005):** the matched location's `price_level` (Cheap Eats, Mid Range, Fine Dining;
+  restaurants only), shown as €, €€–€€€ or €€€€, and its English description, at most two lines and hidden while
+  driving. Both come in the nearby search, so they cost no call. DN-SP-005 found them for 9 of 10 matched cafés and
+  restaurants and 12 of 30 matched places respectively; Tripadvisor's `attributes` (amenities) were empty for all 30.
 
 Risk accepted by the Product Lead on 2026-10-10 for the emulator POC, as for HERE.
 

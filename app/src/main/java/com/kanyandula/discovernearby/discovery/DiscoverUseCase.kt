@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby.discovery
 
 import com.kanyandula.discovernearby.location.LocationProvider
 import com.kanyandula.discovernearby.location.LocationResult
+import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.places.NetworkUnavailable
@@ -42,8 +43,14 @@ class DiscoverUseCase(
         }
 
     /** The opened place's richer details, or null when they fail or time out: the screen keeps the summary. */
-    suspend fun details(placeId: String): PlaceDetails? = try {
-        withTimeoutOrNull(timeoutMillis) { places.getPlaceDetails(placeId) }
+    suspend fun details(placeId: String): PlaceDetails? = optional { places.getPlaceDetails(placeId) }
+
+    /** Whether a car park lies near [location], or null when the check fails or times out: then no tile shows. */
+    suspend fun carParkNear(location: GeoPoint): Boolean? = optional { places.hasCarParkNear(location) }
+
+    /** An optional call's answer, or null when it fails or times out: the screen goes on without it. */
+    private suspend fun <T> optional(call: suspend () -> T): T? = try {
+        withTimeoutOrNull(timeoutMillis) { call() }
     } catch (ignored: PlacesException) {
         null
     }

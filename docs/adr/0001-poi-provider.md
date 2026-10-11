@@ -325,12 +325,12 @@ confirmed with HERE before production ([Production licensing](#production-licens
 
 | Field | Value |
 | --- | --- |
-| May POI responses be persisted? For how long? | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days" … "unless Results are used solely for your internal testing, evaluation, or record retention for audit and legal compliance purposes" [H1]. POC: no persistence (in memory) |
-| May place IDs be stored? | → Legal. Not addressed in the sections read. The app writes no place data to storage. The opened place's summary (with its ID) travels in the navigation route, so it sits in the back stack's saved state while the task exists (DN-M0-005) |
+| May POI responses be persisted? For how long? | → Legal. §6.4(j): Results not cached outside the Platform "for more than 30 days" … "unless Results are used solely for your internal testing, evaluation, or record retention for audit and legal compliance purposes" [H1]. POC: may store, Product Lead 2026-10-11 ([ADR-004](0004-storing-data-in-the-poc.md)) |
+| May place IDs be stored? | → Legal. Not addressed in the sections read. Saved places keep place IDs on the device (ADR-004, DN-UX-006). The opened place's summary (with its ID) travels in the navigation route, so it sits in the back stack's saved state while the task exists (DN-M0-005) |
 | May responses be recorded as test fixtures? | No: none recorded (public repo); revisit with Legal |
 | Caching-header rules | Exhibit 2 §1.3: only "as explicitly allowed by the caching headers (HTTP/1.1 standard) returned by HERE Location Services" [H1]; headers not recorded in this run |
 
-Default until this is filled in: **no persistence** (in-memory, discarded at session end).
+**POC:** storing is allowed ([ADR-004](0004-storing-data-in-the-poc.md), Product Lead, 2026-10-11); these terms go to Legal before production.
 
 ## V6c — Authentication
 

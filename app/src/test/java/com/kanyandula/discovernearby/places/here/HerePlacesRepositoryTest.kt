@@ -223,4 +223,28 @@ class HerePlacesRepositoryTest {
         }
         assertEquals(listOf("A"), repository.searchNearby(GREYSTONES, DiscoveryCategory.COFFEE, 1).map { it.name })
     }
+
+    // DN-UX-005: one /browse for HERE's parking category around the place; any item means a car park nearby.
+    @Test
+    fun aCarParkCheckAsksForParkingWithin150m() = runBlocking {
+        assertTrue(repository.hasCarParkNear(GREYSTONES))
+        val url = requests.single().url
+        assertEquals("browse.search.hereapi.com", url.host)
+        assertEquals("53.144000,-6.063300", url.queryParameter("at"))
+        assertEquals("circle:53.144000,-6.063300;r=150", url.queryParameter("in"))
+        assertEquals("800-8500", url.queryParameter("categories"))
+        assertEquals("1", url.queryParameter("limit"))
+    }
+
+    @Test
+    fun noItemsMeansNoCarPark() = runBlocking {
+        respond = { reply(it, 200, """{"items": []}""") }
+        assertFalse(repository.hasCarParkNear(GREYSTONES))
+    }
+
+    @Test
+    fun aFailedCarParkCheckIsAProviderFailure() {
+        respond = { reply(it, 500, "{}") }
+        assertTrue(failure { repository.hasCarParkNear(GREYSTONES) } is ProviderFailure)
+    }
 }

@@ -61,6 +61,9 @@ class FakePlacesRepository(
         }
     }
 
+    // A car park near every fake place, so the tile shows in the scenarios; none where the fakes drop optional data.
+    override suspend fun hasCarParkNear(location: GeoPoint): Boolean = scenario != FakeScenario.NULL_HEAVY
+
     private fun PlaceSummary.withoutOptionalFields() = copy(
         primaryKind = null,
         attributes = emptySet(),

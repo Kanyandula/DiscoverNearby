@@ -81,7 +81,12 @@
     <string name="photo_tripadvisor">Photo: Tripadvisor</string>
     <string name="open_now">Open now</string>
     <string name="closed_now">Closed now</string>
-    <string name="amenities">Amenities</string>
+    <string name="open_closes">Open · Closes %1$s</string>
+    <string name="open_all_day">Open 24 hours</string>
+    <string name="car_park_nearby">Car park nearby</string>
+    <string name="price_cheap">€</string>
+    <string name="price_mid">€€–€€€</string>
+    <string name="price_fine">€€€€</string>
     <string name="details_unavailable">More details unavailable right now</string>
     <!-- The data provider's copyright notice (ADR-001 V6a): "© 2026 HERE". -->
     <string name="provider_attribution">© %1$d %2$s</string>

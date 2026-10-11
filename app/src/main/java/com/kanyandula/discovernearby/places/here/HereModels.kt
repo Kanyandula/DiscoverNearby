@@ -24,4 +24,16 @@ internal data class HerePosition(val lat: Double? = null, val lng: Double? = nul
 internal data class HereCategory(val id: String = "", val primary: Boolean = false)
 
 @Serializable
-internal data class HereOpeningHours(val text: List<String> = emptyList(), val isOpen: Boolean? = null)
+internal data class HereOpeningHours(
+    val text: List<String> = emptyList(),
+    val isOpen: Boolean? = null,
+    val structured: List<HereStructuredHours> = emptyList(),
+)
+
+/** One weekly period: `start` "T070000", `duration` "PT09H00M", `recurrence` "FREQ:DAILY;BYDAY:MO,TU". */
+@Serializable
+internal data class HereStructuredHours(
+    val start: String = "",
+    val duration: String = "",
+    val recurrence: String = "",
+)
