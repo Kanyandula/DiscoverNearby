@@ -19,6 +19,8 @@ import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.ReferencePanelHeight
+import com.kanyandula.discovernearby.ui.ReferencePanelWidth
 import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
@@ -30,15 +32,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-
-/**
- * The panel a destination gets on the reference AVD: 768 dp, less the system bars (76 + 96), the app header (56),
- * the outer bottom padding (24) and the panel's own padding (24 + 24).
- */
-private val ReferencePanelHeight = 468.dp
-
-/** The panel's width on the reference AVD, 928 dp, less DN-UX-006's rail (72) and its gap (16). */
-private val ReferencePanelWidth = 840.dp
 
 // The summary-only note is the only sign of the fallback; a full set of facts must not push it off the panel.
 // Native graphics measure real text: the legacy mode gives every character about 1 px, so nothing ever wraps.
@@ -68,6 +61,8 @@ class PlaceDetailsFitTest {
                         state = SummaryOnly(everything),
                         onNavigate = {},
                         onBack = {},
+                        saved = false,
+                        onToggleSave = {},
                         drivingRestricted = false, // parked: the description shows
                         enrichment = PlaceEnrichment(
                             photoUrl = "https://example.test/p.jpg",
@@ -99,5 +94,9 @@ class PlaceDetailsFitTest {
         description.assertIsDisplayed()
         assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
         navigate.assertHeightIsAtLeast(MinTouchTarget)
+        val save = rule.onNodeWithText("Save")
+        save.assertIsDisplayed()
+        save.assertHeightIsAtLeast(MinTouchTarget)
+        assertTrue(save.getUnclippedBoundsInRoot().right <= navigate.getUnclippedBoundsInRoot().left)
     }
 }

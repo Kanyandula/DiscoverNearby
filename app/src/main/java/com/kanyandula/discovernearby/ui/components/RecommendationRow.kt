@@ -6,30 +6,43 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.composed
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.ProviderRating
-import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
+import com.kanyandula.discovernearby.ui.theme.NextRowPeek
 import com.kanyandula.discovernearby.ui.theme.RatingChipGap
 import com.kanyandula.discovernearby.ui.theme.RowImageHeight
 import com.kanyandula.discovernearby.ui.theme.RowImageIconSize
@@ -39,27 +52,29 @@ import com.kanyandula.discovernearby.ui.theme.RowLineGap
 import com.kanyandula.discovernearby.ui.theme.RowPadding
 import com.kanyandula.discovernearby.ui.theme.RowRadius
 import com.kanyandula.discovernearby.ui.theme.RowVerticalPadding
+import kotlinx.coroutines.launch
 
 private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or derived attributes
 
 /**
- * One recommendation (canvas Recommendations artboard): the place's image; name; rating and attributes when known;
- * distance. Missing fields are left out, never shown blank. [enrichment] adds Tripadvisor's photo and rating
- * (DN-UX-004). The provider's notice sits under the list, not on the row (ProviderAttribution).
+ * One place on a list (canvas Recommendations artboard; Saved, DN-UX-006): the place's image; name; rating and
+ * attributes when known; distance when known. Missing fields are left out, never shown blank. [enrichment] adds
+ * Tripadvisor's photo and rating (DN-UX-004). The provider's notice sits under the list, not on the row
+ * (ProviderAttribution).
  */
 @Composable
 fun RecommendationRow(
-    recommendation: Recommendation,
+    place: PlaceSummary,
+    distanceMeters: Int?,
     enrichment: PlaceEnrichment?,
     category: DiscoveryCategory,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val place = recommendation.place
     val shape = RoundedCornerShape(RowRadius)
     Surface(
         onClick = onClick,
-        modifier = modifier.focusRing(shape).fillMaxWidth(),
+        modifier = modifier.revealNextOnFocus().focusRing(shape).fillMaxWidth(),
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
@@ -89,7 +104,7 @@ fun RecommendationRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 DetailsLine(place, enrichment?.rating)
-                SupportingLine(stringResource(R.string.distance_km, kilometres(recommendation.distanceMeters)))
+                distanceMeters?.let { SupportingLine(stringResource(R.string.distance_km, kilometres(it))) }
             }
             // Decorative, as on the canvas.
             Icon(
@@ -136,12 +151,35 @@ private fun detailsText(place: PlaceSummary): String? {
 
 /** A muted one-line detail under a place's name, on rows and Place Details. */
 @Composable
-internal fun SupportingLine(text: String, color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
+internal fun SupportingLine(text: String) = SupportingLine(AnnotatedString(text))
+
+/** A muted one-line detail whose spans can colour parts of it, as "Open" is green on Place Details. */
+@Composable
+internal fun SupportingLine(text: AnnotatedString) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = color,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )
+}
+
+/**
+ * Rotary (DN-UX-006): a focused row also brings the top of the next row into view. The rotary service moves only to
+ * rows on screen, and the app rail follows the list, so without that glimpse a turn from the last visible row would
+ * jump to the rail instead of scrolling on (found on the emulator).
+ */
+private fun Modifier.revealNextOnFocus(): Modifier = composed {
+    val requester = remember { BringIntoViewRequester() }
+    val scope = rememberCoroutineScope()
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val peek = with(LocalDensity.current) { NextRowPeek.toPx() }
+    bringIntoViewRequester(requester)
+        .onSizeChanged { size = it }
+        .onFocusChanged { state ->
+            if (state.isFocused) {
+                scope.launch { requester.bringIntoView(Rect(0f, 0f, size.width.toFloat(), size.height + peek)) }
+            }
+        }
 }

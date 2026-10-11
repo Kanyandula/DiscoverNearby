@@ -3,6 +3,8 @@ package com.kanyandula.discovernearby.ui
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kanyandula.discovernearby.AppContainer
+import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
 import com.kanyandula.discovernearby.model.PlaceEnrichment
@@ -27,6 +30,8 @@ import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsViewModel
+import com.kanyandula.discovernearby.ui.screens.SavedScreen
+import com.kanyandula.discovernearby.ui.screens.SavedViewModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.nullable
 import kotlin.reflect.typeOf
@@ -37,13 +42,22 @@ data object DiscoverRoute
 @Serializable
 data class RecommendationsRoute(val category: DiscoveryCategory)
 
+@Serializable
+data object SavedRoute
+
+/** The app rail's tabs (DN-UX-006). The car's Music, Phone and Settings stay on its system rail. */
+enum class RailTab(@param:DrawableRes val icon: Int, @param:StringRes val label: Int) {
+    DISCOVER(R.drawable.ic_grid, R.string.tab_discover),
+    SAVED(R.drawable.ic_heart_filled, R.string.tab_saved),
+}
+
 // The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
 // call or process death (docs/02 §7); the category the user picked, for the place's artwork; and the row's
 // Tripadvisor photo and rating, so Details shows them without a second lookup (DN-UX-004).
 @Serializable
 data class PlaceDetailsRoute(
     val place: PlaceSummary,
-    val distanceMeters: Int,
+    val distanceMeters: Int?, // null when opened from Saved without a location (DN-UX-006)
     val category: DiscoveryCategory,
     val enrichment: PlaceEnrichment? = null,
 )
@@ -59,6 +73,26 @@ private val PlaceDetailsTypes = mapOf(
  * during the 700 ms forward fade still works (a RESUMED check would drop it until the fade ends).
  */
 private fun NavHostController.isTop(entry: NavBackStackEntry) = currentBackStackEntry?.id == entry.id
+
+/** Saved while Saved is on the back stack: on Saved and on a Place Details opened from it (DN-UX-006). */
+internal fun NavHostController.selectedTab(): RailTab = try {
+    getBackStackEntry<SavedRoute>()
+    RailTab.SAVED
+} catch (ignored: IllegalArgumentException) {
+    RailTab.DISCOVER
+}
+
+/**
+ * Discover pops back to the grid; Saved goes back to the Saved screen when it is on the stack (its list, scroll and
+ * focus stay), else opens it on Discover. Neither builds a stack (DN-UX-006).
+ */
+internal fun NavHostController.openTab(tab: RailTab) {
+    when {
+        tab == RailTab.DISCOVER -> popBackStack<DiscoverRoute>(inclusive = false)
+        selectedTab() == RailTab.SAVED -> popBackStack<SavedRoute>(inclusive = false)
+        else -> navigate(SavedRoute) { popUpTo<DiscoverRoute>() }
+    }
+}
 
 @Composable
 fun DiscoverNavHost(
@@ -104,25 +138,65 @@ fun DiscoverNavHost(
                 onOpenSettings = location.openSettings,
             )
         }
+        composable<SavedRoute> { entry -> SavedDestination(container, navController, entry) }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
-            val route = remember(entry) { entry.toRoute<PlaceDetailsRoute>() }
-            val viewModel = viewModel {
-                PlaceDetailsViewModel(route.place, container.discoverUseCase, container.navigationLauncher)
-            }
-            val state by viewModel.uiState.collectAsStateWithLifecycle()
-            // Only for the description (DN-UX-005); Navigate and Back work the same either way.
-            val driving by container.drivingRestrictions.state.collectAsStateWithLifecycle()
-            PlaceDetailsScreen(
-                distanceMeters = route.distanceMeters,
-                category = route.category,
-                enrichment = route.enrichment,
-                state = state,
-                drivingRestricted = driving.distractionOptimizationRequired,
-                onNavigate = viewModel::navigate,
-                onBack = { if (navController.isTop(entry)) navController.popBackStack() },
-            )
+            PlaceDetailsDestination(container, navController, entry)
         }
     }
+}
+
+@Composable
+private fun SavedDestination(container: AppContainer, navController: NavHostController, entry: NavBackStackEntry) {
+    val viewModel = viewModel {
+        SavedViewModel(container.savedPlaces, container.locationProvider, container.drivingRestrictions)
+    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    SavedScreen(
+        state = state,
+        onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+        onPlaceSelected = { row ->
+            if (navController.isTop(entry)) {
+                val saved = row.place
+                navController.navigate(
+                    PlaceDetailsRoute(saved.summary, row.distanceMeters, saved.category, saved.enrichment),
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun PlaceDetailsDestination(
+    container: AppContainer,
+    navController: NavHostController,
+    entry: NavBackStackEntry,
+) {
+    val route = remember(entry) { entry.toRoute<PlaceDetailsRoute>() }
+    val viewModel = viewModel {
+        PlaceDetailsViewModel(
+            place = route.place,
+            discover = container.discoverUseCase,
+            navigation = container.navigationLauncher,
+            saved = container.savedPlaces,
+            category = route.category,
+            enrichment = route.enrichment,
+        )
+    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val saved by viewModel.isSaved.collectAsStateWithLifecycle()
+    // Only for the description (DN-UX-005); Navigate and Back work the same either way.
+    val driving by container.drivingRestrictions.state.collectAsStateWithLifecycle()
+    PlaceDetailsScreen(
+        distanceMeters = route.distanceMeters,
+        category = route.category,
+        enrichment = route.enrichment,
+        state = state,
+        drivingRestricted = driving.distractionOptimizationRequired,
+        onNavigate = viewModel::navigate,
+        onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+        saved = saved,
+        onToggleSave = viewModel::toggleSave,
+    )
 }
 
 private fun AppContainer.recommendationsViewModel(category: DiscoveryCategory) =

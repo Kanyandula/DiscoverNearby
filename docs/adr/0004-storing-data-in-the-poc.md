@@ -24,6 +24,11 @@ publishing the app on Google Play and not now".
 
 - **First use:** saved places (DN-UX-006), in a Room database on the device. A saved place keeps its HERE summary and
   its Tripadvisor photo link, rating, price and description.
+- **How (DN-UX-006):** package `saved/`, Room 2.8 through KSP. One table, `saved_places`: the place ID (key), the
+  category, when it was saved, the HERE summary and the Tripadvisor enrichment as JSON. No exported schema: a schema
+  change wipes saved places, which the POC accepts. A row that no longer decodes is skipped. Live data and the
+  `--es scenario` fakes keep separate files (`saved-places.db`, `saved-places-fakes.db`), so made-up places never
+  show in a live list; Robolectric keeps them in memory.
 - **Search results stay in memory.** No feature needs them stored, so no cache is built, and the app keeps no local
   mirror of POI data.
 - **Images** keep Coil's memory-only cache (ADR-003).

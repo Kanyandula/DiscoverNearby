@@ -1,6 +1,8 @@
 package com.kanyandula.discovernearby.ui.screens
 
 import android.text.format.DateFormat
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +52,7 @@ import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
+import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ButtonGap
 import com.kanyandula.discovernearby.ui.theme.ContentGap
@@ -67,24 +70,28 @@ import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
 import com.kanyandula.discovernearby.ui.theme.PhotoCreditGap
+import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 
 /**
  * Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005): Back, the photo and what is
  * known about the place across the top; the amenity tiles; Tripadvisor's description; Navigate bottom right, with
- * Save's slot beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
+ * Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
  * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
  * row can appear late and push the description down). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
  */
+@Suppress("LongParameterList") // the state plus one lambda per user action
 @Composable
 fun PlaceDetailsScreen(
-    distanceMeters: Int,
+    distanceMeters: Int?,
     category: DiscoveryCategory,
     state: PlaceDetailsUiState,
     onNavigate: () -> Unit,
     onBack: () -> Unit,
+    saved: Boolean,
+    onToggleSave: () -> Unit,
     modifier: Modifier = Modifier,
     enrichment: PlaceEnrichment? = null,
     drivingRestricted: Boolean = true, // unknown means restrictions apply (docs/03 §6)
@@ -124,8 +131,25 @@ fun PlaceDetailsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-                    Spacer(Modifier.weight(1f)) // Save's slot (DN-UX-006)
-                    NavigateButton(onClick = onNavigate, modifier = Modifier.weight(1f))
+                    // Save ↔ Saved (DN-UX-006) on Raised grey, so the Accent ring shows on it.
+                    ActionButton(
+                        icon = if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart,
+                        label = if (saved) R.string.saved else R.string.save,
+                        container = Raised,
+                        content = OnSurface,
+                        onClick = onToggleSave,
+                        modifier = Modifier.weight(1f),
+                    )
+                    // Action blue fill: a light ring stands out where an Accent one would not.
+                    ActionButton(
+                        icon = R.drawable.ic_navigate,
+                        label = R.string.navigate,
+                        container = Action,
+                        content = Color.White,
+                        onClick = onNavigate,
+                        modifier = Modifier.weight(1f),
+                        ring = OnSurface,
+                    )
                 }
                 // Bottom left: HERE's notice with HERE's data (ADR-001 V6a).
                 ProviderAttribution(state.summary.attribution)
@@ -162,8 +186,8 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 @Composable
 private fun Summary(
     place: PlaceSummary,
-    distanceMeters: Int,
-    opening: String?,
+    distanceMeters: Int?,
+    opening: AnnotatedString?,
     enrichment: PlaceEnrichment?,
     summaryOnly: Boolean,
     modifier: Modifier = Modifier,
@@ -194,10 +218,10 @@ private fun Summary(
         val facts = listOfNotNull(
             kindLabel(place.primaryKind)?.let { stringResource(it) },
             enrichment?.priceLevel?.let { stringResource(it.label) },
-            stringResource(R.string.distance_away, kilometres(distanceMeters)),
+            distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
         )
         SupportingLine(facts.joinToString(SEPARATOR))
-        opening?.let { if (place.isOpenNow == true) SupportingLine(it, OpenNow) else SupportingLine(it) }
+        opening?.let { SupportingLine(it) }
         if (summaryOnly) DetailsUnavailable()
     }
 }
@@ -219,23 +243,27 @@ private fun ratingLine(place: PlaceSummary): AnnotatedString? {
 }
 
 /**
- * "Open · Closes 18:00", "Open 24 hours" or "Open now" while open; "Closed now"; HERE's weekly text only when the
- * status is unknown. The time follows the car's 12/24-hour setting.
+ * "Open · Closes 18:00", "Open 24 hours" or "Open now" while open, the open part green as in the concept; "Closed
+ * now"; HERE's weekly text only when the status is unknown. The time follows the car's 12/24-hour setting.
  */
 @Composable
-private fun openingLine(place: PlaceSummary, closing: Closing?, openingSummary: String?): String? =
-    when (place.isOpenNow) {
+private fun openingLine(place: PlaceSummary, closing: Closing?, openingSummary: String?): AnnotatedString? {
+    fun open(text: String) = AnnotatedString(text, SpanStyle(color = OpenNow))
+    return when (place.isOpenNow) {
         true -> when (closing) {
-            Closing.AllDay -> stringResource(R.string.open_all_day)
-            is Closing.At -> stringResource(
-                R.string.open_closes,
-                clockTime(closing.time, DateFormat.is24HourFormat(LocalContext.current)),
+            Closing.AllDay -> open(stringResource(R.string.open_all_day))
+            is Closing.At -> open(stringResource(R.string.open)) + AnnotatedString(
+                SEPARATOR + stringResource(
+                    R.string.closes_at,
+                    clockTime(closing.time, DateFormat.is24HourFormat(LocalContext.current)),
+                ),
             )
-            null -> stringResource(R.string.open_now)
+            null -> open(stringResource(R.string.open_now))
         }
-        false -> stringResource(R.string.closed_now)
-        null -> openingSummary
+        false -> AnnotatedString(stringResource(R.string.closed_now))
+        null -> openingSummary?.let(::AnnotatedString)
     }
+}
 
 /** Whose content the photo is; Tripadvisor masks who took it. */
 @Composable
@@ -262,23 +290,26 @@ private fun DetailsUnavailable() {
     }
 }
 
+/** Save and Navigate: an icon and a label on a 76 dp button. The label says what it does, so the icon is decorative. */
 @Composable
-private fun NavigateButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ActionButton(
+    @DrawableRes icon: Int,
+    @StringRes label: Int,
+    container: Color,
+    content: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    ring: Color = Accent,
+) {
     val shape = RoundedCornerShape(NavigateRadius)
     Button(
         onClick = onClick,
-        // Action blue fill: a light ring stands out where an Accent one would not.
-        modifier = modifier.focusRing(shape, OnSurface).height(MinTouchTarget),
+        modifier = modifier.focusRing(shape, ring).height(MinTouchTarget),
         shape = shape,
-        colors = ButtonDefaults.buttonColors(containerColor = Action, contentColor = Color.White),
+        colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = content),
     ) {
-        // Decorative: the label says what it does.
-        Icon(
-            painter = painterResource(R.drawable.ic_navigate),
-            contentDescription = null,
-            modifier = Modifier.size(NavigateIconSize),
-        )
+        Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(NavigateIconSize))
         Spacer(modifier = Modifier.width(NavigateIconGap))
-        Text(text = stringResource(R.string.navigate), style = MaterialTheme.typography.headlineSmall)
+        Text(text = stringResource(label), style = MaterialTheme.typography.headlineSmall)
     }
 }

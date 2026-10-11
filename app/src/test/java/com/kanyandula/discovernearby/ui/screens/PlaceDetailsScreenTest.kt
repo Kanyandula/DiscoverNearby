@@ -4,6 +4,7 @@ import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
@@ -33,6 +34,7 @@ import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
+import com.kanyandula.discovernearby.ui.theme.OpenNow
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -60,6 +62,9 @@ class PlaceDetailsScreenTest {
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
     private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var restricted by mutableStateOf(false)
+    private var isSaved by mutableStateOf(false)
+    private var distance by mutableStateOf<Int?>(2_100)
+    private var saves = 0
     private var navigations = 0
     private var backs = 0
 
@@ -69,11 +74,13 @@ class PlaceDetailsScreenTest {
         rule.setContent {
             DiscoverNearbyTheme {
                 PlaceDetailsScreen(
-                    distanceMeters = 2_100,
+                    distanceMeters = distance,
                     category = DiscoveryCategory.COFFEE,
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },
+                    saved = isSaved,
+                    onToggleSave = { saves++ },
                     enrichment = enrichment,
                     drivingRestricted = restricted,
                 )
@@ -199,6 +206,16 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithText("Open 24 hours").assertIsDisplayed()
     }
 
+    // As in the concept: only "Open" is green; the closing time stays muted.
+    @Test
+    fun onlyOpenIsGreenBeforeTheClosingTime() {
+        state = Content(PlaceDetails(place, openingSummary = null), Closing.At(LocalTime.of(18, 0)))
+        val line = rule.onNodeWithText("Open · Closes 18:00").fetchSemanticsNode().config[SemanticsProperties.Text]
+            .single()
+        val green = line.spanStyles.filter { it.item.color == OpenNow }.map { line.text.substring(it.start, it.end) }
+        assertEquals(listOf("Open"), green)
+    }
+
     // Review Focus 2: HERE says open, but no period gives a closing time.
     @Test
     fun openWithoutAClosingTimeSaysOpenNow() {
@@ -251,5 +268,26 @@ class PlaceDetailsScreenTest {
         val plain = rule.onNodeWithText("Drive-through").getUnclippedBoundsInRoot()
         val withIcon = rule.onNodeWithText("Car park nearby").getUnclippedBoundsInRoot()
         assertEquals(withIcon.top, plain.top)
+    }
+
+    // DN-UX-006: Save beside Navigate, one tap, also while driving; the label follows the database.
+    @Test
+    fun saveTogglesAndSaysWhetherThePlaceIsSaved() {
+        state = Content(PlaceDetails(place, openingSummary = null))
+        restricted = true
+        rule.onNodeWithText("Save").performClick()
+        assertEquals(1, saves)
+        isSaved = true
+        rule.onNodeWithText("Saved").assertIsDisplayed()
+        rule.onNodeWithText("Save").assertDoesNotExist()
+    }
+
+    // DN-UX-006: opened from Saved without a location, the facts leave the distance out.
+    @Test
+    fun anUnknownDistanceIsLeftOut() {
+        distance = null
+        state = Content(PlaceDetails(place, openingSummary = null))
+        rule.onNodeWithText("Café").assertIsDisplayed()
+        rule.onAllNodesWithText("km", substring = true).assertCountEquals(0)
     }
 }

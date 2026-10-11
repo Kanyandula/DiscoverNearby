@@ -23,8 +23,9 @@ val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Man
 const val LOCATION_TIMEOUT_MILLIS = 8_000L
 
 /**
- * The vehicle's location from LocationManager (docs/03 §7), read only when discovery asks (docs/01 §14). GPS
- * first, network where a car has one; the reference image's Play-services fused provider adds nothing for one fix.
+ * The vehicle's location from LocationManager (docs/03 §7), read only when discovery asks (docs/01 §14) or Saved
+ * opens. GPS first, network where a car has one; the reference image's Play-services fused provider adds nothing for
+ * one fix.
  * Every location call follows the permission check in currentLocation(); revoking it ends the process.
  */
 @SuppressLint("MissingPermission")

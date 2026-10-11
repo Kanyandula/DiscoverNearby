@@ -3,8 +3,9 @@ package com.kanyandula.discovernearby
 /**
  * Robolectric's application: by its convention, a class named "Test" + the manifest's application class, in the same
  * package, replaces it in every test. Its container has no key, so every test serves the fakes and none reaches live
- * HERE, whatever local.properties holds. Matches CI, which has no key.
+ * HERE, whatever local.properties holds. Matches CI, which has no key. Saved places are kept in memory, so each test
+ * starts with none and writes no file.
  */
 class TestDiscoverApplication : DiscoverApplication() {
-    override fun createContainer() = AppContainer(this, hereApiKey = "")
+    override fun createContainer() = AppContainer(this, hereApiKey = "", savedPlacesInMemory = true)
 }

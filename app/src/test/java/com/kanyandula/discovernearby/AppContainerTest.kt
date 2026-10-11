@@ -5,7 +5,9 @@ import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
+import com.kanyandula.discovernearby.saved.SavedPlace
 import com.kanyandula.discovernearby.ui.appContainer
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -61,5 +63,14 @@ class AppContainerTest {
         assertNull(AppContainer(app, hereApiKey = "").placeEnricher.enrich(place, DiscoveryCategory.COFFEE))
         val scenario = AppContainer(app, hereApiKey = "").apply { useFakeScenario("NORMAL") }
         assertEquals(PriceLevel.CHEAP, scenario.placeEnricher.enrich(place, DiscoveryCategory.COFFEE)?.priceLevel)
+    }
+
+    // DN-UX-006: made-up scenario places never land in a live Saved list: each has its own database.
+    @Test
+    fun aScenarioKeepsItsSavedPlacesApartFromLiveOnes() = runTest {
+        val container = AppContainer(app, hereApiKey = "k", savedPlacesInMemory = true)
+        container.savedPlaces.save(testPlace("live-1", "cafe"), DiscoveryCategory.COFFEE, null)
+        container.useFakeScenario("NORMAL")
+        assertEquals(emptyList<SavedPlace>(), container.savedPlaces.savedPlaces().first())
     }
 }

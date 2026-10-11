@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
-import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.RailTab
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
 import com.kanyandula.discovernearby.ui.theme.Accent
@@ -100,8 +100,7 @@ class FocusRingTest {
     @Test
     fun focusedRecommendationRowShowsTheRing() {
         val place = testPlace("cafe-1", "cafe")
-        val recommendation = Recommendation(place, 1.0, distanceMeters = 500, null, null, null)
-        show { RecommendationRow(recommendation, enrichment = null, DiscoveryCategory.COFFEE, onClick = {}) }
+        show { RecommendationRow(place, 500, enrichment = null, category = DiscoveryCategory.COFFEE, onClick = {}) }
         val row = rule.onNodeWithText(place.name)
         row.requestFocus()
         assertArrayEquals(Accent.rgb(), row.edgePixel().rgb(), TOLERANCE)
@@ -115,10 +114,19 @@ class FocusRingTest {
         assertArrayEquals(Accent.rgb(), back.edgePixel().rgb(), TOLERANCE)
     }
 
-    // Navigate is filled with Action blue, so an Accent ring would barely show; it gets a light one.
+    @Test
+    fun focusedRailTabShowsTheRing() {
+        show { AppRail(selected = RailTab.DISCOVER, onSelect = {}) }
+        val saved = rule.onNodeWithContentDescription(text(R.string.tab_saved))
+        saved.requestFocus()
+        assertArrayEquals(Accent.rgb(), saved.edgePixel().rgb(), TOLERANCE)
+    }
+
+    // Navigate is filled with Action blue, so an Accent ring would barely show; it gets a light one. Save is Raised
+    // grey: the Accent ring shows on it.
     @Test
     @Config(qualifiers = AUTOMOTIVE_1024P)
-    fun focusedNavigateShowsALightRing() {
+    fun focusedDetailsActionsShowTheirRings() {
         val place = testPlace("cafe-1", "cafe")
         show {
             PlaceDetailsScreen(
@@ -127,11 +135,16 @@ class FocusRingTest {
                 state = PlaceDetailsUiState.SummaryOnly(place),
                 onNavigate = {},
                 onBack = {},
+                saved = false,
+                onToggleSave = {},
             )
         }
         val navigate = rule.onNodeWithText(text(R.string.navigate))
         navigate.requestFocus()
         assertArrayEquals(OnSurface.rgb(), navigate.edgePixel().rgb(), TOLERANCE)
+        val save = rule.onNodeWithText(text(R.string.save))
+        save.requestFocus()
+        assertArrayEquals(Accent.rgb(), save.edgePixel().rgb(), TOLERANCE)
     }
 
     // Error and permission states: Retry/Grant are Action blue (light ring), Back is Raised (Accent ring).
