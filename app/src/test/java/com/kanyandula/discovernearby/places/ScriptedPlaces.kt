@@ -32,4 +32,9 @@ class ScriptedPlaces(var reply: suspend () -> List<PlaceSummary> = { emptyList()
     var details: suspend (String) -> PlaceDetails = { error("not used") }
 
     override suspend fun getPlaceDetails(placeId: String): PlaceDetails = details(placeId)
+
+    // Fails by default, so a test that doesn't care sees no tile and no extra state update.
+    var carPark: suspend (GeoPoint) -> Boolean = { throw ProviderFailure() }
+
+    override suspend fun hasCarParkNear(location: GeoPoint): Boolean = carPark(location)
 }

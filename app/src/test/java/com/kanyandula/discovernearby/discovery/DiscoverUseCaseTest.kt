@@ -105,4 +105,22 @@ class DiscoverUseCaseTest {
         assertNull(useCase(slow).details("any"))
         assertEquals(PROVIDER_TIMEOUT_MILLIS, currentTime)
     }
+
+    @Test
+    fun aCarParkCheckComesFromTheProvider() = runTest {
+        assertEquals(true, useCase().carParkNear(ORIGIN))
+    }
+
+    // Like details: a failed or slow check is unknown, and the screen shows no tile.
+    @Test
+    fun aFailedOrSlowCarParkCheckIsNull() = runTest {
+        assertNull(withScenario(FakeScenario.DETAILS_FAILURE).carParkNear(ORIGIN))
+        val slow = ScriptedPlaces().apply {
+            carPark = {
+                delay(PROVIDER_TIMEOUT_MILLIS + 1)
+                true
+            }
+        }
+        assertNull(useCase(slow).carParkNear(ORIGIN))
+    }
 }

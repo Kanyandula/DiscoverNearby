@@ -4,6 +4,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.places.CAR_PARK_RADIUS_METERS
 import com.kanyandula.discovernearby.places.NetworkUnavailable
 import com.kanyandula.discovernearby.places.PlacesRepository
 import com.kanyandula.discovernearby.places.ProviderFailure
@@ -25,9 +26,12 @@ private const val RESPONSE_LANGUAGE = "en"
 private val BROWSE_URL = "https://browse.search.hereapi.com/v1/browse".toHttpUrl()
 private val LOOKUP_URL = "https://lookup.search.hereapi.com/v1/lookup".toHttpUrl()
 
+// HERE's parking facilities: garages, lots, park-and-ride (Places category system, ADR-001 [H3]).
+private const val CAR_PARK_CATEGORY = "800-8500"
+
 /**
  * HERE Geocoding & Search v7 behind [PlacesRepository] (ADR-001: provisionally selected; Legal before production).
- * REST through OkHttp, no SDK. Nothing is cached or stored (ADR-001 V6b). The URL carries [apiKey] and the origin,
+ * REST through OkHttp, no SDK. Search results are not stored (ADR-004). The URL carries [apiKey] and the origin,
  * so it is never logged, and failures carry nothing from the call.
  */
 class HerePlacesRepository(
@@ -53,6 +57,16 @@ class HerePlacesRepository(
     override suspend fun getPlaceDetails(placeId: String): PlaceDetails =
         get<HereItem>(LOOKUP_URL.newBuilder().addQueryParameter("id", placeId).build()).toDetails()
             ?: throw ProviderFailure()
+
+    override suspend fun hasCarParkNear(location: GeoPoint): Boolean {
+        val url = BROWSE_URL.newBuilder()
+            .addQueryParameter("at", location.latLng())
+            .addQueryParameter("in", "circle:${location.latLng()};r=$CAR_PARK_RADIUS_METERS")
+            .addQueryParameter("categories", CAR_PARK_CATEGORY)
+            .addQueryParameter("limit", "1")
+            .build()
+        return get<HereBrowseResponse>(url).items.isNotEmpty()
+    }
 
     /** The decoded body. No key, an HTTP error or an unreadable body is a [ProviderFailure]. */
     private suspend inline fun <reified T> get(url: HttpUrl): T {

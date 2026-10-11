@@ -64,6 +64,8 @@ class AppContainer(context: Context, private val hereApiKey: String, private val
             placesRepository.searchNearby(origin, category, radiusMeters)
 
         override suspend fun getPlaceDetails(placeId: String) = placesRepository.getPlaceDetails(placeId)
+
+        override suspend fun hasCarParkNear(location: GeoPoint) = placesRepository.hasCarParkNear(location)
     }
     val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)

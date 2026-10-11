@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby.places.fake
 
 import com.kanyandula.discovernearby.discovery.CategoryConfigs
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.discovery.ORIGIN
 import com.kanyandula.discovernearby.model.AttributeSource
 import com.kanyandula.discovernearby.model.GeoPoint
 import com.kanyandula.discovernearby.places.NetworkUnavailable
@@ -163,5 +164,11 @@ class FakePlacesRepositoryTest {
     @Test
     fun unknownPlaceIdIsAProviderFailure() = runTest {
         assertTrue(runCatching { normal.getPlaceDetails("no-such-place") }.exceptionOrNull() is ProviderFailure)
+    }
+
+    @Test
+    fun fakesHaveACarParkNearbyExceptWhenNullHeavy() = runTest {
+        assertTrue(FakePlacesRepository().hasCarParkNear(ORIGIN))
+        assertFalse(FakePlacesRepository(FakeScenario.NULL_HEAVY).hasCarParkNear(ORIGIN))
     }
 }
