@@ -1,5 +1,6 @@
 package com.kanyandula.discovernearby.ui
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +18,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -39,6 +45,7 @@ fun DiscoverNearbyApp(container: AppContainer, modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val entry by navController.currentBackStackEntryAsState() // read so the tab follows every move
     val tab = entry?.let { navController.selectedTab() } ?: RailTab.DISCOVER
+    val panel = remember { FocusRequester() }
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
@@ -50,7 +57,11 @@ fun DiscoverNearbyApp(container: AppContainer, modifier: Modifier = Modifier) {
             // first turn still lands on the screen's first item (DN-UX-006); the rail is drawn on the left.
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 Surface(
-                    modifier = Modifier.fillMaxSize().padding(start = MinTouchTarget + RailGap),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = MinTouchTarget + RailGap)
+                        .focusRequester(panel)
+                        .focusGroup(),
                     shape = RoundedCornerShape(PanelRadius),
                 ) {
                     DiscoverNavHost(
@@ -59,7 +70,18 @@ fun DiscoverNearbyApp(container: AppContainer, modifier: Modifier = Modifier) {
                         navController = navController,
                     )
                 }
-                AppRail(selected = tab, onSelect = navController::openTab)
+                AppRail(
+                    selected = tab,
+                    onSelect = navController::openTab,
+                    // When a selected item leaves the screen, Android gives the window initial focus with a downward
+                    // search from the top, and the rail's first tab sits above the screen's first item: send that
+                    // focus to the screen, so the next turn moves through it (found on the emulator, DN-UX-006).
+                    modifier = Modifier
+                        .focusProperties {
+                            onEnter = { if (requestedFocusDirection == FocusDirection.Down) panel.requestFocus() }
+                        }
+                        .focusGroup(),
+                )
             }
         }
     }

@@ -322,4 +322,14 @@ class DiscoverNavigationTest {
         turn()
         tab("Saved").assertIsFocused()
     }
+
+    // DN-UX-006, found on the emulator: when the selected tile leaves, Android gives the window initial focus (a
+    // downward search from the top). The rail sits higher than the screen's first item, so it took that focus and
+    // the next turn ran away from the new screen. Initial focus stays on the screen.
+    @Test
+    fun aRotarySelectLeavesFocusOnTheNewScreen() {
+        rotarySelect(rule.onNodeWithText("Coffee"))
+        rule.onNodeWithContentDescription("Back").assertIsFocused()
+        tab("Discover").assertIsNotFocused()
+    }
 }
