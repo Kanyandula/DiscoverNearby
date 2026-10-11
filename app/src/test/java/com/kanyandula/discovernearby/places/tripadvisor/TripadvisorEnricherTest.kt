@@ -34,14 +34,17 @@ private const val PHOTOS = """{"data": [{"photo": {"original_size_url": "https:/
 class TripadvisorEnricherTest {
 
     private val requests = mutableListOf<Request>()
-    private var respond: (Request) -> Response = { request ->
-        if (request.url.encodedPath.endsWith("/photos")) reply(request, 200, PHOTOS) else reply(request, 200, NEARBY)
-    }
+    private var respond: (Request) -> Response = answering(NEARBY)
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain -> chain.request().also { requests += it }.let(respond) }
         .build()
     private val enricher = TripadvisorEnricher(KEY, client)
     private val cafe = testPlace("HARBOUR COFFEE", "cafe")
+
+    /** The photos call gets [photos], the nearby search [nearby]. */
+    private fun answering(nearby: String, photos: String = PHOTOS): (Request) -> Response = { request ->
+        reply(request, 200, if (request.url.encodedPath.endsWith("/photos")) photos else nearby)
+    }
 
     private fun reply(request: Request, code: Int, body: String) = Response.Builder()
         .request(request)
@@ -56,7 +59,7 @@ class TripadvisorEnricherTest {
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertEquals(
             PlaceEnrichment(
-                photoUrl = "https://example.test/photo-22.jpg?w=800&h=-1&s=1", // resized by the image server
+                photoUrl = "https://example.test/photo-22.jpg?w=480&h=-1&s=1", // resized by the image server
                 rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.png"),
                 priceLevel = PriceLevel.MID,
                 description = "A café by the harbour.",
@@ -64,6 +67,7 @@ class TripadvisorEnricherTest {
             enrichment,
         )
         assertEquals("/api/locations/22/photos", requests[1].url.encodedPath) // the matched one, not the nearest
+        assertEquals(2, requests.size) // price and description (DN-UX-005) come in the nearby search: no extra call
     }
 
     @Test
@@ -114,13 +118,10 @@ class TripadvisorEnricherTest {
     // Tripadvisor's rules require its rating graphic, so a rating without one isn't shown; the photo still is.
     @Test
     fun aRatingWithoutItsGraphicIsDropped() = runBlocking {
-        respond = { request ->
-            val nearby = NEARBY.replace(""", "icon_url": "https://example.test/bubbles-4.5.png"""", "")
-            reply(request, 200, if (request.url.encodedPath.endsWith("/photos")) PHOTOS else nearby)
-        }
+        respond = answering(NEARBY.replace(""", "icon_url": "https://example.test/bubbles-4.5.png"""", ""))
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertNull(enrichment?.rating)
-        assertEquals("https://example.test/photo-22.jpg?w=800&h=-1&s=1", enrichment?.photoUrl)
+        assertEquals("https://example.test/photo-22.jpg?w=480&h=-1&s=1", enrichment?.photoUrl)
     }
 
     @Test
@@ -129,15 +130,6 @@ class TripadvisorEnricherTest {
         assertNull(enricher.enrich(cafe, COFFEE))
         respond = { reply(it, 200, "not json") }
         assertNull(enricher.enrich(cafe, COFFEE))
-    }
-
-    // DN-UX-005: price and description come from the nearby search already made; no new call.
-    @Test
-    fun priceAndDescriptionComeWithoutAnotherCall() = runBlocking {
-        val enrichment = enricher.enrich(cafe, COFFEE)
-        assertEquals(PriceLevel.MID, enrichment?.priceLevel)
-        assertEquals("A café by the harbour.", enrichment?.description)
-        assertEquals(2, requests.size) // the nearby search and the photo, as before
     }
 
     @Test
@@ -152,13 +144,12 @@ class TripadvisorEnricherTest {
     fun anUnknownPriceOrAForeignDescriptionIsLeftOut() = runBlocking {
         assertNull(priceLevel("$$ - $$$"))
         assertNull(priceLevel(null))
-        respond = { request ->
-            val nearby = NEARBY.replace("\"Mid Range\"", "\"Pricey\"").replace(
+        respond = answering(
+            NEARBY.replace("\"Mid Range\"", "\"Pricey\"").replace(
                 """{"language": "en", "value": "A café by the harbour."}""",
                 """{"language": "de", "value": "Ein Café."}""",
-            )
-            reply(request, 200, if (request.url.encodedPath.endsWith("/photos")) PHOTOS else nearby)
-        }
+            ),
+        )
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertNull(enrichment?.priceLevel)
         assertNull(enrichment?.description)

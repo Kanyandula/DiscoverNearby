@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -133,12 +134,13 @@ private fun detailsText(place: PlaceSummary): String? {
     return (listOfNotNull(rating, kind) + attributes).distinct().joinToString(SEPARATOR).ifEmpty { null }
 }
 
+/** A muted one-line detail under a place's name, on rows and Place Details. */
 @Composable
-private fun SupportingLine(text: String) {
+internal fun SupportingLine(text: String, color: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = color,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
     )

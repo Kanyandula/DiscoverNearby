@@ -1,6 +1,5 @@
 package com.kanyandula.discovernearby.ui.screens
 
-import android.content.Context
 import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +13,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.core.app.ApplicationProvider
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.DERIVED
@@ -41,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.time.LocalTime
 
@@ -66,9 +65,7 @@ class PlaceDetailsScreenTest {
 
     @Before
     fun setUp() {
-        Settings.System.putString(
-            ApplicationProvider.getApplicationContext<Context>().contentResolver, Settings.System.TIME_12_24, "24",
-        )
+        Settings.System.putString(RuntimeEnvironment.getApplication().contentResolver, Settings.System.TIME_12_24, "24")
         rule.setContent {
             DiscoverNearbyTheme {
                 PlaceDetailsScreen(
@@ -219,9 +216,9 @@ class PlaceDetailsScreenTest {
 
     @Test
     fun aCarParkNearbyIsATile() {
-        state = Content(PlaceDetails(place, openingSummary = null, carParkNearby = true))
+        state = Content(PlaceDetails(place, openingSummary = null), carParkNearby = true)
         rule.onNodeWithText("Car park nearby").assertIsDisplayed()
-        state = Content(PlaceDetails(place, openingSummary = null, carParkNearby = false))
+        state = Content(PlaceDetails(place, openingSummary = null), carParkNearby = false)
         rule.onNodeWithText("Car park nearby").assertDoesNotExist()
     }
 
@@ -250,7 +247,7 @@ class PlaceDetailsScreenTest {
     @Test
     fun tileLabelsLineUpWithOrWithoutAnIcon() {
         val driveThrough = place.copy(attributes = setOf(PlaceAttribute(DRIVE_THROUGH, PROVIDED)))
-        state = Content(PlaceDetails(driveThrough, openingSummary = null, carParkNearby = true))
+        state = Content(PlaceDetails(driveThrough, openingSummary = null), carParkNearby = true)
         val plain = rule.onNodeWithText("Drive-through").getUnclippedBoundsInRoot()
         val withIcon = rule.onNodeWithText("Car park nearby").getUnclippedBoundsInRoot()
         assertEquals(withIcon.top, plain.top)

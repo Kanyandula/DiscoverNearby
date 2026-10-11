@@ -9,18 +9,15 @@ import java.time.format.DateTimeParseException
 
 private val BY_DAY = Regex("""BYDAY:([A-Z,]+)""")
 private val START = DateTimeFormatter.ofPattern("'T'HHmmss")
-private val DAYS = mapOf(
-    "MO" to DayOfWeek.MONDAY, "TU" to DayOfWeek.TUESDAY, "WE" to DayOfWeek.WEDNESDAY, "TH" to DayOfWeek.THURSDAY,
-    "FR" to DayOfWeek.FRIDAY, "SA" to DayOfWeek.SATURDAY, "SU" to DayOfWeek.SUNDAY,
-)
+private val DAYS = DayOfWeek.entries.associateBy { it.name.take(2) } // "MO" → MONDAY
 
 /** HERE's structured period as a domain one, or null when any part is unreadable: that period is left out. */
 internal fun HereStructuredHours.toPeriod(): OpeningPeriod? {
-    val codes = BY_DAY.find(recurrence.orEmpty())?.groupValues?.get(1)?.split(',').orEmpty()
+    val codes = BY_DAY.find(recurrence)?.groupValues?.get(1)?.split(',').orEmpty()
     val days = codes.mapNotNull { DAYS[it] }.toSet()
     if (days.isEmpty() || days.size != codes.size) return null
     return try {
-        OpeningPeriod(days, LocalTime.parse(start.orEmpty(), START), Duration.parse(duration.orEmpty()))
+        OpeningPeriod(days, LocalTime.parse(start, START), Duration.parse(duration))
     } catch (ignored: DateTimeParseException) {
         null
     }

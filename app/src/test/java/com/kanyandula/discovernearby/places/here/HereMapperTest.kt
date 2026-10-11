@@ -134,6 +134,5 @@ class HereMapperTest {
             ),
             details.openingPeriods,
         )
-        assertNull(details.carParkNearby) // a separate call (Task 2)
     }
 }

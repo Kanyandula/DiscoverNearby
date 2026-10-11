@@ -168,7 +168,7 @@ class FakePlacesRepositoryTest {
 
     @Test
     fun fakesHaveACarParkNearbyExceptWhenNullHeavy() = runTest {
-        assertTrue(FakePlacesRepository().hasCarParkNear(ORIGIN))
+        assertTrue(normal.hasCarParkNear(ORIGIN))
         assertFalse(FakePlacesRepository(FakeScenario.NULL_HEAVY).hasCarParkNear(ORIGIN))
     }
 }

@@ -1,9 +1,6 @@
 package com.kanyandula.discovernearby.ui.screens
 
 import android.text.format.DateFormat
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,28 +32,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
-import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.Closing
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
-import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.clockTime
+import com.kanyandula.discovernearby.ui.components.AmenityTiles
 import com.kanyandula.discovernearby.ui.components.BackButton
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.PlaceImage
 import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
+import com.kanyandula.discovernearby.ui.components.SupportingLine
 import com.kanyandula.discovernearby.ui.components.TripadvisorRating
 import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.Action
-import com.kanyandula.discovernearby.ui.theme.AmenityIconSize
-import com.kanyandula.discovernearby.ui.theme.AmenityTileHeight
-import com.kanyandula.discovernearby.ui.theme.AmenityTileRadius
 import com.kanyandula.discovernearby.ui.theme.ButtonGap
 import com.kanyandula.discovernearby.ui.theme.ContentGap
 import com.kanyandula.discovernearby.ui.theme.DetailsGap
@@ -74,7 +67,6 @@ import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
 import com.kanyandula.discovernearby.ui.theme.PhotoCreditGap
-import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 
@@ -94,7 +86,7 @@ fun PlaceDetailsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     enrichment: PlaceEnrichment? = null,
-    drivingRestricted: Boolean = false,
+    drivingRestricted: Boolean = true, // unknown means restrictions apply (docs/03 §6)
 ) {
     if (state is PlaceDetailsUiState.NavigationUnavailable) {
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(RowGap)) {
@@ -119,8 +111,7 @@ fun PlaceDetailsScreen(
                         modifier = Modifier.weight(1f),
                     )
                 }
-                val tiles = amenityTiles(state.summary, content?.details?.carParkNearby)
-                if (tiles.isNotEmpty()) AmenityTiles(tiles)
+                AmenityTiles(state.summary, content?.carParkNearby)
                 enrichment?.description?.takeUnless { drivingRestricted }?.let {
                     Text(
                         text = it,
@@ -176,7 +167,6 @@ private fun Summary(
     summaryOnly: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
         Text(
             text = place.name,
@@ -205,22 +195,8 @@ private fun Summary(
             enrichment?.priceLevel?.let { stringResource(it.label) },
             stringResource(R.string.distance_away, kilometres(distanceMeters)),
         )
-        Text(
-            text = facts.joinToString(SEPARATOR),
-            style = MaterialTheme.typography.titleMedium,
-            color = muted,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        opening?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.titleMedium,
-                color = if (place.isOpenNow == true) OpenNow else muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+        SupportingLine(facts.joinToString(SEPARATOR))
+        opening?.let { if (place.isOpenNow == true) SupportingLine(it, OpenNow) else SupportingLine(it) }
         if (summaryOnly) DetailsUnavailable()
     }
 }
@@ -259,60 +235,6 @@ private fun openingLine(place: PlaceSummary, closing: Closing?, openingSummary: 
         false -> stringResource(R.string.closed_now)
         null -> openingSummary
     }
-
-private class AmenityTile(@DrawableRes val icon: Int?, @StringRes val label: Int)
-
-private const val TILE_SLOTS = 4 // the concept's row
-
-/** The place's own amenities, then a car park nearby; at most a row of four. */
-private fun amenityTiles(place: PlaceSummary, carParkNearby: Boolean?): List<AmenityTile> {
-    val own = place.attributeTypes().map {
-        AmenityTile(if (it == AttributeType.PARKING) R.drawable.ic_parking else null, it.label)
-    }
-    val carPark = AmenityTile(R.drawable.ic_parking, R.string.car_park_nearby).takeIf { carParkNearby == true }
-    return (own + listOfNotNull(carPark)).take(TILE_SLOTS)
-}
-
-/** Four equal slots, so a lone tile keeps a quarter of the row as on the concept. Display only: not focusable. */
-@Composable
-private fun AmenityTiles(tiles: List<AmenityTile>) {
-    Row(horizontalArrangement = Arrangement.spacedBy(ContentGap)) {
-        repeat(TILE_SLOTS) { slot ->
-            val tile = tiles.getOrNull(slot)
-            if (tile == null) {
-                Spacer(Modifier.weight(1f))
-            } else {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(AmenityTileHeight)
-                        .background(Raised, RoundedCornerShape(AmenityTileRadius))
-                        .padding(horizontal = ContentGap),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    // An empty icon slot keeps every label on the same line.
-                    if (tile.icon == null) {
-                        Spacer(Modifier.size(AmenityIconSize))
-                    } else {
-                        Icon(
-                            painter = painterResource(tile.icon),
-                            contentDescription = null, // the label says it
-                            tint = Action,
-                            modifier = Modifier.size(AmenityIconSize),
-                        )
-                    }
-                    Text(
-                        text = stringResource(tile.label),
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
-    }
-}
 
 /** Whose content the photo is; Tripadvisor masks who took it. */
 @Composable

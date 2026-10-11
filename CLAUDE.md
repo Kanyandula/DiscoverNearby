@@ -65,8 +65,8 @@ in place (DN-M0-012, DN-M0-001).
     Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured hours
     (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m); Tripadvisor's description,
     two lines, hidden while driving. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
-- **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 400 × 240 dp above
-  Navigate) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
+- **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 240 × 150 dp beside
+  the facts) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
     `BuildConfig.TRIPADVISOR_API_KEY`, sent in `X-API-Key`). After ranking, `RecommendationsViewModel` enriches the
     top rows one by one through `PlaceEnricher`: a nearby search 200 m around HERE's position, a strict name match
@@ -74,7 +74,7 @@ in place (DN-M0-012, DN-M0-001).
     and 429 leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
   - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
     graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
-    800 px wide through the image server's resizing; Coil loads them with a memory cache only.
+    480 px wide through the image server's resizing; Coil loads them with a memory cache only.
   - **Cost:** 1,000 free calls a month, then charged. The fakes, CI and Robolectric get `NoEnrichment`: develop on
     the fakes, keep live checks few.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,

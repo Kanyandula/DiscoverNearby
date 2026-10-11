@@ -489,7 +489,6 @@ data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
     val openingPeriods: List<OpeningPeriod>,  // HERE's structured hours, for today's closing time (DN-UX-005)
-    val carParkNearby: Boolean?,              // a car park within 150 m; null = unknown
 )
 ```
 

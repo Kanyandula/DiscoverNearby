@@ -114,7 +114,7 @@ class DiscoverUseCaseTest {
     // Like details: a failed or slow check is unknown, and the screen shows no tile.
     @Test
     fun aFailedOrSlowCarParkCheckIsNull() = runTest {
-        assertNull(withScenario(FakeScenario.DETAILS_FAILURE).carParkNear(ORIGIN))
+        assertNull(useCase(ScriptedPlaces()).carParkNear(ORIGIN)) // its check fails by default
         val slow = ScriptedPlaces().apply {
             carPark = {
                 delay(PROVIDER_TIMEOUT_MILLIS + 1)

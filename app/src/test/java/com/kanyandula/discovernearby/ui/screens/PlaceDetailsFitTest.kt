@@ -68,6 +68,7 @@ class PlaceDetailsFitTest {
                         state = SummaryOnly(everything),
                         onNavigate = {},
                         onBack = {},
+                        drivingRestricted = false, // parked: the description shows
                         enrichment = PlaceEnrichment(
                             photoUrl = "https://example.test/p.jpg",
                             rating = ProviderRating(4.5, 312, "https://example.test/b.png"),

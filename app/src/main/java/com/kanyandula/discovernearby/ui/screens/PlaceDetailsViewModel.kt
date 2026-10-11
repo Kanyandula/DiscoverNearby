@@ -22,8 +22,15 @@ sealed interface PlaceDetailsUiState {
     val summary: PlaceSummary
 
     data class Loading(override val summary: PlaceSummary) : PlaceDetailsUiState
-    /** [closing]: when the place closes today, from the details' schedule at the time they arrived (DN-UX-005). */
-    data class Content(val details: PlaceDetails, val closing: Closing? = null) : PlaceDetailsUiState {
+    /**
+     * [closing]: when the place closes today, from the details' schedule at the time they arrived; [carParkNearby]: a
+     * car park within CAR_PARK_RADIUS_METERS, from its own call, null until it answers (DN-UX-005).
+     */
+    data class Content(
+        val details: PlaceDetails,
+        val closing: Closing? = null,
+        val carParkNearby: Boolean? = null,
+    ) : PlaceDetailsUiState {
         override val summary: PlaceSummary get() = details.summary
     }
     data class SummaryOnly(override val summary: PlaceSummary) : PlaceDetailsUiState
@@ -52,10 +59,8 @@ class PlaceDetailsViewModel(
             // A failed hand-off stays on screen: the driver asked to navigate, not to read the details.
             state.update { if (it is PlaceDetailsUiState.NavigationUnavailable) it else loaded }
             val nearby = carPark.await() ?: return@launch
-            state.update { current ->
-                if (current !is PlaceDetailsUiState.Content) return@update current
-                current.copy(details = current.details.copy(carParkNearby = nearby))
-            }
+            // Shown with the details only: the summary-only fallback keeps what the row had.
+            state.update { if (it is PlaceDetailsUiState.Content) it.copy(carParkNearby = nearby) else it }
         }
     }
 

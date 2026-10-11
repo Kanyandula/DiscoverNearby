@@ -49,8 +49,8 @@ re-sorting of its results, and the call budget).
 - **Failures** (no match, HTTP 429, network, timeout) leave the row as it was, with the category artwork; nothing is
   retried. Each call has its own 4 s timeout, so a slow photo keeps the rating. The nearby endpoint allows one call a
   second in bursts of five. Names that differ in a number ("Studio 1", "Studio 2") never match.
-- **Photo size:** the image server's resizing (`?w=800&h=-1&s=1`): 800 px wide for the Details panel, which the row
-  reuses. An original can be 2,000 px wide and ten times the bytes.
+- **Photo size:** the image server's resizing (`?w=480&h=-1&s=1`): 480 px wide, twice the Details photo's 240 dp
+  (DN-UX-005), which the row reuses. An original can be 2,000 px wide and ten times the bytes.
 - **Search results are not stored**, and images load through a memory-only cache (no disk cache). Saved places keep
   their Tripadvisor photo link, rating, price and description on the device
   ([ADR-004](0004-storing-data-in-the-poc.md)), although Tripadvisor's caching policy allows only its location ID: a

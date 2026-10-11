@@ -26,5 +26,4 @@ data class PlaceDetails(
     val summary: PlaceSummary,
     val openingSummary: String?,
     val openingPeriods: List<OpeningPeriod> = emptyList(), // the weekly schedule, for today's closing time
-    val carParkNearby: Boolean? = null, // a car park within CAR_PARK_RADIUS_METERS (DN-UX-005); null = unknown
 )

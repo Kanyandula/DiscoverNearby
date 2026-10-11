@@ -33,7 +33,7 @@ internal data class HereOpeningHours(
 /** One weekly period: `start` "T070000", `duration` "PT09H00M", `recurrence` "FREQ:DAILY;BYDAY:MO,TU". */
 @Serializable
 internal data class HereStructuredHours(
-    val start: String? = null,
-    val duration: String? = null,
-    val recurrence: String? = null,
+    val start: String = "",
+    val duration: String = "",
+    val recurrence: String = "",
 )

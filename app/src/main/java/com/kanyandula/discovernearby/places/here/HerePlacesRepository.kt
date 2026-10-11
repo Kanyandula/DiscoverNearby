@@ -39,33 +39,29 @@ class HerePlacesRepository(
     private val client: OkHttpClient = OkHttpClient(),
 ) : PlacesRepository {
 
-
     override suspend fun searchNearby(
         origin: GeoPoint,
         category: DiscoveryCategory,
         radiusMeters: Int,
-    ): List<PlaceSummary> {
-        val url = BROWSE_URL.newBuilder()
-            .addQueryParameter("at", origin.latLng())
-            .addQueryParameter("in", "circle:${origin.latLng()};r=$radiusMeters")
-            .addQueryParameter("categories", HERE_CATEGORIES.getValue(category))
-            .addQueryParameter("limit", "$SEARCH_LIMIT")
-            .build()
-        return get<HereBrowseResponse>(url).items.mapNotNull { it.toSummary() }
-    }
+    ): List<PlaceSummary> =
+        browse(origin, radiusMeters, HERE_CATEGORIES.getValue(category), SEARCH_LIMIT).mapNotNull { it.toSummary() }
 
     override suspend fun getPlaceDetails(placeId: String): PlaceDetails =
         get<HereItem>(LOOKUP_URL.newBuilder().addQueryParameter("id", placeId).build()).toDetails()
             ?: throw ProviderFailure()
 
-    override suspend fun hasCarParkNear(location: GeoPoint): Boolean {
+    override suspend fun hasCarParkNear(location: GeoPoint): Boolean =
+        browse(location, CAR_PARK_RADIUS_METERS, CAR_PARK_CATEGORY, limit = 1).isNotEmpty()
+
+    /** HERE's places of [categories] within [radiusMeters] of [at], nearest first. */
+    private suspend fun browse(at: GeoPoint, radiusMeters: Int, categories: String, limit: Int): List<HereItem> {
         val url = BROWSE_URL.newBuilder()
-            .addQueryParameter("at", location.latLng())
-            .addQueryParameter("in", "circle:${location.latLng()};r=$CAR_PARK_RADIUS_METERS")
-            .addQueryParameter("categories", CAR_PARK_CATEGORY)
-            .addQueryParameter("limit", "1")
+            .addQueryParameter("at", at.latLng())
+            .addQueryParameter("in", "circle:${at.latLng()};r=$radiusMeters")
+            .addQueryParameter("categories", categories)
+            .addQueryParameter("limit", "$limit")
             .build()
-        return get<HereBrowseResponse>(url).items.isNotEmpty()
+        return get<HereBrowseResponse>(url).items
     }
 
     /** The decoded body. No key, an HTTP error or an unreadable body is a [ProviderFailure]. */

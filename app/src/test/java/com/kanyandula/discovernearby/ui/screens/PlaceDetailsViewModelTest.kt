@@ -133,7 +133,7 @@ class PlaceDetailsViewModelTest {
         places.carPark = { true }
         val vm = viewModel()
         runCurrent()
-        assertEquals(Content(loaded.copy(carParkNearby = true)), vm.uiState.value)
+        assertEquals(Content(loaded, carParkNearby = true), vm.uiState.value)
     }
 
     // Review Focus 3: the details show as they arrive; the tile follows.
@@ -148,7 +148,7 @@ class PlaceDetailsViewModelTest {
         runCurrent()
         assertEquals(Content(loaded), vm.uiState.value)
         advanceTimeBy(5_001)
-        assertEquals(Content(loaded.copy(carParkNearby = true)), vm.uiState.value)
+        assertEquals(Content(loaded, carParkNearby = true), vm.uiState.value)
     }
 
     // The fallback keeps the summary; a car park found anyway is not shown there.
