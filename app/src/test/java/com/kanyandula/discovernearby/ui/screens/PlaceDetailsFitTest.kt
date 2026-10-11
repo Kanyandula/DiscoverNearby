@@ -15,6 +15,7 @@ import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceAttribute
+import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.model.ProviderRating
@@ -22,6 +23,7 @@ import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.ReferencePanelHeight
 import com.kanyandula.discovernearby.ui.ReferencePanelWidth
 import com.kanyandula.discovernearby.ui.hereNotice
+import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
@@ -43,15 +45,23 @@ class PlaceDetailsFitTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val everything = testPlace("Adventure Playground, Greystones", "playground").copy(
+        rating = 4.6,
+        ratingCount = 180,
+        isOpenNow = true,
+        attributes = AttributeType.entries.map { PlaceAttribute(it, PROVIDED) }.toSet(),
+        attribution = "HERE",
+    )
+    private val enrichment = PlaceEnrichment(
+        photoUrl = "https://example.test/p.jpg",
+        rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
+        priceLevel = PriceLevel.FINE,
+        description = "Seasonal plates from local growers and the morning's catch, served in a " +
+            "bright room over the bay, with a short wine list and a garden terrace in summer.",
+    )
+
     @Test
     fun theWholeConceptFitsTheReferencePanel() {
-        val everything = testPlace("Adventure Playground, Greystones", "playground").copy(
-            rating = 4.6,
-            ratingCount = 180,
-            isOpenNow = true,
-            attributes = AttributeType.entries.map { PlaceAttribute(it, PROVIDED) }.toSet(),
-            attribution = "HERE",
-        )
         rule.setContent {
             DiscoverNearbyTheme {
                 Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
@@ -64,13 +74,7 @@ class PlaceDetailsFitTest {
                         saved = false,
                         onToggleSave = {},
                         drivingRestricted = false, // parked: the description shows
-                        enrichment = PlaceEnrichment(
-                            photoUrl = "https://example.test/p.jpg",
-                            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
-                            priceLevel = PriceLevel.FINE,
-                            description = "Seasonal plates from local growers and the morning's catch, served in a " +
-                                "bright room over the bay, with a short wine list and a garden terrace in summer.",
-                        ),
+                        enrichment = enrichment,
                     )
                 }
             }
@@ -93,10 +97,41 @@ class PlaceDetailsFitTest {
         val description = rule.onNodeWithText("Seasonal plates", substring = true)
         description.assertIsDisplayed()
         assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
+        // DN-UX-007: on the fallback the note joins the facts beside the photo, so the description keeps one line.
+        val lines = description.getUnclippedBoundsInRoot()
+        assertTrue(lines.bottom - lines.top <= 30.dp)
         navigate.assertHeightIsAtLeast(MinTouchTarget)
         val save = rule.onNodeWithText("Save")
         save.assertIsDisplayed()
         save.assertHeightIsAtLeast(MinTouchTarget)
         assertTrue(save.getUnclippedBoundsInRoot().right <= navigate.getUnclippedBoundsInRoot().left)
+    }
+
+    @Test
+    fun theNormalStateFitsWithATwoLineDescription() {
+        rule.setContent {
+            DiscoverNearbyTheme {
+                Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
+                    PlaceDetailsScreen(
+                        distanceMeters = 1_400,
+                        category = DiscoveryCategory.FAMILY,
+                        state = Content(PlaceDetails(everything, openingSummary = null)),
+                        onNavigate = {},
+                        onBack = {},
+                        saved = false,
+                        onToggleSave = {},
+                        drivingRestricted = false,
+                        enrichment = enrichment,
+                    )
+                }
+            }
+        }
+        val description = rule.onNodeWithText("Seasonal plates", substring = true)
+        description.assertHeightIsAtLeast(56.dp) // two bodyLarge lines
+        val navigate = rule.onNodeWithText("Navigate")
+        assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
+        assertTrue(navigate.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+        rule.onNodeWithText("Parking").assertIsDisplayed()
+        rule.onNodeWithText(hereNotice()).assertIsDisplayed()
     }
 }

@@ -40,7 +40,6 @@ import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.clockTime
 import com.kanyandula.discovernearby.ui.components.AmenityTiles
-import com.kanyandula.discovernearby.ui.components.BackButton
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.PlaceImage
@@ -75,9 +74,9 @@ import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 
 /**
- * Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005): Back, the photo and what is
- * known about the place across the top; the amenity tiles; Tripadvisor's description; Navigate bottom right, with
- * Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
+ * Place Details as the Product Lead's artboard 3c (DN-UX-007), from the concept (DN-UX-005): Back and the name as the
+ * header; the photo under Back, with what is known about the place and Tripadvisor's description beside it; the
+ * amenity tiles; Navigate bottom right, with Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
  * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
  * row can appear late and push the description down). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
@@ -104,30 +103,34 @@ fun PlaceDetailsScreen(
         }
     } else {
         val content = state as? PlaceDetailsUiState.Content
+        val summaryOnly = state is PlaceDetailsUiState.SummaryOnly
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
-            // Squeezed first on a short panel; the actions and the notice below always stay whole.
+            // Back and the name head the page as on the other screens (DN-UX-007), so the photo lines up with the tiles.
+            ScreenHeader(title = state.summary.name, onBack = onBack)
+            // Squeezed first on a short panel; the header, the actions and the notice always stay whole.
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ContentGap)) {
-                    BackButton(onBack)
                     Photo(category, enrichment?.photoUrl)
-                    Summary(
-                        place = state.summary,
-                        distanceMeters = distanceMeters,
-                        opening = openingLine(state.summary, content?.closing, content?.details?.openingSummary),
-                        enrichment = enrichment,
-                        summaryOnly = state is PlaceDetailsUiState.SummaryOnly,
-                        modifier = Modifier.weight(1f),
-                    )
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
+                        Summary(
+                            place = state.summary,
+                            distanceMeters = distanceMeters,
+                            opening = openingLine(state.summary, content?.closing, content?.details?.openingSummary),
+                            enrichment = enrichment,
+                            summaryOnly = summaryOnly,
+                        )
+                        // One line on the fallback, where the note takes the other (PlaceDetailsFitTest).
+                        enrichment?.description?.takeUnless { drivingRestricted }?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = if (summaryOnly) 1 else 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
                 }
                 AmenityTiles(state.summary, content?.carParkNearby)
-                enrichment?.description?.takeUnless { drivingRestricted }?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
             Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
@@ -180,8 +183,8 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 }
 
 /**
- * The name; Tripadvisor's rating as Tripadvisor draws it, else the place's own; "Kind · price · distance"; the opening
- * line; and on the fallback the summary-only note. Each only when known.
+ * Tripadvisor's rating as Tripadvisor draws it, else the place's own; "Kind · price · distance"; the opening line; and
+ * on the fallback the summary-only note. Each only when known.
  */
 @Composable
 private fun Summary(
@@ -193,12 +196,6 @@ private fun Summary(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
-        Text(
-            text = place.name,
-            style = MaterialTheme.typography.headlineSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
         val tripadvisor = enrichment?.rating
         if (tripadvisor != null) {
             TripadvisorRating(
