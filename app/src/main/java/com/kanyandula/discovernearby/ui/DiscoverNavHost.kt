@@ -43,7 +43,7 @@ data class RecommendationsRoute(val category: DiscoveryCategory)
 @Serializable
 data class PlaceDetailsRoute(
     val place: PlaceSummary,
-    val distanceMeters: Int,
+    val distanceMeters: Int?, // null when opened from Saved without a location (DN-UX-006)
     val category: DiscoveryCategory,
     val enrichment: PlaceEnrichment? = null,
 )

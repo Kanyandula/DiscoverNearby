@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
-import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
@@ -100,8 +99,7 @@ class FocusRingTest {
     @Test
     fun focusedRecommendationRowShowsTheRing() {
         val place = testPlace("cafe-1", "cafe")
-        val recommendation = Recommendation(place, 1.0, distanceMeters = 500, null, null, null)
-        show { RecommendationRow(recommendation, enrichment = null, DiscoveryCategory.COFFEE, onClick = {}) }
+        show { RecommendationRow(place, 500, enrichment = null, category = DiscoveryCategory.COFFEE, onClick = {}) }
         val row = rule.onNodeWithText(place.name)
         row.requestFocus()
         assertArrayEquals(Accent.rgb(), row.edgePixel().rgb(), TOLERANCE)

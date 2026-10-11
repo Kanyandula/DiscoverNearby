@@ -63,6 +63,7 @@ class PlaceDetailsScreenTest {
     private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var restricted by mutableStateOf(false)
     private var isSaved by mutableStateOf(false)
+    private var distance by mutableStateOf<Int?>(2_100)
     private var saves = 0
     private var navigations = 0
     private var backs = 0
@@ -73,7 +74,7 @@ class PlaceDetailsScreenTest {
         rule.setContent {
             DiscoverNearbyTheme {
                 PlaceDetailsScreen(
-                    distanceMeters = 2_100,
+                    distanceMeters = distance,
                     category = DiscoveryCategory.COFFEE,
                     state = state,
                     onNavigate = { navigations++ },
@@ -279,5 +280,14 @@ class PlaceDetailsScreenTest {
         isSaved = true
         rule.onNodeWithText("Saved").assertIsDisplayed()
         rule.onNodeWithText("Save").assertDoesNotExist()
+    }
+
+    // DN-UX-006: opened from Saved without a location, the facts leave the distance out.
+    @Test
+    fun anUnknownDistanceIsLeftOut() {
+        distance = null
+        state = Content(PlaceDetails(place, openingSummary = null))
+        rule.onNodeWithText("Café").assertIsDisplayed()
+        rule.onAllNodesWithText("km", substring = true).assertCountEquals(0)
     }
 }

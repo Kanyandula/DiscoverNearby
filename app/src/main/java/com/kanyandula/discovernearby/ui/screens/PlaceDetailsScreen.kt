@@ -82,7 +82,7 @@ import com.kanyandula.discovernearby.ui.theme.RowLineGap
 @Suppress("LongParameterList") // the state plus one lambda per user action
 @Composable
 fun PlaceDetailsScreen(
-    distanceMeters: Int,
+    distanceMeters: Int?,
     category: DiscoveryCategory,
     state: PlaceDetailsUiState,
     onNavigate: () -> Unit,
@@ -166,7 +166,7 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 @Composable
 private fun Summary(
     place: PlaceSummary,
-    distanceMeters: Int,
+    distanceMeters: Int?,
     opening: AnnotatedString?,
     enrichment: PlaceEnrichment?,
     summaryOnly: Boolean,
@@ -198,7 +198,7 @@ private fun Summary(
         val facts = listOfNotNull(
             kindLabel(place.primaryKind)?.let { stringResource(it) },
             enrichment?.priceLevel?.let { stringResource(it.label) },
-            stringResource(R.string.distance_away, kilometres(distanceMeters)),
+            distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
         )
         SupportingLine(facts.joinToString(SEPARATOR))
         opening?.let { SupportingLine(it) }

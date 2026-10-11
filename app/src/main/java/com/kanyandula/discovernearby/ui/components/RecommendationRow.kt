@@ -23,7 +23,6 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.ProviderRating
-import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.kilometres
@@ -43,19 +42,19 @@ import com.kanyandula.discovernearby.ui.theme.RowVerticalPadding
 private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or derived attributes
 
 /**
- * One recommendation (canvas Recommendations artboard): the place's image; name; rating and attributes when known;
- * distance. Missing fields are left out, never shown blank. [enrichment] adds Tripadvisor's photo and rating
+ * One place on a list (canvas Recommendations artboard; Saved, DN-UX-006): the place's image; name; rating and
+ * attributes when known; distance when known. Missing fields are left out, never shown blank. [enrichment] adds Tripadvisor's photo and rating
  * (DN-UX-004). The provider's notice sits under the list, not on the row (ProviderAttribution).
  */
 @Composable
 fun RecommendationRow(
-    recommendation: Recommendation,
+    place: PlaceSummary,
+    distanceMeters: Int?,
     enrichment: PlaceEnrichment?,
     category: DiscoveryCategory,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val place = recommendation.place
     val shape = RoundedCornerShape(RowRadius)
     Surface(
         onClick = onClick,
@@ -89,7 +88,7 @@ fun RecommendationRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 DetailsLine(place, enrichment?.rating)
-                SupportingLine(stringResource(R.string.distance_km, kilometres(recommendation.distanceMeters)))
+                distanceMeters?.let { SupportingLine(stringResource(R.string.distance_km, kilometres(it))) }
             }
             // Decorative, as on the canvas.
             Icon(

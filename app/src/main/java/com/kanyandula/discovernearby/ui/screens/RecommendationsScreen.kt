@@ -39,7 +39,7 @@ private val EmptyMessage = Message(R.drawable.ic_empty, Highlight, R.string.empt
 private val LoadFailedMessage =
     Message(R.drawable.ic_error_network, OnSurfaceVariant, R.string.load_failed_title, R.string.load_failed_body)
 private val TimeoutMessage = Message(R.drawable.ic_timeout, Highlight, R.string.timeout_title, R.string.timeout_body)
-private val ParkToSeeMessage =
+internal val ParkToSeeMessage =
     Message(R.drawable.ic_info, Highlight, R.string.park_to_see_title, R.string.park_to_see_body)
 private val NoLocationMessage =
     Message(R.drawable.ic_location_off, OnSurfaceVariant, R.string.no_location_title, R.string.no_location_body)
@@ -71,7 +71,8 @@ fun RecommendationsScreen(
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
                         val enrichment = state.enrichments[recommendation.place.id]
                         RecommendationRow(
-                            recommendation,
+                            recommendation.place,
+                            recommendation.distanceMeters,
                             enrichment = enrichment,
                             category = category,
                             onClick = {
@@ -143,7 +144,7 @@ private fun PermissionMessage(
 }
 
 @Composable
-private fun LoadingState(modifier: Modifier = Modifier) {
+internal fun LoadingState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
