@@ -94,6 +94,7 @@
     <string name="navigate">Navigate</string>
     <string name="save">Save</string>
     <string name="saved">Saved</string>
+    <string name="tab_discover">Discover</string>
     <string name="tab_saved">Saved</string>
     <string name="saved_empty_title">No saved places yet</string>
     <string name="saved_empty_body">Tap Save on a place to keep it here.</string>

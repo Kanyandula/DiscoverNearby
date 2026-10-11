@@ -39,7 +39,8 @@ class SavedScreenTest {
         enrichment = null,
         savedAt = 2,
     )
-    private val park = SavedPlace(testPlace("Hill Park", "park"), DiscoveryCategory.OUTDOORS, enrichment = null, savedAt = 1)
+    private val park =
+        SavedPlace(testPlace("Hill Park", "park"), DiscoveryCategory.OUTDOORS, enrichment = null, savedAt = 1)
 
     @Before
     fun setUp() {

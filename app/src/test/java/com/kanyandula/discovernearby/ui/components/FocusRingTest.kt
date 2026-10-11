@@ -19,6 +19,7 @@ import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.RailTab
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
 import com.kanyandula.discovernearby.ui.theme.Accent
@@ -111,6 +112,14 @@ class FocusRingTest {
         val back = rule.onNodeWithContentDescription(text(R.string.back))
         back.requestFocus()
         assertArrayEquals(Accent.rgb(), back.edgePixel().rgb(), TOLERANCE)
+    }
+
+    @Test
+    fun focusedRailTabShowsTheRing() {
+        show { AppRail(selected = RailTab.DISCOVER, onSelect = {}) }
+        val saved = rule.onNodeWithContentDescription(text(R.string.tab_saved))
+        saved.requestFocus()
+        assertArrayEquals(Accent.rgb(), saved.edgePixel().rgb(), TOLERANCE)
     }
 
     // Navigate is filled with Action blue, so an Accent ring would barely show; it gets a light one.

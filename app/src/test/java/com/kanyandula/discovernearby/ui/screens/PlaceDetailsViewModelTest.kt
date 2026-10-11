@@ -180,7 +180,8 @@ class PlaceDetailsViewModelTest {
         assertEquals(SummaryOnly(place), vm.uiState.value)
     }
 
-    // DN-UX-006: Save keeps the place as Details knows it (the refreshed summary), with the row's category and enrichment.
+    // DN-UX-006: Save keeps the place as Details knows it (the refreshed summary), with the row's category and
+    // enrichment.
     @Test
     fun saveKeepsTheRefreshedPlaceWithItsCategoryAndEnrichment() = runTest {
         places.details = { loaded }

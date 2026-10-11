@@ -2,7 +2,10 @@ package com.kanyandula.discovernearby.ui
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -10,8 +13,11 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -42,6 +48,7 @@ class DiscoverNavigationTest {
         deviceAt(TestLocation.GREYSTONES.point) // the app reads the real location since DN-M0-006
         rule.setContent {
             inputModes = LocalInputModeManager.current
+            focusManager = LocalFocusManager.current
             DiscoverNearbyTheme { DiscoverNearbyApp(appContainer()) }
         }
     }
@@ -57,6 +64,7 @@ class DiscoverNavigationTest {
     }
 
     private lateinit var inputModes: InputModeManager
+    private lateinit var focusManager: FocusManager
 
     /** A rotary select, then long enough for the navigation it starts. */
     private fun rotarySelect(node: SemanticsNodeInteraction) {
@@ -220,6 +228,7 @@ class DiscoverNavigationTest {
 
     private companion object {
         const val SETTLE_MS = 2_000L
+        const val DB_TIMEOUT_MS = 5_000L
 
         // Well inside NavHost's 700 ms default fade: the new screen is drawn but not yet RESUMED.
         const val MID_FADE_MS = 100L
@@ -243,5 +252,74 @@ class DiscoverNavigationTest {
         doubleTap(rule.onNodeWithText("Harbour Roasters, Greystones"))
         systemBack()
         rule.onNodeWithText("Brew & Bloom, Greystones").assertIsDisplayed()
+    }
+
+    private fun tab(name: String) = rule.onNodeWithContentDescription(name)
+
+    /** Room answers on its own threads: wait for [text] rather than assume one frame is enough. */
+    private fun waitForText(text: String) =
+        rule.waitUntil(DB_TIMEOUT_MS) { rule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+
+    // DN-UX-006: the rail's selection follows the back stack; Back from Saved returns to Discover.
+    @Test
+    fun savedOpensOnTopOfDiscoverAndBackReturns() {
+        tab("Discover").assertIsSelected()
+        tab("Saved").performClick()
+        waitForText("No saved places yet")
+        tab("Saved").assertIsSelected()
+        tab("Discover").assertIsNotSelected()
+        systemBack()
+        onDiscover()
+        tab("Discover").assertIsSelected()
+    }
+
+    @Test
+    fun theDiscoverTabReturnsToTheGrid() {
+        rule.onNodeWithText("Food").performClick()
+        tab("Discover").performClick()
+        onDiscover()
+        systemBack()
+        assertTrue(rule.activity.isFinishing) // nothing was stacked under the grid
+    }
+
+    @Test
+    fun savedTappedTwiceStacksOneScreen() {
+        tab("Saved").performClick()
+        tab("Saved").performClick()
+        systemBack()
+        onDiscover()
+    }
+
+    // Save on Details, find it on Saved, open it: Saved stays selected, and Back walks Details → Saved → Discover.
+    @Test
+    fun aSavedPlaceOpensFromSavedWithTheTabSelected() {
+        rule.onNodeWithText("Coffee").performClick()
+        rule.onNodeWithText("Harbour Roasters, Greystones").performClick()
+        rule.onNodeWithText("Save").performClick()
+        waitForText("Saved")
+        tab("Saved").performClick()
+        waitForText("Harbour Roasters, Greystones")
+        rule.onNodeWithText("Harbour Roasters, Greystones").performClick()
+        rule.onNodeWithText("Navigate").assertIsDisplayed()
+        tab("Saved").assertIsSelected()
+        systemBack()
+        rule.onNodeWithText("Harbour Roasters, Greystones").assertIsDisplayed()
+        systemBack()
+        onDiscover()
+    }
+
+    // DN-UX-006: rotary reaches the rail after the screen's content; the first turn still lands on the first tile.
+    @Test
+    fun rotaryReachesTheRailAfterTheContent() {
+        rule.useRotaryInput(inputModes)
+        fun turn() = rule.runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
+        turn()
+        rule.onNodeWithText("Coffee").assertIsFocused()
+        repeat(5) { turn() }
+        rule.onNodeWithText("Explore").assertIsFocused()
+        turn()
+        tab("Discover").assertIsFocused()
+        turn()
+        tab("Saved").assertIsFocused()
     }
 }

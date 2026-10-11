@@ -53,13 +53,16 @@ class SavedViewModel(
     }
 }
 
-private fun toUiState(here: LocationResult?, places: List<SavedPlace>, driving: DrivingState): SavedUiState {
-    if (places.isEmpty()) return SavedUiState.Empty
-    if (here == null) return SavedUiState.Loading
-    val origin = (here as? LocationResult.Available)?.point
-    // A stable sort: without a location every distance is null, so the stored newest-first order stands.
-    val rows = places.map { SavedRow(it, origin?.distanceMetersTo(it.summary.location)) }.sortedBy { it.distanceMeters }
-    // docs/03 §6: the driving limit trims the list.
-    val shown = rows.take(driving.listLimit ?: Int.MAX_VALUE)
-    return if (shown.isEmpty()) SavedUiState.ParkToSee else SavedUiState.Content(shown)
+private fun toUiState(here: LocationResult?, places: List<SavedPlace>, driving: DrivingState): SavedUiState = when {
+    places.isEmpty() -> SavedUiState.Empty
+    here == null -> SavedUiState.Loading
+    else -> {
+        val origin = (here as? LocationResult.Available)?.point
+        // A stable sort: without a location every distance is null, so the stored newest-first order stands.
+        val rows = places.map { SavedRow(it, origin?.distanceMetersTo(it.summary.location)) }
+            .sortedBy { it.distanceMeters }
+        // docs/03 §6: the driving limit trims the list.
+        val shown = rows.take(driving.listLimit ?: Int.MAX_VALUE)
+        if (shown.isEmpty()) SavedUiState.ParkToSee else SavedUiState.Content(shown)
+    }
 }

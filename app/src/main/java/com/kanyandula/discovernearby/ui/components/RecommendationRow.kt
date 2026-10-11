@@ -43,8 +43,9 @@ private const val MAX_ROW_ATTRIBUTES = 3 // docs/02 §6: 1–3 provided or deriv
 
 /**
  * One place on a list (canvas Recommendations artboard; Saved, DN-UX-006): the place's image; name; rating and
- * attributes when known; distance when known. Missing fields are left out, never shown blank. [enrichment] adds Tripadvisor's photo and rating
- * (DN-UX-004). The provider's notice sits under the list, not on the row (ProviderAttribution).
+ * attributes when known; distance when known. Missing fields are left out, never shown blank. [enrichment] adds
+ * Tripadvisor's photo and rating (DN-UX-004). The provider's notice sits under the list, not on the row
+ * (ProviderAttribution).
  */
 @Composable
 fun RecommendationRow(
