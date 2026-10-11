@@ -1,11 +1,15 @@
 package com.kanyandula.discovernearby.places.here
 
 import com.kanyandula.discovernearby.model.GeoPoint
+import com.kanyandula.discovernearby.model.OpeningPeriod
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalTime
 
 // Synthetic: invented values in the shape of HERE's documented /browse item (ADR-001 [H2]). The spike recorded no
 // fixtures (public repo; ADR-001 V6b).
@@ -111,5 +115,25 @@ class HereMapperTest {
             "categories": [{"id": "700-7600-0116", "primary": true}, {"id": "100-1100-0010"}]}""").toSummary())
         assertEquals(setOf("coffee_shop"), place.placeKinds)
         assertNull(place.primaryKind)
+    }
+
+    // DN-UX-005: the weekly schedule, for today's closing time; every HERE hours entry counts.
+    @Test
+    fun detailsCarryTheStructuredSchedule() {
+        val details = checkNotNull(item("""{"id": "x", "title": "A", "position": {"lat": 1.0, "lng": 2.0},
+            "openingHours": [
+              {"text": ["Mon: 07:00 - 16:00"], "isOpen": true,
+               "structured": [{"start": "T070000", "duration": "PT09H00M", "recurrence": "FREQ:DAILY;BYDAY:MO"}]},
+              {"text": ["Sun: 10:00 - 12:00"],
+               "structured": [{"start": "T100000", "duration": "PT02H00M", "recurrence": "FREQ:DAILY;BYDAY:SU"},
+                              {"start": "bad"}]}]}""").toDetails())
+        assertEquals(
+            listOf(
+                OpeningPeriod(setOf(DayOfWeek.MONDAY), LocalTime.of(7, 0), Duration.ofHours(9)),
+                OpeningPeriod(setOf(DayOfWeek.SUNDAY), LocalTime.of(10, 0), Duration.ofHours(2)),
+            ),
+            details.openingPeriods,
+        )
+        assertNull(details.carParkNearby) // a separate call (Task 2)
     }
 }
