@@ -59,7 +59,7 @@ class TripadvisorEnricherTest {
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertEquals(
             PlaceEnrichment(
-                photoUrl = "https://example.test/photo-22.jpg?w=480&h=-1&s=1", // resized by the image server
+                photoUrl = "https://example.test/photo-22.jpg?w=500&h=-1&s=1", // resized by the image server
                 rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.png"),
                 priceLevel = PriceLevel.MID,
                 description = "A café by the harbour.",
@@ -121,7 +121,7 @@ class TripadvisorEnricherTest {
         respond = answering(NEARBY.replace(""", "icon_url": "https://example.test/bubbles-4.5.png"""", ""))
         val enrichment = enricher.enrich(cafe, COFFEE)
         assertNull(enrichment?.rating)
-        assertEquals("https://example.test/photo-22.jpg?w=480&h=-1&s=1", enrichment?.photoUrl)
+        assertEquals("https://example.test/photo-22.jpg?w=500&h=-1&s=1", enrichment?.photoUrl)
     }
 
     @Test

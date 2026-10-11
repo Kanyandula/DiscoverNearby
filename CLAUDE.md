@@ -74,7 +74,7 @@ in place (DN-M0-012, DN-M0-001).
     and 429 leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
   - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
     graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
-    480 px wide through the image server's resizing; Coil loads them with a memory cache only.
+    500 px wide through the image server's resizing; Coil loads them with a memory cache only.
   - **Cost:** 1,000 free calls a month, then charged. Keyless fakes, CI and Robolectric get no enrichment, and
     `--es scenario` fakes get `FakeEnricher`'s made-up data: develop on the fakes, keep live checks few.
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,

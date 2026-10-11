@@ -21,9 +21,10 @@ private const val SEARCH_RADIUS_KM = "0.2" // around HERE's position: the same p
 private const val NEARBY_RESULTS = 10
 private const val CALL_TIMEOUT_MILLIS = 4_000L
 
-// The image server's resizing (Terra docs): twice the Details photo's 240 dp, for denser car screens; the row's smaller
-// slot reuses it. The original can be 2,000 px wide and ten times the bytes.
-private const val PHOTO_SIZE = "?w=480&h=-1&s=1"
+// The image server's resizing (Terra docs): about twice the Details photo's 240 dp, for denser car screens; the row's
+// smaller slot reuses it. The server takes only some widths: 300, 400, 500, 550, 600, 700 and 800 answer, while 250,
+// 360, 450 and 480 are refused with HTTP 400 (checked 2026-10-11). An original can be 2,000 px wide and much heavier.
+private const val PHOTO_SIZE = "?w=500&h=-1&s=1"
 
 /**
  * Tripadvisor (Terra) photo, rating, price level and description for a HERE place (DN-UX-004, DN-UX-005, ADR-003): a
