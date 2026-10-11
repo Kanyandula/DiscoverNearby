@@ -1,8 +1,14 @@
 package com.kanyandula.discovernearby
 
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
+import com.kanyandula.discovernearby.discovery.testPlace
+import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
 import com.kanyandula.discovernearby.ui.appContainer
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,5 +52,14 @@ class AppContainerTest {
         assertTrue(container.placesRepository is HerePlacesRepository)
         container.useFakeScenario("SLOW")
         assertTrue(container.placesRepository is FakePlacesRepository)
+    }
+
+    // DN-UX-005: a named scenario gets made-up prices and descriptions; keyless fakes (CI, Robolectric) get nothing.
+    @Test
+    fun onlyANamedScenarioGetsTheFakeEnrichment() = runTest {
+        val place = testPlace("The Daily Grind, Greystones", "coffee_shop")
+        assertNull(AppContainer(app, hereApiKey = "").placeEnricher.enrich(place, DiscoveryCategory.COFFEE))
+        val scenario = AppContainer(app, hereApiKey = "").apply { useFakeScenario("NORMAL") }
+        assertEquals(PriceLevel.CHEAP, scenario.placeEnricher.enrich(place, DiscoveryCategory.COFFEE)?.priceLevel)
     }
 }

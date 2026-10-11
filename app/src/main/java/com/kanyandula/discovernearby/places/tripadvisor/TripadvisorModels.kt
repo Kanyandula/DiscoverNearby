@@ -16,7 +16,12 @@ internal data class TripadvisorLocation(
     val id: Long? = null,
     val names: List<LocationName> = emptyList(),
     @SerialName("traveler_ratings") val travelerRatings: TravelerRatings? = null,
+    @SerialName("price_level") val priceLevel: String? = null,
+    val descriptions: List<LocationDescription> = emptyList(),
 )
+
+@Serializable
+internal data class LocationDescription(val language: String = "", val value: String = "")
 
 @Serializable
 internal data class LocationName(val value: String = "")

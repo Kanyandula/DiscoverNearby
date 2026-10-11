@@ -4,6 +4,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory.COFFEE
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory.SCENIC
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.PlaceEnrichment
+import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.model.ProviderRating
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
@@ -23,6 +24,8 @@ private const val KEY = "TEST-KEY-not-real"
 private const val NEARBY = """{"data": [
   {"location": {"id": 11, "names": [{"value": "Harbour Lane Deli", "primary": true}]}},
   {"location": {"id": 22, "names": [{"value": "Harbour Coffee Seaview", "primary": true}],
+    "price_level": "Mid Range",
+    "descriptions": [{"language": "fr", "value": "Un café."}, {"language": "en", "value": "A café by the harbour."}],
     "traveler_ratings": {"overall": {"rating": 4.5, "count": 312, "icon_url": "https://example.test/bubbles-4.5.png"}}}}
 ]}"""
 private const val PHOTOS = """{"data": [{"photo": {"original_size_url": "https://example.test/photo-22.jpg"},
@@ -55,6 +58,8 @@ class TripadvisorEnricherTest {
             PlaceEnrichment(
                 photoUrl = "https://example.test/photo-22.jpg?w=800&h=-1&s=1", // resized by the image server
                 rating = ProviderRating(4.5, 312, "https://example.test/bubbles-4.5.png"),
+                priceLevel = PriceLevel.MID,
+                description = "A café by the harbour.",
             ),
             enrichment,
         )
@@ -124,5 +129,38 @@ class TripadvisorEnricherTest {
         assertNull(enricher.enrich(cafe, COFFEE))
         respond = { reply(it, 200, "not json") }
         assertNull(enricher.enrich(cafe, COFFEE))
+    }
+
+    // DN-UX-005: price and description come from the nearby search already made; no new call.
+    @Test
+    fun priceAndDescriptionComeWithoutAnotherCall() = runBlocking {
+        val enrichment = enricher.enrich(cafe, COFFEE)
+        assertEquals(PriceLevel.MID, enrichment?.priceLevel)
+        assertEquals("A café by the harbour.", enrichment?.description)
+        assertEquals(2, requests.size) // the nearby search and the photo, as before
+    }
+
+    @Test
+    fun eachPriceLevelMaps() {
+        assertEquals(PriceLevel.CHEAP, priceLevel("Cheap Eats"))
+        assertEquals(PriceLevel.MID, priceLevel("Mid Range"))
+        assertEquals(PriceLevel.FINE, priceLevel("Fine Dining"))
+    }
+
+    // Review Focus 5: unknown or foreign text is left out, not guessed.
+    @Test
+    fun anUnknownPriceOrAForeignDescriptionIsLeftOut() = runBlocking {
+        assertNull(priceLevel("$$ - $$$"))
+        assertNull(priceLevel(null))
+        respond = { request ->
+            val nearby = NEARBY.replace("\"Mid Range\"", "\"Pricey\"").replace(
+                """{"language": "en", "value": "A café by the harbour."}""",
+                """{"language": "de", "value": "Ein Café."}""",
+            )
+            reply(request, 200, if (request.url.encodedPath.endsWith("/photos")) PHOTOS else nearby)
+        }
+        val enrichment = enricher.enrich(cafe, COFFEE)
+        assertNull(enrichment?.priceLevel)
+        assertNull(enrichment?.description)
     }
 }
