@@ -9,11 +9,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.requestFocus
-import androidx.compose.ui.unit.dp
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.ReferencePanelHeight
+import com.kanyandula.discovernearby.ui.ReferencePanelWidth
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
@@ -43,7 +44,7 @@ class NextRowRevealTest {
             inputModes = LocalInputModeManager.current
             DiscoverNearbyTheme {
                 // The panel a destination gets beside the rail on the reference AVD (PlaceDetailsFitTest).
-                Box(modifier = Modifier.size(width = 836.dp, height = 468.dp)) {
+                Box(modifier = Modifier.size(width = ReferencePanelWidth, height = ReferencePanelHeight)) {
                     RecommendationsScreen(
                         category = DiscoveryCategory.COFFEE,
                         state = RecommendationsUiState.Content(

@@ -37,10 +37,8 @@ class SavedScreenTest {
         testPlace("Harbour Café", "cafe").copy(attribution = "HERE"),
         DiscoveryCategory.COFFEE,
         enrichment = null,
-        savedAt = 2,
     )
-    private val park =
-        SavedPlace(testPlace("Hill Park", "park"), DiscoveryCategory.OUTDOORS, enrichment = null, savedAt = 1)
+    private val park = SavedPlace(testPlace("Hill Park", "park"), DiscoveryCategory.OUTDOORS, enrichment = null)
 
     @Before
     fun setUp() {

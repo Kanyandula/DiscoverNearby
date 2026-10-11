@@ -285,6 +285,7 @@ class DiscoverNavigationTest {
     @Test
     fun savedTappedTwiceStacksOneScreen() {
         tab("Saved").performClick()
+        waitForText("No saved places yet")
         tab("Saved").performClick()
         systemBack()
         onDiscover()

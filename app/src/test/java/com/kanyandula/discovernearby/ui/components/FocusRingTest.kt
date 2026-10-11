@@ -122,10 +122,11 @@ class FocusRingTest {
         assertArrayEquals(Accent.rgb(), saved.edgePixel().rgb(), TOLERANCE)
     }
 
-    // Navigate is filled with Action blue, so an Accent ring would barely show; it gets a light one.
+    // Navigate is filled with Action blue, so an Accent ring would barely show; it gets a light one. Save is Raised
+    // grey: the Accent ring shows on it.
     @Test
     @Config(qualifiers = AUTOMOTIVE_1024P)
-    fun focusedNavigateShowsALightRing() {
+    fun focusedDetailsActionsShowTheirRings() {
         val place = testPlace("cafe-1", "cafe")
         show {
             PlaceDetailsScreen(
@@ -141,23 +142,6 @@ class FocusRingTest {
         val navigate = rule.onNodeWithText(text(R.string.navigate))
         navigate.requestFocus()
         assertArrayEquals(OnSurface.rgb(), navigate.edgePixel().rgb(), TOLERANCE)
-    }
-
-    // Save is filled with Raised grey: the Accent ring shows on it.
-    @Test
-    @Config(qualifiers = AUTOMOTIVE_1024P)
-    fun focusedSaveShowsTheRing() {
-        show {
-            PlaceDetailsScreen(
-                distanceMeters = 500,
-                category = DiscoveryCategory.COFFEE,
-                state = PlaceDetailsUiState.SummaryOnly(testPlace("cafe-1", "cafe")),
-                onNavigate = {},
-                onBack = {},
-                saved = false,
-                onToggleSave = {},
-            )
-        }
         val save = rule.onNodeWithText(text(R.string.save))
         save.requestFocus()
         assertArrayEquals(Accent.rgb(), save.edgePixel().rgb(), TOLERANCE)

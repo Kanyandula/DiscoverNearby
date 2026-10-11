@@ -75,7 +75,7 @@ class SavedViewModelTest {
         assertEquals(listOf("m100" to 100, "m500" to 500, "m900" to 900), collected().shown)
     }
 
-    // Review Focus 2: without a location, the newest first and no distances; Saved never asks for permission.
+    // Without a location, the newest first and no distances; Saved never asks for permission.
     @Test
     fun withoutALocationNewestFirstAndNoDistances() = runTest {
         location.result = LocationResult.PermissionMissing
@@ -83,7 +83,7 @@ class SavedViewModelTest {
         assertEquals(listOf("m900" to null, "m100" to null), collected().shown)
     }
 
-    // Review Focus 5
+    // docs/03 §6: the driving limit trims the list.
     @Test
     fun theDrivingLimitTrimsTheList() = runTest {
         save(100, 200, 300)
@@ -98,7 +98,7 @@ class SavedViewModelTest {
         assertEquals(ParkToSee, collected().uiState.value)
     }
 
-    // Review Focus 4: removed on Place Details, gone here on Back, without a reload.
+    // Removed on Place Details, gone here on Back, without a reload.
     @Test
     fun aPlaceRemovedElsewhereLeavesTheList() = runTest {
         save(100, 200)

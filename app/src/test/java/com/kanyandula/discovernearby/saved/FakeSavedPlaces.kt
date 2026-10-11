@@ -8,17 +8,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-/** Test stand-in: newest first, like Room; [places] can be read or changed directly; savedAt counts 1, 2, 3 … */
+/** Test stand-in: newest first, like Room; [places] can be read or changed directly. */
 class FakeSavedPlaces : SavedPlacesRepository {
     val places = MutableStateFlow<List<SavedPlace>>(emptyList())
-    private var clock = 0L
 
     override fun savedPlaces(): Flow<List<SavedPlace>> = places
 
     override fun isSaved(placeId: String): Flow<Boolean> = places.map { list -> list.any { it.summary.id == placeId } }
 
     override suspend fun save(summary: PlaceSummary, category: DiscoveryCategory, enrichment: PlaceEnrichment?) {
-        val place = SavedPlace(summary, category, enrichment, ++clock)
+        val place = SavedPlace(summary, category, enrichment)
         places.update { list -> listOf(place) + list.filterNot { it.summary.id == summary.id } }
     }
 

@@ -64,7 +64,7 @@ class PlaceDetailsViewModelTest {
     )
 
     /** [vm] with the screen watching whether the place is saved, its first calls run as far as they can. */
-    private fun TestScope.watched(vm: PlaceDetailsViewModel = viewModel()) = vm.also {
+    private fun TestScope.watched() = viewModel().also { vm ->
         backgroundScope.launch { vm.isSaved.collect {} }
         runCurrent()
     }
@@ -188,7 +188,7 @@ class PlaceDetailsViewModelTest {
         val vm = watched()
         vm.toggleSave()
         runCurrent()
-        assertEquals(listOf(SavedPlace(loaded.summary, DiscoveryCategory.COFFEE, rowEnrichment, 1)), saved.places.value)
+        assertEquals(listOf(SavedPlace(loaded.summary, DiscoveryCategory.COFFEE, rowEnrichment)), saved.places.value)
         assertEquals(true, vm.isSaved.value)
     }
 

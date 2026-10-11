@@ -39,7 +39,7 @@ class RoomSavedPlacesTest {
     fun aSavedPlaceComesBackWithItsCategoryAndEnrichment() = runTest {
         val enrichment = PlaceEnrichment(priceLevel = PriceLevel.MID, description = "A made-up café.")
         saved.save(cafe, COFFEE, enrichment)
-        assertEquals(listOf(SavedPlace(cafe, COFFEE, enrichment, savedAt = 1_000L)), saved.savedPlaces().first())
+        assertEquals(listOf(SavedPlace(cafe, COFFEE, enrichment)), saved.savedPlaces().first())
     }
 
     @Test
@@ -50,7 +50,7 @@ class RoomSavedPlacesTest {
         assertEquals(listOf("park-1", "cafe-1"), ids())
     }
 
-    // Review Focus 3: saving again keeps one row, now the newest.
+    // Saving again keeps one row, now the newest.
     @Test
     fun savingTwiceKeepsOneRowAndMovesItToTheTop() = runTest {
         saved.save(cafe, COFFEE, null)
@@ -92,7 +92,7 @@ class RoomSavedPlacesTest {
         assertEquals(listOf(emptyList(), listOf("cafe-1")), seen)
     }
 
-    // Review Focus 1: a row stored by an older build that no longer decodes is skipped, not a crash.
+    // A row stored by an older build that no longer decodes is skipped, not a crash.
     @Test
     fun aRowThatNoLongerDecodesIsSkipped() = runTest {
         saved.save(cafe, COFFEE, null)
