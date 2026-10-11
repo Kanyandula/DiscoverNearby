@@ -3,22 +3,29 @@ package com.kanyandula.discovernearby.ui.screens
 import com.kanyandula.discovernearby.MainDispatcherRule
 import com.kanyandula.discovernearby.discovery.BasicRecommendationEngine
 import com.kanyandula.discovernearby.discovery.DiscoverUseCase
+import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.PROVIDER_TIMEOUT_MILLIS
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
 import com.kanyandula.discovernearby.model.Closing
 import com.kanyandula.discovernearby.model.OpeningPeriod
 import com.kanyandula.discovernearby.model.PlaceDetails
+import com.kanyandula.discovernearby.model.PlaceEnrichment
+import com.kanyandula.discovernearby.model.PriceLevel
 import com.kanyandula.discovernearby.navigation.fake.FakeNavigationLauncher
 import com.kanyandula.discovernearby.places.ProviderFailure
 import com.kanyandula.discovernearby.places.ScriptedPlaces
 import com.kanyandula.discovernearby.places.fake.SLOW_DELAY_MILLIS
+import com.kanyandula.discovernearby.saved.FakeSavedPlaces
+import com.kanyandula.discovernearby.saved.SavedPlace
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.NavigationUnavailable
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -43,12 +50,24 @@ class PlaceDetailsViewModelTest {
 
     private val monday10am = LocalDateTime.of(2026, 10, 12, 10, 0)
 
+    private val saved = FakeSavedPlaces()
+    private val rowEnrichment = PlaceEnrichment(priceLevel = PriceLevel.MID)
+
     private fun viewModel() = PlaceDetailsViewModel(
         place = place,
         discover = DiscoverUseCase(places, FakeLocationProvider(), BasicRecommendationEngine()),
         navigation = launcher,
+        saved = saved,
+        category = DiscoveryCategory.COFFEE,
+        enrichment = rowEnrichment,
         now = { monday10am },
     )
+
+    /** [vm] with the screen watching whether the place is saved, its first calls run as far as they can. */
+    private fun TestScope.watched(vm: PlaceDetailsViewModel = viewModel()) = vm.also {
+        backgroundScope.launch { vm.isSaved.collect {} }
+        runCurrent()
+    }
 
     private fun slowDetails(millis: Long): suspend (String) -> PlaceDetails = {
         delay(millis)
@@ -159,5 +178,39 @@ class PlaceDetailsViewModelTest {
         val vm = viewModel()
         runCurrent()
         assertEquals(SummaryOnly(place), vm.uiState.value)
+    }
+
+    // DN-UX-006: Save keeps the place as Details knows it (the refreshed summary), with the row's category and enrichment.
+    @Test
+    fun saveKeepsTheRefreshedPlaceWithItsCategoryAndEnrichment() = runTest {
+        places.details = { loaded }
+        val vm = watched()
+        vm.toggleSave()
+        runCurrent()
+        assertEquals(listOf(SavedPlace(loaded.summary, DiscoveryCategory.COFFEE, rowEnrichment, 1)), saved.places.value)
+        assertEquals(true, vm.isSaved.value)
+    }
+
+    @Test
+    fun saveAgainRemovesIt() = runTest {
+        places.details = { loaded }
+        val vm = watched()
+        vm.toggleSave()
+        runCurrent()
+        vm.toggleSave()
+        runCurrent()
+        assertEquals(emptyList<SavedPlace>(), saved.places.value)
+        assertEquals(false, vm.isSaved.value)
+    }
+
+    // Review Focus 3: a double tap before the database answers leaves one row.
+    @Test
+    fun aDoubleTapLeavesOneRow() = runTest {
+        places.details = { loaded }
+        val vm = watched()
+        vm.toggleSave()
+        vm.toggleSave()
+        runCurrent()
+        assertEquals(1, saved.places.value.size)
     }
 }

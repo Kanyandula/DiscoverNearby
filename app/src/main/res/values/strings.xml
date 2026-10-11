@@ -92,6 +92,8 @@
     <!-- The data provider's copyright notice (ADR-001 V6a): "© 2026 HERE". -->
     <string name="provider_attribution">© %1$d %2$s</string>
     <string name="navigate">Navigate</string>
+    <string name="save">Save</string>
+    <string name="saved">Saved</string>
     <string name="navigation_unavailable_title">Navigation unavailable</string>
     <string name="navigation_unavailable_body">No compatible navigation app could open this destination.</string>
     <string name="grant_permission">Grant Permission</string>

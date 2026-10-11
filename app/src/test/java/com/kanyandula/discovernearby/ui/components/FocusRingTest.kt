@@ -127,11 +127,33 @@ class FocusRingTest {
                 state = PlaceDetailsUiState.SummaryOnly(place),
                 onNavigate = {},
                 onBack = {},
+                saved = false,
+                onToggleSave = {},
             )
         }
         val navigate = rule.onNodeWithText(text(R.string.navigate))
         navigate.requestFocus()
         assertArrayEquals(OnSurface.rgb(), navigate.edgePixel().rgb(), TOLERANCE)
+    }
+
+    // Save is filled with Raised grey: the Accent ring shows on it.
+    @Test
+    @Config(qualifiers = AUTOMOTIVE_1024P)
+    fun focusedSaveShowsTheRing() {
+        show {
+            PlaceDetailsScreen(
+                distanceMeters = 500,
+                category = DiscoveryCategory.COFFEE,
+                state = PlaceDetailsUiState.SummaryOnly(testPlace("cafe-1", "cafe")),
+                onNavigate = {},
+                onBack = {},
+                saved = false,
+                onToggleSave = {},
+            )
+        }
+        val save = rule.onNodeWithText(text(R.string.save))
+        save.requestFocus()
+        assertArrayEquals(Accent.rgb(), save.edgePixel().rgb(), TOLERANCE)
     }
 
     // Error and permission states: Retry/Grant are Action blue (light ring), Back is Raised (Accent ring).

@@ -107,9 +107,17 @@ fun DiscoverNavHost(
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
             val route = remember(entry) { entry.toRoute<PlaceDetailsRoute>() }
             val viewModel = viewModel {
-                PlaceDetailsViewModel(route.place, container.discoverUseCase, container.navigationLauncher)
+                PlaceDetailsViewModel(
+                    place = route.place,
+                    discover = container.discoverUseCase,
+                    navigation = container.navigationLauncher,
+                    saved = container.savedPlaces,
+                    category = route.category,
+                    enrichment = route.enrichment,
+                )
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
+            val saved by viewModel.isSaved.collectAsStateWithLifecycle()
             // Only for the description (DN-UX-005); Navigate and Back work the same either way.
             val driving by container.drivingRestrictions.state.collectAsStateWithLifecycle()
             PlaceDetailsScreen(
@@ -120,6 +128,8 @@ fun DiscoverNavHost(
                 drivingRestricted = driving.distractionOptimizationRequired,
                 onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+                saved = saved,
+                onToggleSave = viewModel::toggleSave,
             )
         }
     }

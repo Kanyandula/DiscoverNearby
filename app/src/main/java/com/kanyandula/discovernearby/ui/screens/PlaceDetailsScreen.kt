@@ -67,17 +67,19 @@ import com.kanyandula.discovernearby.ui.theme.OnSurface
 import com.kanyandula.discovernearby.ui.theme.OnSurfaceVariant
 import com.kanyandula.discovernearby.ui.theme.OpenNow
 import com.kanyandula.discovernearby.ui.theme.PhotoCreditGap
+import com.kanyandula.discovernearby.ui.theme.Raised
 import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 
 /**
  * Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005): Back, the photo and what is
  * known about the place across the top; the amenity tiles; Tripadvisor's description; Navigate bottom right, with
- * Save's slot beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
+ * Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
  * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
  * row can appear late and push the description down). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
  */
+@Suppress("LongParameterList") // the state plus one lambda per user action
 @Composable
 fun PlaceDetailsScreen(
     distanceMeters: Int,
@@ -85,6 +87,8 @@ fun PlaceDetailsScreen(
     state: PlaceDetailsUiState,
     onNavigate: () -> Unit,
     onBack: () -> Unit,
+    saved: Boolean,
+    onToggleSave: () -> Unit,
     modifier: Modifier = Modifier,
     enrichment: PlaceEnrichment? = null,
     drivingRestricted: Boolean = true, // unknown means restrictions apply (docs/03 §6)
@@ -124,7 +128,7 @@ fun PlaceDetailsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-                    Spacer(Modifier.weight(1f)) // Save's slot (DN-UX-006)
+                    SaveButton(saved = saved, onClick = onToggleSave, modifier = Modifier.weight(1f))
                     NavigateButton(onClick = onNavigate, modifier = Modifier.weight(1f))
                 }
                 // Bottom left: HERE's notice with HERE's data (ADR-001 V6a).
@@ -262,6 +266,30 @@ private fun DetailsUnavailable() {
             text = stringResource(R.string.details_unavailable),
             style = MaterialTheme.typography.titleMedium,
             color = muted,
+        )
+    }
+}
+
+/** Save ↔ Saved (DN-UX-006): Raised grey beside the primary Navigate, so the Accent ring shows on it. */
+@Composable
+private fun SaveButton(saved: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(NavigateRadius)
+    Button(
+        onClick = onClick,
+        modifier = modifier.focusRing(shape).height(MinTouchTarget),
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(containerColor = Raised, contentColor = OnSurface),
+    ) {
+        // Decorative: the label says the state.
+        Icon(
+            painter = painterResource(if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart),
+            contentDescription = null,
+            modifier = Modifier.size(NavigateIconSize),
+        )
+        Spacer(modifier = Modifier.width(NavigateIconGap))
+        Text(
+            text = stringResource(if (saved) R.string.saved else R.string.save),
+            style = MaterialTheme.typography.headlineSmall,
         )
     }
 }

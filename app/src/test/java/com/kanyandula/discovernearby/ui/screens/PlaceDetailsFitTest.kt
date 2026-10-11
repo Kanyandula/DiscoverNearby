@@ -37,8 +37,8 @@ import org.robolectric.annotation.GraphicsMode
  */
 private val ReferencePanelHeight = 468.dp
 
-/** The panel's width on the reference AVD, 928 dp, less DN-UX-006's rail (72) and its gap (16). */
-private val ReferencePanelWidth = 840.dp
+/** The panel's width on the reference AVD, 928 dp, less DN-UX-006's rail (76) and its gap (16). */
+private val ReferencePanelWidth = 836.dp
 
 // The summary-only note is the only sign of the fallback; a full set of facts must not push it off the panel.
 // Native graphics measure real text: the legacy mode gives every character about 1 px, so nothing ever wraps.
@@ -68,6 +68,8 @@ class PlaceDetailsFitTest {
                         state = SummaryOnly(everything),
                         onNavigate = {},
                         onBack = {},
+                        saved = false,
+                        onToggleSave = {},
                         drivingRestricted = false, // parked: the description shows
                         enrichment = PlaceEnrichment(
                             photoUrl = "https://example.test/p.jpg",
@@ -99,5 +101,9 @@ class PlaceDetailsFitTest {
         description.assertIsDisplayed()
         assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
         navigate.assertHeightIsAtLeast(MinTouchTarget)
+        val save = rule.onNodeWithText("Save")
+        save.assertIsDisplayed()
+        save.assertHeightIsAtLeast(MinTouchTarget)
+        assertTrue(save.getUnclippedBoundsInRoot().right <= navigate.getUnclippedBoundsInRoot().left)
     }
 }

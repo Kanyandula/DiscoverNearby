@@ -62,6 +62,8 @@ class PlaceDetailsScreenTest {
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
     private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var restricted by mutableStateOf(false)
+    private var isSaved by mutableStateOf(false)
+    private var saves = 0
     private var navigations = 0
     private var backs = 0
 
@@ -76,6 +78,8 @@ class PlaceDetailsScreenTest {
                     state = state,
                     onNavigate = { navigations++ },
                     onBack = { backs++ },
+                    saved = isSaved,
+                    onToggleSave = { saves++ },
                     enrichment = enrichment,
                     drivingRestricted = restricted,
                 )
@@ -263,5 +267,17 @@ class PlaceDetailsScreenTest {
         val plain = rule.onNodeWithText("Drive-through").getUnclippedBoundsInRoot()
         val withIcon = rule.onNodeWithText("Car park nearby").getUnclippedBoundsInRoot()
         assertEquals(withIcon.top, plain.top)
+    }
+
+    // DN-UX-006: Save beside Navigate, one tap, also while driving; the label follows the database.
+    @Test
+    fun saveTogglesAndSaysWhetherThePlaceIsSaved() {
+        state = Content(PlaceDetails(place, openingSummary = null))
+        restricted = true
+        rule.onNodeWithText("Save").performClick()
+        assertEquals(1, saves)
+        isSaved = true
+        rule.onNodeWithText("Saved").assertIsDisplayed()
+        rule.onNodeWithText("Save").assertDoesNotExist()
     }
 }
