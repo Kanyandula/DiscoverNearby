@@ -710,6 +710,8 @@ Destinations are **fixed presets**. Free-text destination entry is out of scope.
 - **Recommendations:** request only the fields needed for ranking and list rows (`PlaceSummary`).
 - **Place Details:** fetch richer data only when the user opens a place (`PlaceDetails`).
 - **Discovery trigger:** location is read and sent only when the user selects a category.
+- **Saved (DN-UX-006):** location is read once when the Saved screen opens, to order and measure the saved places;
+  it is never sent.
 
 Goals: avoid unnecessary data use, reduce API cost, reduce latency, keep the implementation understandable.
 

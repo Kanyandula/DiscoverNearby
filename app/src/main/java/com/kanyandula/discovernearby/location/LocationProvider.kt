@@ -8,7 +8,7 @@ sealed interface LocationResult {
     data object Unavailable : LocationResult
 }
 
-/** Read only when the user requests discovery (docs/01 §14). */
+/** Read only when the user requests discovery (docs/01 §14) or opens Saved (docs/03 §13). */
 interface LocationProvider {
     suspend fun currentLocation(): LocationResult
 }
