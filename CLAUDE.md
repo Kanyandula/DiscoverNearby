@@ -67,8 +67,8 @@ in place (DN-M0-012, DN-M0-001).
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
     `BuildConfig.TRIPADVISOR_API_KEY`, sent in `X-API-Key`). After ranking, `RecommendationsViewModel` enriches the
     top rows one by one through `PlaceEnricher`: a nearby search 200 m around HERE's position, a strict name match
-    (`nameMatch`), the first photo. Two calls a place; display only, never ranked; nothing stored; failures and 429
-    leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
+    (`nameMatch`), the first photo. Two calls a place; display only, never ranked; search results not stored; failures
+    and 429 leave the artwork. The row's enrichment rides to Details in `PlaceDetailsRoute` with the category.
   - **Display:** `TripadvisorRating` draws Tripadvisor's own rating graphic on a white chip with the review count (no
     graphic, no rating); "Photo: Tripadvisor" under the Details photo; no link back (→ Legal). Photos are fetched
     800 px wide through the image server's resizing; Coil loads them with a memory cache only.
@@ -101,7 +101,8 @@ tuning) is P3.
 - Networking: OkHttp + kotlinx.serialization, REST only. No provider SDK. Images: Coil 3, memory cache only.
 - DI: manual constructor injection, single wiring point `AppContainer` (created in
   `DiscoverApplication`). No Hilt.
-- Persistence: none. Provider responses are in-memory only.
+- Persistence: allowed in the POC (ADR-004, Product Lead 2026-10-11); Room for saved places (DN-UX-006). Search
+  results stay in memory. Providers' storage terms go to Legal before production.
 - Testing: JUnit, coroutines-test, Robolectric, Compose UI test (`ui-test-junit4`, `createComposeRule`).
 
 ## Structure (single module `app/`, package per concern — docs/03 §3)

@@ -312,7 +312,7 @@ Candidates may include TomTom, HERE, Foursquare, OpenStreetMap-based data, or an
 | Kotlin / async | Kotlin, Coroutines |
 | HTTP / JSON | **REST only:** OkHttp + kotlinx.serialization through our own provider client. No provider SDK in M1–M4 (V5 closed); any SDK need in M5 gets its own ADR. |
 | DI | Manual constructor injection; no framework |
-| Persistence | None initially |
+| Persistence | Allowed in the POC (ADR-004): Room for saved places (DN-UX-006). Search results stay in memory |
 | Navigation between screens | Navigation Compose |
 
 There is no Car App Library dependency, so there is no Car App API level. `minSdk 29` is the only platform floor.
@@ -703,15 +703,17 @@ Goals: avoid unnecessary data use, reduce API cost, reduce latency, keep the imp
 
 Production caching is out of scope.
 
-**Default until ADR-001 says otherwise: do not persist provider POI responses.**
+**The POC may store data on the device, provider data included, where a feature needs it (ADR-004).** Search results
+stay in memory:
 
 ```text
 in-memory response → display → discard when the session ends
 ```
 
-- Place identifiers are stored only if the provider's terms allow it.
-- Recorded test fixtures are created only after confirming the provider permits storing responses for testing.
+- Saved places are stored on the device (DN-UX-006).
+- No recorded provider responses in the repository (it is public); tests use made-up data.
 - Do not build a local mirror of third-party POI data.
+- Providers' storage terms go to Legal before production (ADR-004, docs/05 V6b).
 
 ---
 

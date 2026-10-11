@@ -14,11 +14,14 @@ time, amenity tiles, a brief description, and **Save** beside **Navigate**, with
 - Build the concept's elements that a source can fill (DN-SP-005); leave out the ones none can (below).
 - **Price** as symbols, the way Tripadvisor's own site shows its levels: € (Cheap Eats), €€–€€€ (Mid Range), €€€€
   (Fine Dining).
-- **Save** keeps places **on the device, in Room**. Provider storage rules (HERE's 30-day caching limit, Tripadvisor's
-  location-ID-only caching policy) are a production item, reviewed before Google Play, not now.
+- **Rule change: the POC stores data.** The POC may store data on the device, provider data included, where a feature
+  needs it ([ADR-004](../../adr/0004-storing-data-in-the-poc.md)). Providers' storage terms (HERE's 30-day caching
+  limit, Tripadvisor's location-ID-only caching policy) are a production item, reviewed before Google Play, not now.
+- **Save** keeps places **on the device, in Room**.
 - **The app draws its own rail** with two tabs, Discover and Saved. The car keeps its own system rail or bar (Music,
   Phone, Settings), as `docs/design/00-overview.png` shows.
 - **Saved** lists places nearest first.
+- **Opening line** wording as in PR A below, "Open now" included for an open place without a closing time.
 - The rail adds rotary focus targets. Approving this design is the Product decision ADR-002 requires for a rotary
   change.
 
@@ -32,9 +35,9 @@ time, amenity tiles, a brief description, and **Save** beside **Navigate**, with
 | Car park nearby | A HERE car park (category `800-8500`) within 150 m | 117/173 (68 %) | 1 HERE call when Details opens |
 | Wi-Fi, outdoor seating, family friendly | Tripadvisor `attributes`: none for 30/30 places; OpenStreetMap: Wi-Fi 1/173, outdoor seating 4/173, children 0/173 | Not viable | — |
 
-**Out of scope:** Wi-Fi, outdoor seating and family-friendly tiles (no source; docs show only provided or derived facts);
-the concept's ★ rating (Tripadvisor's display rules require its own graphic, ADR-003); the concept's Music, Phone and
-Settings rail items (the car's); removing a place from the Saved list itself; any sync or account.
+**Out of scope:** Wi-Fi, outdoor seating and family-friendly tiles (no source; docs show only provided or derived
+facts); the concept's ★ rating (Tripadvisor's display rules require its own graphic, ADR-003); the concept's Music,
+Phone and Settings rail items (the car's); removing a place from the Saved list itself; any sync or account.
 
 ## PR A — Place Details as in the concept (DN-UX-005)
 
@@ -108,11 +111,11 @@ Settings rail items (the car's); removing a place from the Saved list itself; an
 
 ## Docs
 
-- **ADR-004 (new), Saved places on the device:** Room, what is stored, the separate files; the production item.
-- **docs/05:** register row V6b ("The POC persists nothing") updated for saved places, parked for production (Legal
-  before Google Play); §2a gets the ADR-004 exception.
-- **docs/03:** stack "Persistence: Room, saved places only; provider responses stay in memory"; §14 the ADR-004
-  exception; the `saved/` package in the structure and architecture rules.
+- **The rule change (on this branch, with the spec):** ADR-004 (storing data in the POC); docs/05 stack, §2a and
+  register row V6b (parked for production, Legal before Google Play); docs/03 stack and §14; ADR-001 V6b; ADR-003;
+  the docs index; CLAUDE.md.
+- **PR B:** ADR-004 gains the Room details (what is stored, the separate files); docs/03 gets the `saved/` package in
+  the structure and architecture rules.
 - **docs/02:** the rail, Save and Saved; "Long descriptions: not required" becomes a two-line description, hidden while
   driving.
 - **docs/design/README.md:** the concept image as the Place Details reference; the car's rail vs the app's rail; the
@@ -125,8 +128,8 @@ Settings rail items (the car's); removing a place from the Saved list itself; an
   (result, none, failure); enricher reads price and description.
 - Room DAO on an in-memory database: save, remove, live updates, saving twice.
 - ViewModels: Save toggling; Saved nearest first, without location, driving limit; description hidden while driving.
-- Compose: rail selection, Back, rotary order (`RotaryContractTest`); Saved empty state; Save button; Place Details still
-  fits the 4:3 screen (`PlaceDetailsFitTest`).
+- Compose: rail selection, Back, rotary order (`RotaryContractTest`); Saved empty state; Save button; Place Details
+  still fits the 4:3 screen (`PlaceDetailsFitTest`).
 - `ArchitectureRulesTest` covers `saved/`.
 - Emulator: the M0 smoke (docs/04 §10) again, on the fakes, plus a few live checks (Tripadvisor calls are charged past
   1,000 a month).

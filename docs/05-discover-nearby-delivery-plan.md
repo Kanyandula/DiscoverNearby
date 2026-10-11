@@ -46,7 +46,7 @@ The decisions below record the original kickoff baseline. Their current status a
 | JSON | kotlinx.serialization |
 | Architecture | Single application module, package-per-concern, manual constructor injection |
 | DI framework | None |
-| Database | None initially |
+| Database | Room, for saved places (ADR-004, DN-UX-006) |
 | Screen navigation | Navigation Compose |
 | UI state | A `ViewModel` per content screen, `StateFlow`, created from `AppContainer` |
 | Map | None |
@@ -86,13 +86,13 @@ AAOS app → PlacesRepository → provider REST client (OkHttp + kotlinx.seriali
 
 ### 2a. Provider defaults until ADR-001
 
-**Caching.** Do not persist provider POI responses unless ADR-001 explicitly allows it:
+**Storage.** The POC may store data on the device, provider data included, where a feature needs it (ADR-004, Product Lead, 2026-10-11); saved places are the first. Search results stay in memory:
 
 ```text
 in-memory response → display → discard when the session ends
 ```
 
-Providers differ. HERE, for example, restricts prefetching, caching or storing Location Services results except where caching headers allow it. ADR-001 records the chosen provider's rule.
+Providers' storage terms differ (HERE limits caching to 30 days outside internal testing and evaluation; Tripadvisor allows only its location ID). They go to Legal before production (V6b).
 
 **API key.**
 
@@ -363,7 +363,7 @@ Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 | **V4** | **The provider gate:** which provider/service combination is commercially and legally usable for an embedded AAOS application? Raw OSM data and an OSM-backed hosted service are different things; the question is about the combination we would actually use. | 🟡 **Provisionally selected: HERE** (ADR-001, 2026-10-07): live matrix done; M1 done on it. Production licensing parked ([ADR-001](adr/0001-poi-provider.md#production-licensing)). | Product/Legal/Business owner (licence); Tech Lead (technical) | Production; any install or demo in a physical vehicle |
 | V5 | Provider SDK licence | 🟢 **Closed.** The core POC uses REST only, with no provider SDK (§2). Any SDK need in M5 gets its own ADR. | — | Nothing |
 | V6a | Provider attribution requirements | 🟡 Captured by ADR-001; "© {year} HERE" shipped in M1. HERE confirms placement without a map before production. | Tech Lead | Production |
-| V6b | Provider caching/storage rules | 🟡 Captured by ADR-001. The POC persists nothing (§2a). | Tech Lead | Nothing |
+| V6b | Provider caching/storage rules | 🟡 **Parked for production.** The POC may store data (ADR-004, Product Lead, 2026-10-11). HERE's 30-day limit and Tripadvisor's location-ID-only policy go to Legal before Google Play. | Tech Lead · Legal | Production |
 | V6c | Provider API-key/auth model | 🟡 Captured by ADR-001. The POC uses a dev-only key (§2a); production chooses a proxy or OAuth (ADR-001 V6c). | Tech Lead | Production |
 | V7 | Rotary focus in Compose on the reference AAOS image (controller rotation on Android 13; nudging is not a POC requirement). **Gate** (ADR-002, 2026-10-06): rotary reaches Navigate, selection activates the focused control, Back returns to a usable screen without losing a turn, and every actionable control shows visible focus. Where focus lands after Back is recorded, not gated. | 🔴 **Failed after clean re-test (2026-10-06); waived by Product for this emulator POC** ([ADR-002](adr/0002-ui-stack-after-v7.md#decision)). The Back-to-Discover focus jump remains a known limitation. Run results and evidence: [ADR-002 re-test](adr/0002-ui-stack-after-v7.md#v7-re-test-after-the-bounded-fix-dn-m0-011-2026-10-06). | Product Lead (waiver) | M0 exit (waived, 2026-10-06); GO ("AAOS flow works") |
 | V9 | Photo and rating source: are Tripadvisor's terms usable for an in-car app? | 🟡 **Accepted for the emulator POC** (Product Lead, 2026-10-10; [ADR-003](adr/0003-place-photos-and-ratings.md)). Legal before production, by the same route as V4. | Product/Legal/Business owner | Production |

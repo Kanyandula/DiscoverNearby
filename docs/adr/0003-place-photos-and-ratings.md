@@ -51,8 +51,10 @@ re-sorting of its results, and the call budget).
   second in bursts of five. Names that differ in a number ("Studio 1", "Studio 2") never match.
 - **Photo size:** the image server's resizing (`?w=800&h=-1&s=1`): 800 px wide for the Details panel, which the row
   reuses. An original can be 2,000 px wide and ten times the bytes.
-- **Nothing is stored.** Tripadvisor's caching policy allows only its location ID. The app keeps none, and images load
-  through a memory-only cache (no disk cache).
+- **Search results are not stored**, and images load through a memory-only cache (no disk cache). Saved places keep
+  their Tripadvisor photo link, rating, price and description on the device
+  ([ADR-004](0004-storing-data-in-the-poc.md)), although Tripadvisor's caching policy allows only its location ID: a
+  production item (→ Legal).
 - **No calls in development or tests.** The fakes, CI and Robolectric get no enrichment.
 - **Display:** Tripadvisor's own rating graphic (its owl mark and bubbles, from the API) on a white chip with the review
   count; a rating without that graphic isn't shown. "Photo: Tripadvisor" under the Place Details photo; the API masks
