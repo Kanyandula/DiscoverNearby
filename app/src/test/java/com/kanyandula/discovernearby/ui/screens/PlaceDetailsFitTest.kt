@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
@@ -14,10 +15,14 @@ import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
 import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceAttribute
+import com.kanyandula.discovernearby.model.PlaceEnrichment
+import com.kanyandula.discovernearby.model.PriceLevel
+import com.kanyandula.discovernearby.model.ProviderRating
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
+import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -32,6 +37,9 @@ import org.robolectric.annotation.GraphicsMode
  */
 private val ReferencePanelHeight = 468.dp
 
+/** The panel's width on the reference AVD, 928 dp, less DN-UX-006's rail (72) and its gap (16). */
+private val ReferencePanelWidth = 840.dp
+
 // The summary-only note is the only sign of the fallback; a full set of facts must not push it off the panel.
 // Native graphics measure real text: the legacy mode gives every character about 1 px, so nothing ever wraps.
 @RunWith(RobolectricTestRunner::class)
@@ -43,7 +51,7 @@ class PlaceDetailsFitTest {
     val rule = createComposeRule()
 
     @Test
-    fun summaryOnlyNoteFitsTheReferencePanel() {
+    fun theWholeConceptFitsTheReferencePanel() {
         val everything = testPlace("Adventure Playground, Greystones", "playground").copy(
             rating = 4.6,
             ratingCount = 180,
@@ -53,13 +61,20 @@ class PlaceDetailsFitTest {
         )
         rule.setContent {
             DiscoverNearbyTheme {
-                Box(modifier = Modifier.height(ReferencePanelHeight)) {
+                Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
                     PlaceDetailsScreen(
                         distanceMeters = 1_400,
                         category = DiscoveryCategory.FAMILY,
                         state = SummaryOnly(everything),
                         onNavigate = {},
                         onBack = {},
+                        enrichment = PlaceEnrichment(
+                            photoUrl = "https://example.test/p.jpg",
+                            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
+                            priceLevel = PriceLevel.FINE,
+                            description = "Seasonal plates from local growers and the morning's catch, served in a " +
+                                "bright room over the bay, with a short wine list and a garden terrace in summer.",
+                        ),
                     )
                 }
             }
@@ -72,9 +87,16 @@ class PlaceDetailsFitTest {
         notice.assertHeightIsAtLeast(16.dp) // one whole labelMedium line: the last child is squeezed first
         assertTrue(notice.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= notice.getUnclippedBoundsInRoot().top)
-        // Navigate sits under the image (03-place-details) and must stay whole on the panel.
+        // Navigate sits bottom right (03b-place-details-concept) and must stay whole on the panel.
         val navigate = rule.onNodeWithText("Navigate")
         navigate.assertIsDisplayed()
         assertTrue(navigate.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
+
+        // Every part of the concept is on the panel: the tiles and the description sit above the actions.
+        rule.onNodeWithText("Parking").assertIsDisplayed()
+        val description = rule.onNodeWithText("Seasonal plates", substring = true)
+        description.assertIsDisplayed()
+        assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
+        navigate.assertHeightIsAtLeast(MinTouchTarget)
     }
 }

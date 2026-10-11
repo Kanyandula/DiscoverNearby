@@ -26,14 +26,20 @@ fun ScreenHeader(title: String, onBack: () -> Unit, modifier: Modifier = Modifie
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ContentGap),
     ) {
-        IconButton(onClick = onBack, modifier = Modifier.focusRing(CircleShape).size(MinTouchTarget)) {
-            Icon(painter = painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
-        }
+        BackButton(onBack)
         Text(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+/** Back, as a 76 dp target with the focus ring. The AOSP car system bar has no Back button (docs/02 §3.6). */
+@Composable
+fun BackButton(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onBack, modifier = modifier.focusRing(CircleShape).size(MinTouchTarget)) {
+        Icon(painter = painterResource(R.drawable.ic_back), contentDescription = stringResource(R.string.back))
     }
 }

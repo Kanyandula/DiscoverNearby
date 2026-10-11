@@ -110,11 +110,14 @@ fun DiscoverNavHost(
                 PlaceDetailsViewModel(route.place, container.discoverUseCase, container.navigationLauncher)
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()
+            // Only for the description (DN-UX-005); Navigate and Back work the same either way.
+            val driving by container.drivingRestrictions.state.collectAsStateWithLifecycle()
             PlaceDetailsScreen(
                 distanceMeters = route.distanceMeters,
                 category = route.category,
                 enrichment = route.enrichment,
                 state = state,
+                drivingRestricted = driving.distractionOptimizationRequired,
                 onNavigate = viewModel::navigate,
                 onBack = { if (navController.isTop(entry)) navController.popBackStack() },
             )

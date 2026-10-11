@@ -50,11 +50,7 @@ class TripadvisorEnricher(
         val priceLevel = priceLevel(location.priceLevel)
         val description = location.descriptions.firstOrNull { it.language.startsWith("en") }?.value?.trim()
             ?.takeIf { it.isNotEmpty() }
-        return if (photoUrl == null && rating == null && priceLevel == null && description == null) {
-            null
-        } else {
-            PlaceEnrichment(photoUrl, rating, priceLevel, description)
-        }
+        return PlaceEnrichment(photoUrl, rating, priceLevel, description).takeUnless { it == PlaceEnrichment() }
     }
 
     /** The location within the radius whose name best matches the place's (the nearer on a tie), or null. */

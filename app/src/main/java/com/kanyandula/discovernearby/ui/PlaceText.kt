@@ -3,6 +3,10 @@ package com.kanyandula.discovernearby.ui
 import androidx.annotation.StringRes
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.model.AttributeType
+import com.kanyandula.discovernearby.model.PriceLevel
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private const val METERS_PER_KM = 1_000.0
 internal const val SEPARATOR = " · "
@@ -59,3 +63,16 @@ internal val AttributeType.label: Int
         AttributeType.FAMILY_FRIENDLY -> R.string.attribute_family_friendly
         AttributeType.DRIVE_THROUGH -> R.string.attribute_drive_through
     }
+
+/** Tripadvisor's level as its own site shows it (DN-UX-005). */
+@get:StringRes
+internal val PriceLevel.label: Int
+    get() = when (this) {
+        PriceLevel.CHEAP -> R.string.price_cheap
+        PriceLevel.MID -> R.string.price_mid
+        PriceLevel.FINE -> R.string.price_fine
+    }
+
+/** "18:00", or "6:00 PM" when the car shows a 12-hour clock. */
+internal fun clockTime(time: LocalTime, is24Hour: Boolean): String =
+    time.format(DateTimeFormatter.ofPattern(if (is24Hour) "HH:mm" else "h:mm a", Locale.US))
