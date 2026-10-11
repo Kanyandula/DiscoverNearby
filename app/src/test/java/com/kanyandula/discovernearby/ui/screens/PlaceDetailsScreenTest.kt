@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -18,6 +19,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.model.AttributeSource.DERIVED
 import com.kanyandula.discovernearby.model.AttributeSource.PROVIDED
+import com.kanyandula.discovernearby.model.AttributeType.DRIVE_THROUGH
 import com.kanyandula.discovernearby.model.AttributeType.FAMILY_FRIENDLY
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.Closing
@@ -242,5 +244,15 @@ class PlaceDetailsScreenTest {
         state = SummaryOnly(place)
         rule.onNodeWithText("Café · € · 2.1 km away").assertIsDisplayed()
         rule.onNodeWithText("A café by the harbour.").assertIsDisplayed()
+    }
+
+    // Emulator check (DN-UX-005): a tile without an icon keeps its label level with one that has the P icon.
+    @Test
+    fun tileLabelsLineUpWithOrWithoutAnIcon() {
+        val driveThrough = place.copy(attributes = setOf(PlaceAttribute(DRIVE_THROUGH, PROVIDED)))
+        state = Content(PlaceDetails(driveThrough, openingSummary = null, carParkNearby = true))
+        val plain = rule.onNodeWithText("Drive-through").getUnclippedBoundsInRoot()
+        val withIcon = rule.onNodeWithText("Car park nearby").getUnclippedBoundsInRoot()
+        assertEquals(withIcon.top, plain.top)
     }
 }

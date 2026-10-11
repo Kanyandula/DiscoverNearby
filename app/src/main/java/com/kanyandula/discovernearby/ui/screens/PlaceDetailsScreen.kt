@@ -291,9 +291,12 @@ private fun AmenityTiles(tiles: List<AmenityTile>) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    tile.icon?.let {
+                    // An empty icon slot keeps every label on the same line.
+                    if (tile.icon == null) {
+                        Spacer(Modifier.size(AmenityIconSize))
+                    } else {
                         Icon(
-                            painter = painterResource(it),
+                            painter = painterResource(tile.icon),
                             contentDescription = null, // the label says it
                             tint = Action,
                             modifier = Modifier.size(AmenityIconSize),
