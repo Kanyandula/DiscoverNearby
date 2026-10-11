@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.ui.theme.CategoryIconSize
 import com.kanyandula.discovernearby.ui.theme.ContentGap
@@ -50,6 +51,7 @@ fun CategoryTile(category: DiscoveryCategory, onClick: () -> Unit, modifier: Mod
                 text = stringResource(visual.subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center, // beside the rail (DN-UX-006) a long subtitle wraps
             )
         }
     }
