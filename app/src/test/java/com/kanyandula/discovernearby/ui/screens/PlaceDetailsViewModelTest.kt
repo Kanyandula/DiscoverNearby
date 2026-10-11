@@ -6,6 +6,8 @@ import com.kanyandula.discovernearby.discovery.DiscoverUseCase
 import com.kanyandula.discovernearby.discovery.PROVIDER_TIMEOUT_MILLIS
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.location.fake.FakeLocationProvider
+import com.kanyandula.discovernearby.model.Closing
+import com.kanyandula.discovernearby.model.OpeningPeriod
 import com.kanyandula.discovernearby.model.PlaceDetails
 import com.kanyandula.discovernearby.navigation.fake.FakeNavigationLauncher
 import com.kanyandula.discovernearby.places.ProviderFailure
@@ -23,6 +25,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @OptIn(ExperimentalCoroutinesApi::class) // runCurrent, advanceTimeBy
 class PlaceDetailsViewModelTest {
@@ -35,10 +41,13 @@ class PlaceDetailsViewModelTest {
     private val place = testPlace("p1", "cafe", metersNorth = 500)
     private val loaded = PlaceDetails(place.copy(rating = 4.6), openingSummary = "Open until 18:00")
 
+    private val monday10am = LocalDateTime.of(2026, 10, 12, 10, 0)
+
     private fun viewModel() = PlaceDetailsViewModel(
         place = place,
         discover = DiscoverUseCase(places, FakeLocationProvider(), BasicRecommendationEngine()),
         navigation = launcher,
+        now = { monday10am },
     )
 
     private fun slowDetails(millis: Long): suspend (String) -> PlaceDetails = {
@@ -106,5 +115,49 @@ class PlaceDetailsViewModelTest {
         vm.navigate()
         advanceTimeBy(1_001)
         assertEquals(NavigationUnavailable(place), vm.uiState.value)
+    }
+
+    // DN-UX-005: today's closing time comes from the schedule, at the time the details arrive.
+    @Test
+    fun theClosingTimeComesWithTheDetails() = runTest {
+        val schedule = OpeningPeriod(setOf(DayOfWeek.MONDAY), LocalTime.of(7, 0), Duration.ofHours(11))
+        places.details = { loaded.copy(openingPeriods = listOf(schedule)) }
+        val vm = viewModel()
+        runCurrent()
+        assertEquals(Closing.At(LocalTime.of(18, 0)), (vm.uiState.value as Content).closing)
+    }
+
+    @Test
+    fun aCarParkNearbyIsAddedToTheDetails() = runTest {
+        places.details = { loaded }
+        places.carPark = { true }
+        val vm = viewModel()
+        runCurrent()
+        assertEquals(Content(loaded.copy(carParkNearby = true)), vm.uiState.value)
+    }
+
+    // Review Focus 3: the details show as they arrive; the tile follows.
+    @Test
+    fun aSlowCarParkCheckDoesNotHoldBackTheDetails() = runTest {
+        places.details = { loaded }
+        places.carPark = {
+            delay(5_000)
+            true
+        }
+        val vm = viewModel()
+        runCurrent()
+        assertEquals(Content(loaded), vm.uiState.value)
+        advanceTimeBy(5_001)
+        assertEquals(Content(loaded.copy(carParkNearby = true)), vm.uiState.value)
+    }
+
+    // The fallback keeps the summary; a car park found anyway is not shown there.
+    @Test
+    fun theCarParkNeedsTheDetails() = runTest {
+        places.details = { throw ProviderFailure() }
+        places.carPark = { true }
+        val vm = viewModel()
+        runCurrent()
+        assertEquals(SummaryOnly(place), vm.uiState.value)
     }
 }
