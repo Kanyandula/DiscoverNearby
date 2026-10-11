@@ -116,6 +116,15 @@ Navigate               (handoff to navigation app)
 
 Loading, empty, permission and error states are **states of these screens**, not extra screens pushed onto the stack. This keeps the back stack shallow and Back predictable.
 
+The app rail (DN-UX-006) sits left of every screen with two tabs, **Discover** and **Saved**. Saved opens on top of
+Discover; Discover returns to the grid. Neither builds a stack:
+
+```text
+Saved                  (list of saved places)
+   ↓
+Place Details          (details pane)
+```
+
 Optional stretch flow:
 
 ```text
@@ -136,7 +145,8 @@ Navigate
 | --- | --- |
 | Discover | 2 × 3 category grid |
 | Recommendations (loading, content) | List |
-| Place Details (loading, content) | Details pane with Navigate |
+| Place Details (loading, content) | Details pane with Save and Navigate |
+| Saved (loading, content) | List, as Recommendations; reached from the app rail |
 | Permission Required, errors, empty | Message state (title, body, up to two actions) drawn inside the owning screen |
 | Along Route presets (stretch) | List |
 | Stops Ahead (stretch) | List |
@@ -291,6 +301,7 @@ Park · Playground · Parking
 - A description (Tripadvisor's), two lines at most, hidden while driving
 - Provider attribution, if the provider requires it here
 - **Navigate** as the primary action
+- **Save** ↔ **Saved** beside it: keeps the place on the device (ADR-004); one tap, also while driving
 
 ### Details fetch failure
 
@@ -306,6 +317,25 @@ If richer details cannot be loaded, show the information already known from the 
 - Social actions
 - Booking
 - Account features
+
+### Saved places (DN-UX-006)
+
+The **Saved** tab lists the places saved on Place Details, as Recommendations rows (photo or artwork, name, rating,
+kind, distance):
+
+- Nearest first, from where the car is now; without a location (permission refused, no fix), the most recently saved
+  first, with no distances. Saved never asks for the location permission.
+- Parked: every saved place, scrolling. Driving: the list limit trims it (§17).
+- A row opens Place Details, which refreshes the place from the provider; removing it there drops it from the list.
+- Empty:
+
+  ```text
+  No saved places yet
+
+  Tap Save on a place to keep it here.
+
+  [Back to Discover]
+  ```
 
 ---
 
@@ -509,10 +539,13 @@ With a Compose UI, **the app builds rotary support**. Every actionable element i
 Expected order:
 
 ```text
-Discover:         Coffee → Food → Outdoors → Family → Scenic → Explore
-Recommendations:  Result 1 → Result 2 → Result 3 …
-Place Details:    Content → Navigate
+Discover:         Coffee → Food → Outdoors → Family → Scenic → Explore → [rail] Discover → Saved
+Recommendations:  Result 1 → Result 2 → Result 3 … → [rail]
+Place Details:    Content → Save → Navigate → [rail]
+Saved:            Saved place 1 → Saved place 2 … → [rail]
 ```
+
+The app rail (DN-UX-006) comes after each screen's content, so the first turn still lands on the screen's first item.
 
 Verify that:
 

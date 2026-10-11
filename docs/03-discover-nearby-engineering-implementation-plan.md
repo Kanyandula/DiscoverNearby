@@ -122,13 +122,15 @@ app/
 │   ├── MainActivity                    (distractionOptimized; setContent)
 │   ├── DiscoverNavHost                 (Navigation Compose)
 │   ├── theme/                          (Material 3 theme, day and night)
-│   ├── components/                     (CategoryTile, PlaceRow, MessageState, …)
+│   ├── components/                     (CategoryTile, RecommendationRow, MessageState, AppRail, …)
 │   └── screens/
 │       ├── DiscoverScreen              (category grid)
 │       ├── RecommendationsScreen       (list / message states)
 │       ├── RecommendationsViewModel
 │       ├── PlaceDetailsScreen          (details pane / message states)
-│       └── PlaceDetailsViewModel
+│       ├── PlaceDetailsViewModel
+│       ├── SavedScreen                 (saved places list / message states; DN-UX-006)
+│       └── SavedViewModel
 │
 ├── car/
 │   ├── DrivingRestrictions             (interface + DrivingState; no android.car imports)
@@ -148,6 +150,11 @@ app/
 │       ├── HerePlacesRepository        (/browse, /lookup over OkHttp)
 │       ├── HereMapper, HereModels
 │       └── HereCategories              (request codes; HERE category → kind)
+│
+├── saved/                              saved places on the device (DN-UX-006, ADR-004)
+│   ├── SavedPlace, SavedPlacesRepository (interface)
+│   ├── SavedPlacesDatabase             (Room: entity, DAO, database)
+│   └── RoomSavedPlaces                 (JSON columns; separate live and fake files)
 │
 ├── location/
 │   ├── LocationProvider                (interface)
@@ -215,6 +222,9 @@ AAOS UI
 Provider SDK or response models must not appear in `discovery/`, `model/` or `ui/`.
 
 Dependency direction: `ui/` → `discovery/` → interfaces in `places/`, `location/`, `navigation/`. Provider implementations depend on the domain model, never the reverse.
+
+Room stays in `saved/` (DN-UX-006); the rest of the app sees `SavedPlacesRepository`, and `ArchitectureRulesTest` holds
+the line.
 
 Stretch route-aware architecture (M5):
 
@@ -330,7 +340,8 @@ There is no Car App Library dependency, so there is no Car App API level. `minSd
 | --- | --- | --- |
 | `DiscoverScreen` | 2 × 3 category grid | Six category tiles |
 | `RecommendationsScreen` | List (loading, content); message state (permission, empty, errors) | One destination; state changes recompose it |
-| `PlaceDetailsScreen` | Details pane (loading, content) | Details failure falls back to summary data on the same screen |
+| `PlaceDetailsScreen` | Details pane (loading, content) | Details failure falls back to summary data on the same screen; Save ↔ Saved beside Navigate |
+| `SavedScreen` | List (loading, content); message state (empty, park to see) | Reached from the app rail; nearest first, newest first without a location (DN-UX-006) |
 
 Stretch: `AlongRouteScreen` (list of destination presets), `StopsAheadScreen` (list).
 
@@ -340,6 +351,8 @@ There is no template-step budget; that was a template-host limit. The rules it p
 
 - Loading, content and error are **states of one screen**, not pushed destinations.
 - The core path is at most three destinations deep (Discover → Recommendations → Details); the stretch path is four.
+- The app rail (DN-UX-006) has Discover and Saved: Saved sits on Discover, single top; Discover pops to the grid.
+  Saved → Place Details is two destinations deep.
 - Back pops one destination. Back on Discover leaves the app.
 
 ### Driving content limits
@@ -819,6 +832,8 @@ With a Compose UI, **the app owns rotary support**. On the Android 13 POC image,
 - match the focus order in the UX spec (§16), and put initial focus on the first item of each screen
 - after Back, return to a usable screen without losing a turn (V7 gate). Where focus lands is recorded, not gated (ADR-002, 2026-10-06). Rotary focus after Back now returns through `ReturnFocus` (DN-M0-011), re-tested cleanly on 2026-10-06. On Back to Discover it was not always reported to the rotary service (ADR-002 re-test)
 - keep the focused row scrolled into view in lists
+- reach the app rail (DN-UX-006) after each screen's content: the panel is composed before the rail, so the first turn
+  still lands on the screen's first item
 - **verify** with the emulator rotary control that focus order is sensible, focus is visible, Back restores a sensible target, nothing is unreachable, and there are no traps
 
 How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement). It failed its clean re-test after one bounded Compose fix (2026-10-06); ADR-002 keeps Compose with a product waiver for this iteration.

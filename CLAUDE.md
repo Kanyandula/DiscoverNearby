@@ -77,6 +77,12 @@ in place (DN-M0-012, DN-M0-001).
     500 px wide through the image server's resizing; Coil loads them with a memory cache only.
   - **Cost:** 1,000 free calls a month, then charged. Keyless fakes, CI and Robolectric get no enrichment, and
     `--es scenario` fakes get `FakeEnricher`'s made-up data: develop on the fakes, keep live checks few.
+- **Saved places (DN-UX-006, ADR-004):** an app rail (`AppRail`, Discover and Saved) sits left of the panel, composed
+  after it so rotary reaches it after the content; the selected tab follows the back stack (`selectedTab`, `openTab`:
+  Saved single top on Discover). Save ↔ Saved beside Navigate on Place Details (`toggleSave`, live `isSaved`). The
+  Saved screen lists saved places nearest first (newest first without a location, no distances), driving limit
+  applied. Storage: `saved/` (Room through KSP; `SavedPlacesRepository`, summary and enrichment as JSON, destructive
+  migration), separate live and fake files, in memory under Robolectric (`TestDiscoverApplication`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
@@ -89,9 +95,7 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-UX-006 (the app rail, Save and the Saved screen, in Room; spec
-`docs/superpowers/specs/2026-10-11-place-details-and-saved-design.md`), then DN-M2-004 (duplicate HERE records and the
-amusement cap in Family, then another re-run before M2 can exit). Travel time stays parked by the user. DN-TD-002
+Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit). Travel time stays parked by the user. DN-TD-002
 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
@@ -116,13 +120,15 @@ amusement cap in Family, then another re-run before M2 can exit). Travel time st
 - `discovery/` — DiscoverUseCase, RecommendationEngine, DiscoveryCategory, DiscoveryContext, CategoryConfig
 - `places/` — PlacesRepository, PlaceEnricher; `fake/FakePlacesRepository` (M0); `here/` HERE client + mapper
   (DN-M1-001, ADR-001); `tripadvisor/` photos and ratings (DN-UX-004, ADR-003)
+- `saved/` — saved places in Room (DN-UX-006, ADR-004): `SavedPlacesRepository`, `RoomSavedPlaces`, the database
 - `location/`, `navigation/` — interfaces + Android implementations (`IntentNavigationLauncher`)
 - `model/` — GeoPoint, PlaceSummary, PlaceDetails, PlaceAttribute, Recommendation, PlaceEnrichment
 - `tools/stub-navigation/` — separate test APK: ACTION_VIEW `geo:` handler, distractionOptimized
 
 ## Architecture rules (do not break)
 - Only `ui/` imports Compose. Only `car/CarDrivingRestrictions` imports `android.car`.
-  `discovery/`, `model/`, `places/`, `location/` have no Compose or Car API imports.
+  `discovery/`, `model/`, `places/`, `location/`, `saved/` have no Compose or Car API imports. Only `saved/` imports
+  Room.
 - Provider response models never leave the provider package; map to domain models.
 - RecommendationEngine is pure Kotlin. Unknown data is neutral; known-closed places are excluded where the
   category is time-sensitive (`CategoryConfig.excludeClosed`); never pad results. It never sees driving state.
