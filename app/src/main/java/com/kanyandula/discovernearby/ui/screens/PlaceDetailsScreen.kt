@@ -136,7 +136,7 @@ fun PlaceDetailsScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
                     // Save ↔ Saved (DN-UX-006) on Raised grey, so the Accent ring shows on it.
                     ActionButton(
-                        icon = if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart,
+                        icon = if (saved) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark,
                         label = if (saved) R.string.saved else R.string.save,
                         container = Raised,
                         content = OnSurface,

@@ -48,7 +48,7 @@ data object SavedRoute
 /** The app rail's tabs (DN-UX-006). The car's Music, Phone and Settings stay on its system rail. */
 enum class RailTab(@param:DrawableRes val icon: Int, @param:StringRes val label: Int) {
     DISCOVER(R.drawable.ic_grid, R.string.tab_discover),
-    SAVED(R.drawable.ic_heart_filled, R.string.tab_saved),
+    SAVED(R.drawable.ic_bookmark_filled, R.string.tab_saved),
 }
 
 // The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
