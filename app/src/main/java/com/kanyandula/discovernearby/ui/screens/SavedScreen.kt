@@ -19,7 +19,7 @@ import com.kanyandula.discovernearby.ui.theme.Highlight
 import com.kanyandula.discovernearby.ui.theme.RowGap
 
 private val SavedEmptyMessage =
-    Message(R.drawable.ic_heart, Highlight, R.string.saved_empty_title, R.string.saved_empty_body)
+    Message(R.drawable.ic_bookmark, Highlight, R.string.saved_empty_title, R.string.saved_empty_body)
 
 /** Saved places as Recommendations rows (DN-UX-006); every state draws on this one destination. */
 @Composable

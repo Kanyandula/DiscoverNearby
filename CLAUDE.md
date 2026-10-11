@@ -61,10 +61,12 @@ in place (DN-M0-012, DN-M0-001).
   - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). No source has Wi-Fi, outdoor
     seating or family friendly (DN-SP-005); the one amenity shown is "Car park nearby" (DN-UX-005).
   - **Kind (DN-UX-004):** rows name the kind of place (`kindLabel`).
-  - **Place Details (DN-UX-005):** laid out as the concept (`docs/design/03b-place-details-concept.png`). The kind,
-    Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured hours
-    (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m); Tripadvisor's description,
-    two lines, hidden while driving. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
+  - **Place Details (DN-UX-005, DN-UX-007):** laid out as artboard 3c (`docs/design/03c-place-details-header.png`):
+    Back and the name as the header, the photo under Back with the facts and the description beside it, the tiles
+    below. The kind, Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured
+    hours (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m), a white P on a blue
+    badge; Tripadvisor's description, two lines (one on the summary-only fallback), hidden while driving with its space
+    kept, so nothing moves. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
 - **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 240 × 150 dp beside
   the facts) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
@@ -79,10 +81,10 @@ in place (DN-M0-012, DN-M0-001).
     `--es scenario` fakes get `FakeEnricher`'s made-up data: develop on the fakes, keep live checks few.
 - **Saved places (DN-UX-006, ADR-004):** an app rail (`AppRail`, Discover and Saved) sits left of the panel, composed
   after it so rotary reaches it after the content; the selected tab follows the back stack (`selectedTab`, `openTab`:
-  Saved single top on Discover). Save ↔ Saved beside Navigate on Place Details (`toggleSave`, live `isSaved`). The
-  Saved screen lists saved places nearest first (newest first without a location, no distances), driving limit
-  applied. Storage: `saved/` (Room through KSP; `SavedPlacesRepository`, summary and enrichment as JSON, destructive
-  migration), separate live and fake files, in memory under Robolectric (`TestDiscoverApplication`).
+  Saved single top on Discover). Save ↔ Saved (a bookmark) beside Navigate on Place Details (`toggleSave`, live
+  `isSaved`). The Saved screen lists saved places nearest first (newest first without a location, no distances),
+  driving limit applied. Storage: `saved/` (Room through KSP; `SavedPlacesRepository`, summary and enrichment as JSON,
+  destructive migration), separate live and fake files, in memory under Robolectric (`TestDiscoverApplication`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is

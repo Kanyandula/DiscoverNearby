@@ -288,8 +288,10 @@ Park · Playground · Parking
 
 ### Content, where available
 
-- Layout as in the Product Lead's concept (`docs/design/03b-place-details-concept.png`): Back, the image and the facts
-  across the top; amenity tiles; a short description; **Navigate** bottom right, with **Save** beside it (DN-UX-006)
+- Layout as the Product Lead's artboard 3c on the design canvas (DN-UX-007; as built:
+  `docs/design/03c-place-details-header.png`), from the concept (`03b-place-details-concept.png`): Back and the place
+  name as the header; the image under Back, with the facts and a short description beside it; amenity tiles below the
+  image; **Navigate** bottom right, with **Save** beside it (DN-UX-006)
 - The image: Tripadvisor's photo, credited "Photo: Tripadvisor", otherwise the category artwork, as on the rows
   (ADR-003)
 - Place name
@@ -298,7 +300,8 @@ Park · Playground · Parking
   if calculated), on one line
 - Open/closed status (if provided), with today's closing time while open ("Open · Closes 18:00", "Open 24 hours")
 - Amenity tiles: provided or derived amenities, and "Car park nearby" when HERE has a car park within 150 m
-- A description (Tripadvisor's), two lines at most, hidden while driving
+- A description (Tripadvisor's), two lines at most (one on the summary-only fallback), hidden while driving; its
+  space stays, so nothing on the screen moves when the car moves off
 - Provider attribution, if the provider requires it here
 - **Navigate** as the primary action
 - **Save** ↔ **Saved** beside it: keeps the place on the device (ADR-004); one tap, also while driving
@@ -313,7 +316,7 @@ If richer details cannot be loaded, show the information already known from the 
 - User-generated comments
 - Photo gallery
 - Menu browsing
-- Long descriptions (a two-line one is shown, hidden while driving)
+- Long descriptions (a two-line one is shown, one on the fallback, hidden while driving)
 - Social actions
 - Booking
 - Account features
