@@ -3,6 +3,9 @@ package com.kanyandula.discovernearby.ui.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
@@ -27,6 +30,7 @@ import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Content
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +39,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-// The summary-only note is the only sign of the fallback; a full set of facts must not push it off the panel.
+// The summary-only note is the only sign of the fallback; a full set of facts must not push it off the panel. With
+// details, a two-line description still fits beside the photo (DN-UX-007).
 // Native graphics measure real text: the legacy mode gives every character about 1 px, so nothing ever wraps.
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = AUTOMOTIVE_1024P)
@@ -60,8 +65,10 @@ class PlaceDetailsFitTest {
             "bright room over the bay, with a short wine list and a garden terrace in summer.",
     )
 
-    /** Every field known, parked (the description shows), on the reference panel. */
-    private fun show(state: PlaceDetailsUiState) = rule.setContent {
+    private var restricted by mutableStateOf(false)
+
+    /** Every field known, parked (the description shows) until [restricted] changes, on the reference panel. */
+    private fun show(state: PlaceDetailsUiState, enrichment: PlaceEnrichment = this.enrichment) = rule.setContent {
         DiscoverNearbyTheme {
             Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
                 PlaceDetailsScreen(
@@ -72,11 +79,22 @@ class PlaceDetailsFitTest {
                     onBack = {},
                     saved = false,
                     onToggleSave = {},
-                    drivingRestricted = false,
+                    drivingRestricted = restricted,
                     enrichment = enrichment,
                 )
             }
         }
+    }
+
+    // DN-UX-007: without a photo, two description lines make the facts column taller than the artwork. Hiding them
+    // while driving must not move the tiles: a layout that shifts as the car moves off draws the driver's eye.
+    @Test
+    fun drivingKeepsTheTilesInPlace() {
+        show(Content(PlaceDetails(everything, openingSummary = null)), enrichment.copy(photoUrl = null))
+        val parked = rule.onNodeWithText("Parking").getUnclippedBoundsInRoot().top
+        restricted = true
+        rule.onNodeWithText("Seasonal plates", substring = true).assertDoesNotExist()
+        assertEquals(parked.value, rule.onNodeWithText("Parking").getUnclippedBoundsInRoot().top.value, 0.5f)
     }
 
     @Test
@@ -102,7 +120,7 @@ class PlaceDetailsFitTest {
         val bounds = description.getUnclippedBoundsInRoot()
         assertTrue(bounds.bottom <= navigate.getUnclippedBoundsInRoot().top)
         // DN-UX-007: on the fallback the note joins the facts beside the photo, so the description keeps one line.
-        assertTrue(bounds.bottom - bounds.top <= 30.dp)
+        assertTrue(bounds.bottom - bounds.top <= 30.dp) // one bodyLarge line (28), not two (56)
         navigate.assertHeightIsAtLeast(MinTouchTarget)
         val save = rule.onNodeWithText("Save")
         save.assertIsDisplayed()

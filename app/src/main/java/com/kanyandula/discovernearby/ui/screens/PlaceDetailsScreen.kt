@@ -22,11 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -120,15 +122,7 @@ fun PlaceDetailsScreen(
                             enrichment = enrichment,
                             summaryOnly = summaryOnly,
                         )
-                        // One line on the fallback, where the note takes the other (PlaceDetailsFitTest).
-                        enrichment?.description?.takeUnless { drivingRestricted }?.let {
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyLarge,
-                                maxLines = if (summaryOnly) 1 else 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
+                        enrichment?.description?.let { Description(it, summaryOnly, hidden = drivingRestricted) }
                     }
                 }
                 AmenityTiles(state.summary, content?.carParkNearby)
@@ -219,6 +213,22 @@ private fun ColumnScope.Summary(
     SupportingLine(facts.joinToString(SEPARATOR))
     opening?.let { SupportingLine(it) }
     if (summaryOnly) DetailsUnavailable()
+}
+
+/**
+ * Tripadvisor's description beside the photo: one line on the fallback, where the summary-only note takes the other
+ * (PlaceDetailsFitTest). [hidden] while driving, but kept in place: without a photo it can be the row's tallest part,
+ * and the tiles below must not move as the car moves off.
+ */
+@Composable
+private fun Description(text: String, summaryOnly: Boolean, hidden: Boolean) {
+    Text(
+        text = text,
+        modifier = if (hidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier,
+        style = MaterialTheme.typography.bodyLarge,
+        maxLines = if (summaryOnly) 1 else 2,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 /** "4.6 ★" and, when the provider counts them, "(342 reviews)" in the muted style; null without a rating. */

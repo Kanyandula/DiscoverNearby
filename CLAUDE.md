@@ -65,8 +65,8 @@ in place (DN-M0-012, DN-M0-001).
     Back and the name as the header, the photo under Back with the facts and the description beside it, the tiles
     below. The kind, Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured
     hours (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m), a white P on a blue
-    badge; Tripadvisor's description, two lines (one on the summary-only fallback), hidden while driving. Scenario
-    fakes get made-up prices and descriptions (`FakeEnricher`).
+    badge; Tripadvisor's description, two lines (one on the summary-only fallback), hidden while driving with its space
+    kept, so nothing moves. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
 - **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 240 × 150 dp beside
   the facts) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
