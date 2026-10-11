@@ -1,6 +1,8 @@
 package com.kanyandula.discovernearby.ui.screens
 
 import android.text.format.DateFormat
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +52,7 @@ import com.kanyandula.discovernearby.ui.components.focusRing
 import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
+import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.ButtonGap
 import com.kanyandula.discovernearby.ui.theme.ContentGap
@@ -128,8 +131,25 @@ fun PlaceDetailsScreen(
             }
             Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
-                    SaveButton(saved = saved, onClick = onToggleSave, modifier = Modifier.weight(1f))
-                    NavigateButton(onClick = onNavigate, modifier = Modifier.weight(1f))
+                    // Save ↔ Saved (DN-UX-006) on Raised grey, so the Accent ring shows on it.
+                    ActionButton(
+                        icon = if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart,
+                        label = if (saved) R.string.saved else R.string.save,
+                        container = Raised,
+                        content = OnSurface,
+                        onClick = onToggleSave,
+                        modifier = Modifier.weight(1f),
+                    )
+                    // Action blue fill: a light ring stands out where an Accent one would not.
+                    ActionButton(
+                        icon = R.drawable.ic_navigate,
+                        label = R.string.navigate,
+                        container = Action,
+                        content = Color.White,
+                        onClick = onNavigate,
+                        modifier = Modifier.weight(1f),
+                        ring = OnSurface,
+                    )
                 }
                 // Bottom left: HERE's notice with HERE's data (ADR-001 V6a).
                 ProviderAttribution(state.summary.attribution)
@@ -270,47 +290,26 @@ private fun DetailsUnavailable() {
     }
 }
 
-/** Save ↔ Saved (DN-UX-006): Raised grey beside the primary Navigate, so the Accent ring shows on it. */
+/** Save and Navigate: an icon and a label on a 76 dp button. The label says what it does, so the icon is decorative. */
 @Composable
-private fun SaveButton(saved: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ActionButton(
+    @DrawableRes icon: Int,
+    @StringRes label: Int,
+    container: Color,
+    content: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    ring: Color = Accent,
+) {
     val shape = RoundedCornerShape(NavigateRadius)
     Button(
         onClick = onClick,
-        modifier = modifier.focusRing(shape).height(MinTouchTarget),
+        modifier = modifier.focusRing(shape, ring).height(MinTouchTarget),
         shape = shape,
-        colors = ButtonDefaults.buttonColors(containerColor = Raised, contentColor = OnSurface),
+        colors = ButtonDefaults.buttonColors(containerColor = container, contentColor = content),
     ) {
-        // Decorative: the label says the state.
-        Icon(
-            painter = painterResource(if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart),
-            contentDescription = null,
-            modifier = Modifier.size(NavigateIconSize),
-        )
+        Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(NavigateIconSize))
         Spacer(modifier = Modifier.width(NavigateIconGap))
-        Text(
-            text = stringResource(if (saved) R.string.saved else R.string.save),
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
-}
-
-@Composable
-private fun NavigateButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(NavigateRadius)
-    Button(
-        onClick = onClick,
-        // Action blue fill: a light ring stands out where an Accent one would not.
-        modifier = modifier.focusRing(shape, OnSurface).height(MinTouchTarget),
-        shape = shape,
-        colors = ButtonDefaults.buttonColors(containerColor = Action, contentColor = Color.White),
-    ) {
-        // Decorative: the label says what it does.
-        Icon(
-            painter = painterResource(R.drawable.ic_navigate),
-            contentDescription = null,
-            modifier = Modifier.size(NavigateIconSize),
-        )
-        Spacer(modifier = Modifier.width(NavigateIconGap))
-        Text(text = stringResource(R.string.navigate), style = MaterialTheme.typography.headlineSmall)
+        Text(text = stringResource(label), style = MaterialTheme.typography.headlineSmall)
     }
 }

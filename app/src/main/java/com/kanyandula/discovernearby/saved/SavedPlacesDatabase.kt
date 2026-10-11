@@ -35,6 +35,7 @@ interface SavedPlaceDao {
 }
 
 // No exported schema: a schema change wipes saved places (destructive migration), which the POC accepts (ADR-004).
+// Bump the version with any change to SavedPlaceEntity, or Room refuses to open the old file.
 @Database(entities = [SavedPlaceEntity::class], version = 1, exportSchema = false)
 abstract class SavedPlacesDatabase : RoomDatabase() {
     abstract fun savedPlaceDao(): SavedPlaceDao

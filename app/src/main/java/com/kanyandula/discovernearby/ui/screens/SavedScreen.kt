@@ -37,7 +37,7 @@ fun SavedScreen(
             SavedUiState.Loading -> LoadingState(body)
             SavedUiState.Empty ->
                 MessageState(SavedEmptyMessage, backLabel = R.string.back_to_discover, onBack = onBack, modifier = body)
-            // Parking shows them on its own: the list follows the driving state.
+            // The driving limit allows none; the list comes back on its own when the limit lifts.
             SavedUiState.ParkToSee ->
                 MessageState(ParkToSeeMessage, backLabel = R.string.back, onBack = onBack, modifier = body)
             is SavedUiState.Content -> Column(modifier = body, verticalArrangement = Arrangement.spacedBy(RowGap)) {

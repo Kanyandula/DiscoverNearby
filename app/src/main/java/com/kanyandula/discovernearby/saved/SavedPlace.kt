@@ -10,7 +10,6 @@ data class SavedPlace(
     val summary: PlaceSummary,
     val category: DiscoveryCategory, // for its artwork, as on the row it came from
     val enrichment: PlaceEnrichment?,
-    val savedAt: Long, // epoch milliseconds
 )
 
 /** Saved places on the device (ADR-004). Flows update as places are saved and removed. */

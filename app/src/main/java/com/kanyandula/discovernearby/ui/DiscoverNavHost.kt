@@ -83,8 +83,8 @@ internal fun NavHostController.selectedTab(): RailTab = try {
 }
 
 /**
- * Discover pops back to the grid; Saved goes back to the Saved screen when it is on the stack (its list, scroll and focus
- * stay), else opens it on Discover. Neither builds a stack (DN-UX-006).
+ * Discover pops back to the grid; Saved goes back to the Saved screen when it is on the stack (its list, scroll and
+ * focus stay), else opens it on Discover. Neither builds a stack (DN-UX-006).
  */
 internal fun NavHostController.openTab(tab: RailTab) {
     when {

@@ -96,7 +96,11 @@ class PlaceDetailsViewModel(
         val summary = state.value.summary
         viewModelScope.launch {
             toggling.withLock {
-                if (saved.isSaved(place.id).first()) saved.remove(place.id) else saved.save(summary, category, enrichment)
+                if (saved.isSaved(place.id).first()) {
+                    saved.remove(place.id)
+                } else {
+                    saved.save(summary, category, enrichment)
+                }
             }
         }
     }

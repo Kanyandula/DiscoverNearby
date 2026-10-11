@@ -5,8 +5,10 @@ import androidx.room.Room
 import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
@@ -20,14 +22,17 @@ fun openSavedPlaces(context: Context, name: String?): SavedPlacesRepository {
     return RoomSavedPlaces(builder.fallbackToDestructiveMigration(dropAllTables = true).build().savedPlaceDao())
 }
 
-/** [SavedPlacesRepository] on Room; [clock] stamps each save. */
+/** [SavedPlacesRepository] on Room; [clock] stamps each save, which orders the list. */
 class RoomSavedPlaces(
     private val dao: SavedPlaceDao,
     private val clock: () -> Long = System::currentTimeMillis,
 ) : SavedPlacesRepository {
 
     override fun savedPlaces(): Flow<List<SavedPlace>> =
-        dao.observeAll().map { rows -> rows.mapNotNull { it.toSavedPlace() } }.distinctUntilChanged()
+        dao.observeAll()
+            .map { rows -> rows.mapNotNull { it.toSavedPlace() } }
+            .flowOn(Dispatchers.Default) // the JSON decoding, off the collector's main thread
+            .distinctUntilChanged()
 
     override fun isSaved(placeId: String): Flow<Boolean> = dao.observeIsSaved(placeId).distinctUntilChanged()
 
@@ -56,7 +61,6 @@ private fun SavedPlaceEntity.toSavedPlace(): SavedPlace? = try {
         summary = json.decodeFromString(PlaceSummary.serializer(), summaryJson),
         category = DiscoveryCategory.valueOf(category),
         enrichment = enrichmentJson?.let { json.decodeFromString(PlaceEnrichment.serializer(), it) },
-        savedAt = savedAt,
     )
 } catch (ignored: IllegalArgumentException) {
     null

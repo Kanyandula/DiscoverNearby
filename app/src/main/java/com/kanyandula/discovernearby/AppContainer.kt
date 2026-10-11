@@ -93,7 +93,7 @@ class AppContainer(
     val locationProvider: LocationProvider = AndroidLocationProvider(context)
     val drivingRestrictions: DrivingRestrictions = CarDrivingRestrictions(context, appScope)
 
-    val navigationLauncher: NavigationLauncher = IntentNavigationLauncher(context.applicationContext)
+    val navigationLauncher: NavigationLauncher = IntentNavigationLauncher(appContext)
     val discoverUseCase = DiscoverUseCase(selectedPlaces, locationProvider, BasicRecommendationEngine())
 
     /** Debug builds only: serve the named [FakeScenario], for the docs/04 §7 emulator scenarios. */
