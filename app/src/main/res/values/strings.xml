@@ -81,7 +81,8 @@
     <string name="photo_tripadvisor">Photo: Tripadvisor</string>
     <string name="open_now">Open now</string>
     <string name="closed_now">Closed now</string>
-    <string name="open_closes">Open · Closes %1$s</string>
+    <string name="open">Open</string>
+    <string name="closes_at">Closes %1$s</string>
     <string name="open_all_day">Open 24 hours</string>
     <string name="car_park_nearby">Car park nearby</string>
     <string name="price_cheap">€</string>

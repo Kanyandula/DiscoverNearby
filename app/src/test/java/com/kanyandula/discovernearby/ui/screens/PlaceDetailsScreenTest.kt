@@ -4,6 +4,7 @@ import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
@@ -33,6 +34,7 @@ import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.Loading
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState.SummaryOnly
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
+import com.kanyandula.discovernearby.ui.theme.OpenNow
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -197,6 +199,16 @@ class PlaceDetailsScreenTest {
         rule.onNodeWithText("Open · Closes 18:00").assertIsDisplayed()
         state = Content(PlaceDetails(place, openingSummary = null), Closing.AllDay)
         rule.onNodeWithText("Open 24 hours").assertIsDisplayed()
+    }
+
+    // As in the concept: only "Open" is green; the closing time stays muted.
+    @Test
+    fun onlyOpenIsGreenBeforeTheClosingTime() {
+        state = Content(PlaceDetails(place, openingSummary = null), Closing.At(LocalTime.of(18, 0)))
+        val line = rule.onNodeWithText("Open · Closes 18:00").fetchSemanticsNode().config[SemanticsProperties.Text]
+            .single()
+        val green = line.spanStyles.filter { it.item.color == OpenNow }.map { line.text.substring(it.start, it.end) }
+        assertEquals(listOf("Open"), green)
     }
 
     // Review Focus 2: HERE says open, but no period gives a closing time.

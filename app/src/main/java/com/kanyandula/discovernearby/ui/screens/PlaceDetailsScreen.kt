@@ -163,7 +163,7 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 private fun Summary(
     place: PlaceSummary,
     distanceMeters: Int,
-    opening: String?,
+    opening: AnnotatedString?,
     enrichment: PlaceEnrichment?,
     summaryOnly: Boolean,
     modifier: Modifier = Modifier,
@@ -197,7 +197,7 @@ private fun Summary(
             stringResource(R.string.distance_away, kilometres(distanceMeters)),
         )
         SupportingLine(facts.joinToString(SEPARATOR))
-        opening?.let { if (place.isOpenNow == true) SupportingLine(it, OpenNow) else SupportingLine(it) }
+        opening?.let { SupportingLine(it) }
         if (summaryOnly) DetailsUnavailable()
     }
 }
@@ -219,23 +219,27 @@ private fun ratingLine(place: PlaceSummary): AnnotatedString? {
 }
 
 /**
- * "Open · Closes 18:00", "Open 24 hours" or "Open now" while open; "Closed now"; HERE's weekly text only when the
- * status is unknown. The time follows the car's 12/24-hour setting.
+ * "Open · Closes 18:00", "Open 24 hours" or "Open now" while open, the open part green as in the concept; "Closed
+ * now"; HERE's weekly text only when the status is unknown. The time follows the car's 12/24-hour setting.
  */
 @Composable
-private fun openingLine(place: PlaceSummary, closing: Closing?, openingSummary: String?): String? =
-    when (place.isOpenNow) {
+private fun openingLine(place: PlaceSummary, closing: Closing?, openingSummary: String?): AnnotatedString? {
+    fun open(text: String) = AnnotatedString(text, SpanStyle(color = OpenNow))
+    return when (place.isOpenNow) {
         true -> when (closing) {
-            Closing.AllDay -> stringResource(R.string.open_all_day)
-            is Closing.At -> stringResource(
-                R.string.open_closes,
-                clockTime(closing.time, DateFormat.is24HourFormat(LocalContext.current)),
+            Closing.AllDay -> open(stringResource(R.string.open_all_day))
+            is Closing.At -> open(stringResource(R.string.open)) + AnnotatedString(
+                SEPARATOR + stringResource(
+                    R.string.closes_at,
+                    clockTime(closing.time, DateFormat.is24HourFormat(LocalContext.current)),
+                ),
             )
-            null -> stringResource(R.string.open_now)
+            null -> open(stringResource(R.string.open_now))
         }
-        false -> stringResource(R.string.closed_now)
-        null -> openingSummary
+        false -> AnnotatedString(stringResource(R.string.closed_now))
+        null -> openingSummary?.let(::AnnotatedString)
     }
+}
 
 /** Whose content the photo is; Tripadvisor masks who took it. */
 @Composable
