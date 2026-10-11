@@ -355,12 +355,16 @@ POC baseline: dev-only key in `local.properties` → `BuildConfig`, low quota, e
 - Latency (116–304 ms) was measured from a development Mac on a home connection, not in the vehicle.
 - Production pricing comes with the licensing route ([Production licensing](#production-licensing)); [H7] predates
   the POC's account.
-- **HERE data quality (DN-M2-003 investigation, 2026-10-07).** These are provider data limitations; the app has no
-  field to detect them:
+- **HERE data quality (DN-M2-003 investigation, 2026-10-07).** These are provider data limitations; the positions
+  can't be detected, and DN-M2-004 handles the other two in the engine:
   - Some records carry a wrong position that agrees with their own address and access point: a Scenic Point about
     60 km from where it shows, and several Dublin places at one street-level point.
-  - Non-family businesses carry Amusement Park, sometimes as their primary category; it weighs less in Family.
-  - Some places have duplicate records; in Family they can fill a kind's cap (DN-M2-004).
+  - Non-family businesses carry Amusement Park, sometimes as their primary category; it weighs less in Family, and
+    Family rules out a primary amusement park with a food, finance or community code or a giveaway name word
+    (DN-M2-004).
+  - Some places have duplicate records under different IDs and names. Records within 150 m that share a phone and
+    stand within 10 m of each other, or where one name contains the other, now count as one place (DN-M2-004).
+    Records with no phone, such as one beach listed three times, still show separately.
 
   They are to be reported through HERE's map feedback (Product Lead decision, 2026-10-07); none is filed yet. The
   re-run records whether they still appear.

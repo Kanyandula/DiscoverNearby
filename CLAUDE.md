@@ -87,7 +87,9 @@ in place (DN-M0-012, DN-M0-001).
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is
   dropped. DN-M2-003: HERE's Family codes map to finer kinds (an amusement park weighs 20), open now adds 2, and HERE
-  answers in English (`lang=en`) with up to 50 results.
+  answers in English (`lang=en`) with up to 50 results. DN-M2-004: one place HERE lists twice counts once
+  (`isSamePlaceAs`: within 150 m, a shared phone, and within 10 m or one name inside the other); Family rules out
+  non-family amusement parks (`KindExclusion`).
 - **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
   cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
   Place names stay in the private vault. DN-M2-003's daytime re-run (`docs/benchmarks/2026-10-10-m2-rerun.md`, 10
@@ -95,7 +97,7 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
+Next: DN-M2-004's daytime Family re-run (duplicates and the amusement rule are in), then M2's exit.
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
