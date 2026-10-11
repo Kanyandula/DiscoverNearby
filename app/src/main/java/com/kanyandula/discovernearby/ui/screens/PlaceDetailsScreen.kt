@@ -74,7 +74,8 @@ import com.kanyandula.discovernearby.ui.theme.RowLineGap
  * Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005): Back, the photo and what is
  * known about the place across the top; the amenity tiles; Tripadvisor's description; Navigate bottom right, with
  * Save's slot beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
- * serves every state but the hand-off failure, so nothing moves when details arrive. [enrichment] is the row's
+ * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
+ * row can appear late and push the description down). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
  */
 @Composable

@@ -15,21 +15,26 @@ sealed interface Closing {
 }
 
 private val WHOLE_DAY: Duration = Duration.ofHours(24)
+private const val DAYS_AHEAD = 7L // far enough to follow any weekly schedule round
 
 /**
- * How the periods open at [now] end, or null when none is open: [Closing.AllDay] when one lasts a whole day,
- * otherwise the latest closing among them. Yesterday's periods count, for hours that run past midnight.
+ * How the stretch open at [now] ends, or null when nothing is open: the latest closing among the periods open now,
+ * carried on through any period that starts by then (HERE splits overnight hours at midnight: "18:00 - 24:00" and
+ * "00:00 - 02:00"). [Closing.AllDay] when the stretch lasts a day or more from now. Yesterday's periods count too.
  */
 fun List<OpeningPeriod>.closingAt(now: LocalDateTime): Closing? {
     val today = now.toLocalDate()
-    val open = flatMap { period ->
-        listOf(today.minusDays(1), today)
+    val spans = flatMap { period ->
+        (-1L..DAYS_AHEAD).map { today.plusDays(it) }
             .filter { it.dayOfWeek in period.days }
-            .map { day -> period to day.atTime(period.start) }
-    }.filter { (period, opens) -> !now.isBefore(opens) && now.isBefore(opens + period.duration) }
-    return when {
-        open.isEmpty() -> null
-        open.any { (period, _) -> period.duration >= WHOLE_DAY } -> Closing.AllDay
-        else -> Closing.At(open.maxOf { (period, opens) -> opens + period.duration }.toLocalTime())
+            .map { day -> day.atTime(period.start).let { opens -> opens to opens + period.duration } }
     }
+    var end = spans.filter { (opens, closes) -> !now.isBefore(opens) && now.isBefore(closes) }
+        .maxOfOrNull { it.second } ?: return null
+    // Each step moves the end later, so this stops once no period carries it on.
+    while (true) {
+        end = spans.filter { (opens, closes) -> !opens.isAfter(end) && closes.isAfter(end) }
+            .maxOfOrNull { it.second } ?: break
+    }
+    return if (Duration.between(now, end) >= WHOLE_DAY) Closing.AllDay else Closing.At(end.toLocalTime())
 }

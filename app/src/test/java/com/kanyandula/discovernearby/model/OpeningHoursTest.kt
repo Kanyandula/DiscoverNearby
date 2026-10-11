@@ -7,6 +7,7 @@ import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
 import java.time.DayOfWeek.SATURDAY
+import java.time.DayOfWeek.SUNDAY
 import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
@@ -65,5 +66,30 @@ class OpeningHoursTest {
     @Test
     fun noPeriodsHaveNone() {
         assertNull(emptyList<OpeningPeriod>().closingAt(at(12, 10)))
+    }
+
+    // Final review: HERE splits overnight hours at midnight ("Mon-Sat: 00:00 - 02:00, 18:00 - 24:00"), so the evening
+    // period runs on into the next day's and the place closes at 02:00, not at midnight.
+    @Test
+    fun hoursSplitAtMidnightRunOn() {
+        val days = setOf(SATURDAY, SUNDAY)
+        val earlyHours = OpeningPeriod(days, LocalTime.MIDNIGHT, Duration.ofHours(2))
+        val evening = OpeningPeriod(days, LocalTime.of(18, 0), Duration.ofHours(6))
+        assertEquals(Closing.At(LocalTime.of(2, 0)), listOf(earlyHours, evening).closingAt(at(10, 23)))
+    }
+
+    // Back-to-back periods on one day are one stretch.
+    @Test
+    fun periodsThatTouchAreOneStretch() {
+        val morning = OpeningPeriod(setOf(MONDAY), LocalTime.of(8, 0), Duration.ofHours(4))
+        val afternoon = OpeningPeriod(setOf(MONDAY), LocalTime.of(12, 0), Duration.ofHours(6))
+        assertEquals(Closing.At(LocalTime.of(18, 0)), listOf(morning, afternoon).closingAt(at(12, 9)))
+    }
+
+    // A single day-long period ends at midnight; only a stretch of a day or more from now is "open 24 hours".
+    @Test
+    fun oneDayLongPeriodClosesAtMidnight() {
+        val monday = OpeningPeriod(setOf(MONDAY), LocalTime.MIDNIGHT, Duration.ofHours(24))
+        assertEquals(Closing.At(LocalTime.MIDNIGHT), listOf(monday).closingAt(at(12, 10)))
     }
 }

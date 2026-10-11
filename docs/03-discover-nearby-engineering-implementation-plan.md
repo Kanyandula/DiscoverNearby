@@ -597,7 +597,7 @@ Rating aggregation (for example, Bayesian averaging of rating and count) is **no
 
 Every place that passes the score floor and diversity rule, in ranked order. The engine is pure Kotlin and has no display limit; the ViewModel shows the first `min(5, uxLimit)` (§6). Fewer if fewer pass the score floor. Never padded.
 
-**Enrichment after ranking (DN-UX-004, ADR-003):** the ViewModel then asks a `PlaceEnricher` (`places/`) for each of the top rows, one at a time, in order, and shows each answer as it arrives. With live HERE data that is `places/tripadvisor/TripadvisorEnricher` (a photo, Tripadvisor's rating, its price level and description); the fakes get none. It runs in the request's coroutine, so a retry or Back cancels it. Ranking never sees it, and search results are not stored (ADR-004).
+**Enrichment after ranking (DN-UX-004, ADR-003):** the ViewModel then asks a `PlaceEnricher` (`places/`) for each of the top rows, one at a time, in order, and shows each answer as it arrives. With live HERE data that is `places/tripadvisor/TripadvisorEnricher` (a photo, Tripadvisor's rating, its price level and description). Keyless fakes get none; `--es scenario` fakes get made-up prices and descriptions (`FakeEnricher`, DN-UX-005). It runs in the request's coroutine, so a retry or Back cancels it. Ranking never sees it, and search results are not stored (ADR-004).
 
 ---
 
@@ -751,7 +751,11 @@ enum class DiscoverError {
 
 sealed interface PlaceDetailsUiState {
     data class Loading(val summary: PlaceSummary) : PlaceDetailsUiState
-    data class Content(val details: PlaceDetails) : PlaceDetailsUiState
+    data class Content(                         // closing and car park: DN-UX-005
+        val details: PlaceDetails,
+        val closing: Closing? = null,             // today's closing time, from the schedule
+        val carParkNearby: Boolean? = null,       // its own call; null until it answers
+    ) : PlaceDetailsUiState
     data class SummaryOnly(val summary: PlaceSummary) : PlaceDetailsUiState  // details failed
     data class NavigationUnavailable(val summary: PlaceSummary) : PlaceDetailsUiState  // keeps the header
 }
