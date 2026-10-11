@@ -39,8 +39,8 @@ val RatingChipPaddingVertical = 4.dp
 val RatingChipGap = 6.dp
 val PhotoCreditGap = 8.dp
 
-// Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005), sized so the whole concept
-// fits the 4:3 reference panel beside DN-UX-006's rail (PlaceDetailsFitTest).
+// Place Details as artboard 3c (DN-UX-007), from the concept (DN-UX-005), sized so the whole page fits the 4:3
+// reference panel beside DN-UX-006's rail (PlaceDetailsFitTest).
 val DetailsGap = 12.dp
 val DetailsImageWidth = 240.dp
 val DetailsImageHeight = 150.dp

@@ -5,7 +5,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 // Canvas text roles: headlineLarge = message title, headlineMedium = tile label and screen title,
-// headlineSmall = place name, titleLarge = app header, titleMedium = row details and message body,
+// headlineSmall = a row's place name, titleLarge = app header, titleMedium = row details and message body,
 // bodyLarge = tile subtitle, labelLarge = buttons. The rest of the Material 3 scale is unchanged.
 internal val CanvasTypography = Typography().run {
     copy(
