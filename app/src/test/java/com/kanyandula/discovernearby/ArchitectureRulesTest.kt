@@ -18,6 +18,7 @@ class ArchitectureRulesTest {
     private val composeImport = Regex("""^import androidx\.([\w.]+\.)?compose\.""")
     private val carImport = Regex("""^import android\.car\.""")
     private val hereImport = Regex("""^import com\.kanyandula\.discovernearby\.places\.here\.""")
+    private val roomImport = Regex("""^import androidx\.room\.""")
 
     private class Source(val file: File, val pkg: String, val imports: List<String>)
 
@@ -63,5 +64,11 @@ class ArchitectureRulesTest {
     fun onlyAppContainerReachesIntoTheHerePackage() {
         val allowed = { s: Source -> inPackage(s, "places.here") || s.file.name == "AppContainer.kt" }
         assertEquals(emptyList<String>(), violations(hereImport, allowed))
+    }
+
+    // DN-UX-006, ADR-004: Room stays in saved/; the rest of the app sees SavedPlacesRepository.
+    @Test
+    fun onlySavedImportsRoom() {
+        assertEquals(emptyList<String>(), violations(roomImport) { inPackage(it, "saved") })
     }
 }
