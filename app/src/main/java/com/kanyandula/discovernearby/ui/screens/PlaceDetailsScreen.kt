@@ -76,9 +76,9 @@ import com.kanyandula.discovernearby.ui.theme.RowLineGap
 /**
  * Place Details as the Product Lead's artboard 3c (DN-UX-007), from the concept (DN-UX-005): Back and the name as the
  * header; the photo under Back, with what is known about the place and Tripadvisor's description beside it; the
- * amenity tiles; Navigate bottom right, with Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
- * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
- * row can appear late and push the description down). [enrichment] is the row's
+ * amenity tiles; Navigate bottom right, with Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional
+ * details call (docs/02 §7), and one layout serves every state but the hand-off failure, so the actions stay put when
+ * details or the car park arrive (the tile row can appear late, under the photo). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
  */
 @Suppress("LongParameterList") // the state plus one lambda per user action
@@ -105,7 +105,7 @@ fun PlaceDetailsScreen(
         val content = state as? PlaceDetailsUiState.Content
         val summaryOnly = state is PlaceDetailsUiState.SummaryOnly
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
-            // Back and the name head the page as on the other screens (DN-UX-007), so the photo lines up with the tiles.
+            // Back and the name head the page as on the other screens (DN-UX-007): the photo lines up with the tiles.
             ScreenHeader(title = state.summary.name, onBack = onBack)
             // Squeezed first on a short panel; the header, the actions and the notice always stay whole.
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
