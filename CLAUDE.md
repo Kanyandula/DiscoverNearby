@@ -58,10 +58,13 @@ in place (DN-M0-012, DN-M0-001).
   - **Live categories:** all six are live; they are accepted when M2 exits.
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
-  - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). Amenities wait for a Product
-    decision (`docs/design/README.md`).
-  - **Kind and opening (DN-UX-004):** rows and Details name the kind of place (`kindLabel`); Details shows "Open
-    now"/"Closed now" first, HERE's weekly schedule only when the status is unknown.
+  - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). No source has Wi-Fi, outdoor
+    seating or family friendly (DN-SP-005); the one amenity shown is "Car park nearby" (DN-UX-005).
+  - **Kind (DN-UX-004):** rows name the kind of place (`kindLabel`).
+  - **Place Details (DN-UX-005):** laid out as the concept (`docs/design/03b-place-details-concept.png`). The kind,
+    Tripadvisor's price and the distance share a line; "Open · Closes 18:00" from HERE's structured hours
+    (`closingAt`); "Car park nearby" from one HERE `/browse` (`hasCarParkNear`, 150 m); Tripadvisor's description,
+    two lines, hidden while driving. Scenario fakes get made-up prices and descriptions (`FakeEnricher`).
 - **Photos and ratings (DN-UX-003, DN-UX-004, ADR-003):** `PlaceImage` (rows 156 × 100 dp, Details 400 × 240 dp above
   Navigate) shows Tripadvisor's photo over the picked category's artwork, which stays when there is none.
   - **Source:** `places/tripadvisor/TripadvisorEnricher` (Terra; key `tripadvisor.apiKey` →
@@ -86,9 +89,10 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
-The concept image's extra elements (travel time, price, description) are parked by the user. DN-TD-002 (Gradle/CI
-tuning) is P3.
+Next: DN-UX-006 (the app rail, Save and the Saved screen, in Room; spec
+`docs/superpowers/specs/2026-10-11-place-details-and-saved-design.md`), then DN-M2-004 (duplicate HERE records and the
+amusement cap in Family, then another re-run before M2 can exit). Travel time stays parked by the user. DN-TD-002
+(Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).

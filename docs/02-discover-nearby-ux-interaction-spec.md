@@ -278,14 +278,17 @@ Park · Playground · Parking
 
 ### Content, where available
 
-- An image panel above **Navigate**: Tripadvisor's photo, credited "Photo: Tripadvisor", otherwise the category
-  artwork, as on the rows (ADR-003)
+- Layout as in the Product Lead's concept (`docs/design/03b-place-details-concept.png`): Back, the image and the facts
+  across the top; amenity tiles; a short description; **Navigate** bottom right, with **Save** beside it (DN-UX-006)
+- The image: Tripadvisor's photo, credited "Photo: Tripadvisor", otherwise the category artwork, as on the rows
+  (ADR-003)
 - Place name
-- Distance (or travel time, if calculated)
-- Rating (if provided)
-- Category
-- Provided or derived amenities
-- Open/closed status (if provided)
+- Rating (if provided): Tripadvisor's graphic with its review count, else the provider's
+- Category, price (Tripadvisor's level as €, €€–€€€ or €€€€, for cafés and restaurants) and distance (or travel time,
+  if calculated), on one line
+- Open/closed status (if provided), with today's closing time while open ("Open · Closes 18:00", "Open 24 hours")
+- Amenity tiles: provided or derived amenities, and "Car park nearby" when HERE has a car park within 150 m
+- A description (Tripadvisor's), two lines at most, hidden while driving
 - Provider attribution, if the provider requires it here
 - **Navigate** as the primary action
 
@@ -299,7 +302,7 @@ If richer details cannot be loaded, show the information already known from the 
 - User-generated comments
 - Photo gallery
 - Menu browsing
-- Long descriptions
+- Long descriptions (a two-line one is shown, hidden while driving)
 - Social actions
 - Booking
 - Account features

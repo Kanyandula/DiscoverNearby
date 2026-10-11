@@ -59,6 +59,10 @@ re-sorting of its results, and the call budget).
 - **Display:** Tripadvisor's own rating graphic (its owl mark and bubbles, from the API) on a white chip with the review
   count; a rating without that graphic isn't shown. "Photo: Tripadvisor" under the Place Details photo; the API masks
   who took a photo.
+- **Price and description (DN-UX-005):** the matched location's `price_level` (Cheap Eats, Mid Range, Fine Dining;
+  restaurants only), shown as €, €€–€€€ or €€€€, and its English description, at most two lines and hidden while
+  driving. Both come in the nearby search, so they cost no call. DN-SP-005 found them for 9 of 10 matched cafés and
+  restaurants and 12 of 30 matched places respectively; Tripadvisor's `attributes` (amenities) were empty for all 30.
 
 Risk accepted by the Product Lead on 2026-10-10 for the emulator POC, as for HERE.
 

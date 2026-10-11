@@ -4,9 +4,9 @@ PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exporte
 
 **How to read these (Revision 4):** the app draws its own UI in Jetpack Compose, so these mockups are the visual spec: layout, hierarchy, copy, states, icons and colours. System chrome still comes from the vehicle. The template names below and in artboard titles date from Revision 3; read them as layout patterns.
 
-**With HERE data (ADR-001):** the attribution is "© {year} HERE" under the list and on Place Details. HERE supplies no photos, ratings, review counts or amenities such as parking. Photos and ratings come from Tripadvisor for the places it knows (ADR-003, about half of them); the others show the category's artwork and no rating. Amenities stay empty until Product decides; rows and details render cleanly without them (UX spec §6, §7). The kind of place (for example, "Café") and open now come from HERE.
+**With HERE data (ADR-001):** the attribution is "© {year} HERE" under the list and on Place Details. HERE supplies no photos, ratings, review counts or amenities such as parking. Photos and ratings come from Tripadvisor for the places it knows (ADR-003, about half of them); the others show the category's artwork and no rating. The only amenity shown is "Car park nearby", from HERE's car parks within 150 m (DN-UX-005); rows and details render cleanly without it (UX spec §6, §7). The kind of place (for example, "Café") and open now come from HERE.
 
-**Deviation (DN-UX-004):** Place Details sections use 12 dp vertical padding, not the canvas's 18, so a full set of facts, the summary-only note and the HERE notice fit the 4:3 reference screen (`PlaceDetailsFitTest`) now that the kind of place sits under the distance.
+**Place Details follows the concept (DN-UX-005):** `03b-place-details-concept.png` (the Product Lead, 2026-10-11) replaces `03-place-details.png` as the layout reference. The app keeps an in-app Back (the AOSP car bar has none), the distance (on the kind line), the photo credit and the HERE notice. Its tiles show only what a source has: the place's own amenities (none from HERE) and "Car park nearby"; Wi-Fi, outdoor seating and family friendly have no source (DN-SP-005). The ★ rating is Tripadvisor's own graphic (ADR-003). The rail on the left of the mockups is the car's system UI (`00-overview.png`); the app's own rail (Discover, Saved) comes with DN-UX-006.
 
 | File | Screen | Layout pattern (Rev 3 template name) |
 | --- | --- | --- |
@@ -15,6 +15,7 @@ PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exporte
 | `01-discover.png` | Discover | GridTemplate |
 | `02-recommendations.png` | Recommendations | ListTemplate |
 | `03-place-details.png` | Place Details | PaneTemplate |
+| `03b-place-details-concept.png` | Place Details (the Product Lead's concept; the layout reference since DN-UX-005) | — |
 | `04-navigation-handoff-stub.png` | Stub navigation app (emulator test tool, not Discover Nearby) | MessageTemplate |
 | `05a-permission-driving.png` | Permission Required — driving (Back only) | MessageTemplate |
 | `05b-permission-parked.png` | Permission Required — parked (Grant + Back) | MessageTemplate |
