@@ -20,6 +20,8 @@ import com.kanyandula.discovernearby.places.fake.FakePlacesRepository
 import com.kanyandula.discovernearby.places.fake.FakeScenario
 import com.kanyandula.discovernearby.places.here.HerePlacesRepository
 import com.kanyandula.discovernearby.places.tripadvisor.TripadvisorEnricher
+import com.kanyandula.discovernearby.saved.SavedPlacesRepository
+import com.kanyandula.discovernearby.saved.openSavedPlaces
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +29,12 @@ import kotlinx.coroutines.SupervisorJob
 /**
  * The single wiring point (docs/03 §3): every app-scoped dependency is constructed here by hand.
  */
-class AppContainer(context: Context, private val hereApiKey: String, private val tripadvisorApiKey: String = "") {
+class AppContainer(
+    context: Context,
+    private val hereApiKey: String,
+    private val tripadvisorApiKey: String = "",
+    private val savedPlacesInMemory: Boolean = false, // Robolectric (TestDiscoverApplication)
+) {
     init {
         // Without a key the app serves the fakes; say so once per process, so a keyless build isn't taken for live
         // data. A requested scenario (useFakeScenario) is deliberate, so it isn't logged.
@@ -64,6 +71,16 @@ class AppContainer(context: Context, private val hereApiKey: String, private val
         }
     }
 
+    private val appContext = context.applicationContext
+
+    // Separate files, so made-up scenario places never show in a live Saved list (DN-UX-006, ADR-004).
+    private val liveSaved by lazy { openSavedPlaces(appContext, LIVE_SAVED_DB.takeUnless { savedPlacesInMemory }) }
+    private val fakeSaved by lazy { openSavedPlaces(appContext, FAKE_SAVED_DB.takeUnless { savedPlacesInMemory }) }
+
+    /** The driver's saved places (ADR-004): the fakes' own database whenever the fakes are served. */
+    val savedPlaces: SavedPlacesRepository
+        get() = if (servesFakes) fakeSaved else liveSaved
+
     // The use case asks for the current source on every call, so a scenario named later still applies.
     private val selectedPlaces = object : PlacesRepository {
         override suspend fun searchNearby(origin: GeoPoint, category: DiscoveryCategory, radiusMeters: Int) =
@@ -89,5 +106,7 @@ class AppContainer(context: Context, private val hereApiKey: String, private val
 
     private companion object {
         const val TAG = "AppContainer"
+        const val LIVE_SAVED_DB = "saved-places.db"
+        const val FAKE_SAVED_DB = "saved-places-fakes.db"
     }
 }
