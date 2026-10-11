@@ -325,7 +325,8 @@ kind, distance):
 
 - Nearest first, from where the car is now; without a location (permission refused, no fix), the most recently saved
   first, with no distances. Saved never asks for the location permission.
-- Parked: every saved place, scrolling. Driving: the list limit trims it (§17).
+- Parked: every saved place, scrolling. Driving: the list limit trims it (§17); if it allows none, "Park to see
+  places" with Back.
 - A row opens Place Details, which refreshes the place from the provider; removing it there drops it from the list.
 - Empty:
 

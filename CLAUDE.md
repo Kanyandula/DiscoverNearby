@@ -95,8 +95,8 @@ in place (DN-M0-012, DN-M0-001).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit). Travel time stays parked by the user. DN-TD-002
-(Gradle/CI tuning) is P3.
+Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then another re-run before M2 can exit).
+Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
 - Kotlin, Coroutines. Gradle Kotlin DSL + version catalog (`gradle/libs.versions.toml`).
@@ -133,7 +133,7 @@ Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then an
 - RecommendationEngine is pure Kotlin. Unknown data is neutral; known-closed places are excluded where the
   category is time-sensitive (`CategoryConfig.excludeClosed`); never pad results. It never sees driving state.
 - The ViewModel applies the driving limit: `visible = take(min(5, drivingState.listLimit ?: MAX))`,
-  and re-trims when the state changes.
+  and re-trims when the state changes. Saved has no cap of 5: every saved place while parked, the limit while driving.
 - Loading/content/error are states of ONE destination, never pushed destinations.
   Core path ≤ 3 destinations deep. Back pops one; Back on Discover leaves the app.
 - Navigation: `Intent(ACTION_VIEW, "geo:%.6f,%.6f")` with Locale.US, application Context +
@@ -147,6 +147,9 @@ Next: DN-M2-004 (duplicate HERE records and the amusement cap in Family, then an
   UX spec §16, initial focus on first item. Rotary focus after Back goes through `ReturnFocus` only. Its
   Discover restore was not always reported to the rotary service in the re-test (waived for this iteration, ADR-002);
   don't change it without a new Product decision. Where focus lands after Back is recorded, not gated.
+- The app rail comes after each screen's content in rotary order (DN-UX-006, docs/03 §17). Keep its two rules: the rail
+  hands a downward entry (Android's initial focus) to the screen panel, and a focused list row shows the next row's top
+  (`revealNextOnFocus`), or the rotary service jumps to the rail instead of scrolling.
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).
