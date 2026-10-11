@@ -57,6 +57,7 @@ val InfoIconGap = 12.dp
 // The app rail (DN-UX-006): Discover and Saved, 76 dp targets, left of the panel.
 val RailGap = 16.dp
 val RailIconSize = 32.dp
+val NextRowPeek = 40.dp // a focused list row also shows this much below it: the gap and the next row's top
 
 // Rotary focus ring (DN-M0-011): a 4.dp outline in Accent, or light (OnSurface) on Action-blue fills. docs/02 §16
 // asks only for a clearly visible indicator; the width and colours are the app's choice.
