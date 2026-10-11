@@ -61,6 +61,10 @@ class PlaceDetailsScreenTest {
         isOpenNow = true,
         attributes = setOf(PlaceAttribute(PARKING, PROVIDED), PlaceAttribute(FAMILY_FRIENDLY, DERIVED)),
     )
+    private val tripadvisor = PlaceEnrichment(
+        photoUrl = "https://example.test/p.jpg",
+        rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
+    )
     private var state by mutableStateOf<PlaceDetailsUiState>(Loading(place))
     private var enrichment by mutableStateOf<PlaceEnrichment?>(null)
     private var restricted by mutableStateOf(false)
@@ -107,10 +111,7 @@ class PlaceDetailsScreenTest {
     // DN-UX-004: the row's Tripadvisor photo and rating, credited, in place of the place's own text rating.
     @Test
     fun tripadvisorsRatingAndPhotoCreditShow() {
-        enrichment = PlaceEnrichment(
-            photoUrl = "https://example.test/p.jpg",
-            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
-        )
+        enrichment = tripadvisor
         state = Content(PlaceDetails(place, openingSummary = null))
         rule.onNodeWithContentDescription("Tripadvisor rating 4.5 of 5").assertExists()
         rule.onNodeWithText("(312 reviews)").assertIsDisplayed()
@@ -122,10 +123,7 @@ class PlaceDetailsScreenTest {
     // DN-UX-007 (artboard 3c): Back and the name head the page; the photo sits under Back, the facts beside it.
     @Test
     fun backHeadsThePageAndThePhotoSitsUnderIt() {
-        enrichment = PlaceEnrichment(
-            photoUrl = "https://example.test/p.jpg",
-            rating = ProviderRating(4.5, 312, "https://example.test/b.png"),
-        )
+        enrichment = tripadvisor
         state = Content(PlaceDetails(place, openingSummary = null))
         val back = rule.onNodeWithContentDescription("Back").getUnclippedBoundsInRoot()
         val name = rule.onNodeWithText("The Daily Grind").getUnclippedBoundsInRoot()

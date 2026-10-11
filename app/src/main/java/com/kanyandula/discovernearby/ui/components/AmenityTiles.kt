@@ -27,6 +27,8 @@ import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.label
+import com.kanyandula.discovernearby.ui.theme.Action
+import com.kanyandula.discovernearby.ui.theme.AmenityBadgeRadius
 import com.kanyandula.discovernearby.ui.theme.AmenityIconSize
 import com.kanyandula.discovernearby.ui.theme.AmenityTileHeight
 import com.kanyandula.discovernearby.ui.theme.AmenityTileRadius
@@ -72,8 +74,16 @@ private fun AmenityTile(tile: AmenityTile, modifier: Modifier = Modifier) {
     ) {
         // The slot stays when there is no icon, so every label sits on the same line.
         Box(Modifier.size(AmenityIconSize)) {
-            // Decorative: the label says it. The badge carries its own colours.
-            tile.icon?.let { Icon(painter = painterResource(it), contentDescription = null, tint = Color.Unspecified) }
+            // Decorative: the label says it. White on an Action-blue badge is 5.2:1, where the blue icon on the tile
+            // was 2.55:1; Google asks 4.5:1 of icons in POI apps (car app quality VD-1, DN-UX-007).
+            tile.icon?.let {
+                Icon(
+                    painter = painterResource(it),
+                    contentDescription = null,
+                    modifier = Modifier.background(Action, RoundedCornerShape(AmenityBadgeRadius)),
+                    tint = Color.White,
+                )
+            }
         }
         Text(
             text = stringResource(tile.label),

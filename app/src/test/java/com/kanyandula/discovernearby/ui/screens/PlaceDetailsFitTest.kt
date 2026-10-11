@@ -60,25 +60,28 @@ class PlaceDetailsFitTest {
             "bright room over the bay, with a short wine list and a garden terrace in summer.",
     )
 
-    @Test
-    fun theWholeConceptFitsTheReferencePanel() {
-        rule.setContent {
-            DiscoverNearbyTheme {
-                Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
-                    PlaceDetailsScreen(
-                        distanceMeters = 1_400,
-                        category = DiscoveryCategory.FAMILY,
-                        state = SummaryOnly(everything),
-                        onNavigate = {},
-                        onBack = {},
-                        saved = false,
-                        onToggleSave = {},
-                        drivingRestricted = false, // parked: the description shows
-                        enrichment = enrichment,
-                    )
-                }
+    /** Every field known, parked (the description shows), on the reference panel. */
+    private fun show(state: PlaceDetailsUiState) = rule.setContent {
+        DiscoverNearbyTheme {
+            Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
+                PlaceDetailsScreen(
+                    distanceMeters = 1_400,
+                    category = DiscoveryCategory.FAMILY,
+                    state = state,
+                    onNavigate = {},
+                    onBack = {},
+                    saved = false,
+                    onToggleSave = {},
+                    drivingRestricted = false,
+                    enrichment = enrichment,
+                )
             }
         }
+    }
+
+    @Test
+    fun theWholeConceptFitsTheReferencePanel() {
+        show(SummaryOnly(everything))
         val note = rule.onNodeWithText("More details unavailable right now")
         note.assertHeightIsAtLeast(30.dp) // one whole titleMedium line
         assertTrue(note.getUnclippedBoundsInRoot().bottom <= ReferencePanelHeight)
@@ -96,10 +99,10 @@ class PlaceDetailsFitTest {
         rule.onNodeWithText("Parking").assertIsDisplayed()
         val description = rule.onNodeWithText("Seasonal plates", substring = true)
         description.assertIsDisplayed()
-        assertTrue(description.getUnclippedBoundsInRoot().bottom <= navigate.getUnclippedBoundsInRoot().top)
+        val bounds = description.getUnclippedBoundsInRoot()
+        assertTrue(bounds.bottom <= navigate.getUnclippedBoundsInRoot().top)
         // DN-UX-007: on the fallback the note joins the facts beside the photo, so the description keeps one line.
-        val lines = description.getUnclippedBoundsInRoot()
-        assertTrue(lines.bottom - lines.top <= 30.dp)
+        assertTrue(bounds.bottom - bounds.top <= 30.dp)
         navigate.assertHeightIsAtLeast(MinTouchTarget)
         val save = rule.onNodeWithText("Save")
         save.assertIsDisplayed()
@@ -109,23 +112,7 @@ class PlaceDetailsFitTest {
 
     @Test
     fun theNormalStateFitsWithATwoLineDescription() {
-        rule.setContent {
-            DiscoverNearbyTheme {
-                Box(modifier = Modifier.height(ReferencePanelHeight).width(ReferencePanelWidth)) {
-                    PlaceDetailsScreen(
-                        distanceMeters = 1_400,
-                        category = DiscoveryCategory.FAMILY,
-                        state = Content(PlaceDetails(everything, openingSummary = null)),
-                        onNavigate = {},
-                        onBack = {},
-                        saved = false,
-                        onToggleSave = {},
-                        drivingRestricted = false,
-                        enrichment = enrichment,
-                    )
-                }
-            }
-        }
+        show(Content(PlaceDetails(everything, openingSummary = null)))
         val description = rule.onNodeWithText("Seasonal plates", substring = true)
         description.assertHeightIsAtLeast(56.dp) // two bodyLarge lines
         val navigate = rule.onNodeWithText("Navigate")

@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -184,43 +185,40 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 
 /**
  * Tripadvisor's rating as Tripadvisor draws it, else the place's own; "Kind · price · distance"; the opening line; and
- * on the fallback the summary-only note. Each only when known.
+ * on the fallback the summary-only note. Each only when known, as lines of the caller's column beside the photo.
  */
 @Composable
-private fun Summary(
+private fun ColumnScope.Summary(
     place: PlaceSummary,
     distanceMeters: Int?,
     opening: AnnotatedString?,
     enrichment: PlaceEnrichment?,
     summaryOnly: Boolean,
-    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
-        val tripadvisor = enrichment?.rating
-        if (tripadvisor != null) {
-            TripadvisorRating(
-                rating = tripadvisor,
-                count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
-            )
-        } else {
-            ratingLine(place)?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        val facts = listOfNotNull(
-            kindLabel(place.primaryKind)?.let { stringResource(it) },
-            enrichment?.priceLevel?.let { stringResource(it.label) },
-            distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
+    val tripadvisor = enrichment?.rating
+    if (tripadvisor != null) {
+        TripadvisorRating(
+            rating = tripadvisor,
+            count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
         )
-        SupportingLine(facts.joinToString(SEPARATOR))
-        opening?.let { SupportingLine(it) }
-        if (summaryOnly) DetailsUnavailable()
+    } else {
+        ratingLine(place)?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
+    val facts = listOfNotNull(
+        kindLabel(place.primaryKind)?.let { stringResource(it) },
+        enrichment?.priceLevel?.let { stringResource(it.label) },
+        distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
+    )
+    SupportingLine(facts.joinToString(SEPARATOR))
+    opening?.let { SupportingLine(it) }
+    if (summaryOnly) DetailsUnavailable()
 }
 
 /** "4.6 ★" and, when the provider counts them, "(342 reviews)" in the muted style; null without a rating. */

@@ -49,6 +49,7 @@ val DetailsImageIconSize = 72.dp
 val AmenityTileHeight = 72.dp
 val AmenityTileRadius = 14.dp
 val AmenityIconSize = 24.dp
+val AmenityBadgeRadius = 5.dp // the icon's Action-blue badge (DN-UX-007)
 val NavigateRadius = 20.dp
 val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
