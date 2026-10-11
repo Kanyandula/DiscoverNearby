@@ -23,8 +23,10 @@ internal fun HereItem.toSummary(): PlaceSummary? {
         name = name,
         location = location,
         placeKinds = kinds.toSet(),
-        // HERE's own primary decides; without one flagged, the first mapped kind leads.
-        primaryKind = if (primary != null) kindFor(primary.id) else kinds.firstOrNull(),
+        // HERE's own primary decides; without one flagged, the first mapped kind leads. A kind that only rules a place
+        // out never leads (RULE_OUT_KINDS).
+        primaryKind = (if (primary != null) kindFor(primary.id) else kinds.firstOrNull { it !in RULE_OUT_KINDS })
+            ?.takeUnless { it in RULE_OUT_KINDS },
         attributes = emptySet(),
         rating = null,
         ratingCount = null,
@@ -32,7 +34,18 @@ internal fun HereItem.toSummary(): PlaceSummary? {
         isOpenNow = openingHours.mapNotNull { it.isOpen }.let { if (true in it) true else it.firstOrNull() },
         travelTimeMinutes = null,
         attribution = HERE_ATTRIBUTION,
+        phones = contacts.flatMap { it.phone }.mapNotNull { phoneDigits(it.value) }.toSet(),
     )
+}
+
+/** A phone number as digits, with a leading + kept; null without any digit. */
+private fun phoneDigits(value: String): String? {
+    val digits = value.filter { it in '0'..'9' }
+    return when {
+        digits.isEmpty() -> null
+        value.trimStart().startsWith('+') -> "+$digits"
+        else -> digits
+    }
 }
 
 /** Details add the opening hours, as text and as periods; the copyright notice comes with the summary. */

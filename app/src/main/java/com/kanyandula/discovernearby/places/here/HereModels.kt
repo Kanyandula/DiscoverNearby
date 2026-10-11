@@ -15,7 +15,14 @@ internal data class HereItem(
     val position: HerePosition? = null,
     val categories: List<HereCategory> = emptyList(),
     val openingHours: List<HereOpeningHours> = emptyList(),
+    val contacts: List<HereContacts> = emptyList(),
 )
+
+@Serializable
+internal data class HereContacts(val phone: List<HereContactValue> = emptyList())
+
+@Serializable
+internal data class HereContactValue(val value: String = "")
 
 @Serializable
 internal data class HerePosition(val lat: Double? = null, val lng: Double? = null)

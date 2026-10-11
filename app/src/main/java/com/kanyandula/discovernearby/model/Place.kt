@@ -1,6 +1,7 @@
 package com.kanyandula.discovernearby.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /** List-level fields only (docs/03 §8): keeps searches small and each field's cost visible. */
 @Serializable
@@ -16,6 +17,9 @@ data class PlaceSummary(
     val isOpenNow: Boolean?, // null = unknown
     val travelTimeMinutes: Int?, // only if provider supplies it
     val attribution: String? = null, // the data's copyright holder, e.g. "HERE"; null when no notice is needed
+    // Only to tell one place a provider lists twice when ranking (DN-M2-004): never shown, routed or stored. Digits
+    // and a leading +.
+    @Transient val phones: Set<String> = emptySet(),
 )
 
 /** Each known attribute type once, in the provider's order, whatever its source. Unknown ones are absent. */
