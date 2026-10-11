@@ -288,10 +288,10 @@ Park · Playground · Parking
 
 ### Content, where available
 
-- Layout as the Product Lead's artboard 3c (`docs/design/03c-place-details-header.png`, DN-UX-007), from the concept
-  (`03b-place-details-concept.png`): Back and the place name as the header; the image under Back, with the facts and a
-  short description beside it; amenity tiles below the image; **Navigate** bottom right, with **Save** beside it
-  (DN-UX-006)
+- Layout as the Product Lead's artboard 3c on the design canvas (DN-UX-007; as built:
+  `docs/design/03c-place-details-header.png`), from the concept (`03b-place-details-concept.png`): Back and the place
+  name as the header; the image under Back, with the facts and a short description beside it; amenity tiles below the
+  image; **Navigate** bottom right, with **Save** beside it (DN-UX-006)
 - The image: Tripadvisor's photo, credited "Photo: Tripadvisor", otherwise the category artwork, as on the rows
   (ADR-003)
 - Place name
