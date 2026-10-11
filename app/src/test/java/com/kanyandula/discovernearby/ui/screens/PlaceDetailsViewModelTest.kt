@@ -204,14 +204,25 @@ class PlaceDetailsViewModelTest {
         assertEquals(false, vm.isSaved.value)
     }
 
-    // Review Focus 3: a double tap before the database answers leaves one row.
+    // Two quick taps toggle twice, in order: saved, then removed, never a duplicate row.
     @Test
-    fun aDoubleTapLeavesOneRow() = runTest {
+    fun twoQuickTapsSaveThenRemove() = runTest {
         places.details = { loaded }
         val vm = watched()
         vm.toggleSave()
         vm.toggleSave()
         runCurrent()
-        assertEquals(1, saved.places.value.size)
+        assertEquals(emptyList<SavedPlace>(), saved.places.value)
+    }
+
+    // A tap before the database first answers still removes a place that is already saved.
+    @Test
+    fun aTapBeforeTheDatabaseAnswersRemovesASavedPlace() = runTest {
+        places.details = { loaded }
+        saved.save(place, DiscoveryCategory.COFFEE, null)
+        val vm = viewModel() // nothing watches isSaved yet, so it still reads false
+        vm.toggleSave()
+        runCurrent()
+        assertEquals(emptyList<SavedPlace>(), saved.places.value)
     }
 }

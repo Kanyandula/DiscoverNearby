@@ -16,9 +16,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDateTime
 
 /** The Place Details destination's states (docs/03 §15). */
@@ -50,12 +53,14 @@ class PlaceDetailsViewModel(
     private val navigation: NavigationLauncher,
     private val saved: SavedPlacesRepository,
     private val category: DiscoveryCategory,
-    private val enrichment: PlaceEnrichment? = null,
+    private val enrichment: PlaceEnrichment?,
     now: () -> LocalDateTime = LocalDateTime::now,
 ) : ViewModel() {
 
     private val state = MutableStateFlow<PlaceDetailsUiState>(PlaceDetailsUiState.Loading(place))
     val uiState: StateFlow<PlaceDetailsUiState> = state.asStateFlow()
+
+    private val toggling = Mutex()
 
     /** Whether the place is saved, live from the database; false until it answers (DN-UX-006). */
     val isSaved: StateFlow<Boolean> = saved.isSaved(place.id)
@@ -84,12 +89,15 @@ class PlaceDetailsViewModel(
     }
 
     /**
-     * Save ↔ Saved (DN-UX-006): keeps the place as Details knows it now, with the row's category and enrichment. Both
-     * writes are idempotent, so a double tap before the database answers leaves one row.
+     * Save ↔ Saved (DN-UX-006): keeps the place as Details knows it now, with the row's category and enrichment. Each
+     * tap asks the database, one tap at a time: [isSaved] can lag behind it, and two quick taps must toggle twice.
      */
     fun toggleSave() {
         val summary = state.value.summary
-        val remove = isSaved.value
-        viewModelScope.launch { if (remove) saved.remove(place.id) else saved.save(summary, category, enrichment) }
+        viewModelScope.launch {
+            toggling.withLock {
+                if (saved.isSaved(place.id).first()) saved.remove(place.id) else saved.save(summary, category, enrichment)
+            }
+        }
     }
 }
