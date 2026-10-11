@@ -69,6 +69,42 @@ class BasicRecommendationEngineTest {
         assertEquals(listOf("adventure"), ranked(FAMILY, testPlace("adventure", "landmark", "amusement_park")))
     }
 
+    // DN-M2-004 (Product Lead, 2026-10-11): HERE files non-family businesses as Amusement Park; their other codes and
+    // names rule them out of Family.
+    @Test
+    fun anAmusementParkThatIsAlsoACafeFinanceOrCommunityIsRuledOut() {
+        val funPark = testPlace("fun-park", "amusement_park")
+        val takeaway = testPlace("takeaway", "amusement_park", "restaurant")
+        val snackBar = testPlace("snack-bar", "amusement_park", "cafe")
+        val bookmaker = testPlace("bookmaker", "amusement_park", "finance")
+        val hall = testPlace("hall", "amusement_park", "community")
+        assertEquals(listOf("fun-park"), ranked(FAMILY, funPark, takeaway, snackBar, bookmaker, hall))
+    }
+
+    @Test
+    fun anAmusementParkNamedForEscapeRoomsASalonABandOrACommunityIsRuledOut() {
+        val kept = testPlace("Jumpers Fun Park", "amusement_park")
+        val ruledOut = listOf("Lockbox Escape Rooms", "Glow Salon", "Riverside Brass Band", "Hillview Community Centre")
+            .map { testPlace(it, "amusement_park") }
+        assertEquals(listOf(kept.id), ranked(FAMILY, kept, *ruledOut.toTypedArray()))
+    }
+
+    // A zoo with a café code stays, and so does a place with Amusement Park only as a secondary code.
+    @Test
+    fun onlyAPrimaryAmusementParkIsRuledOut() {
+        val zoo = testPlace("zoo", "zoo", "amusement_park", "cafe")
+        val karting = testPlace("Escape Karting", "tourist_attraction", "amusement_park")
+        assertEquals(setOf("zoo", "Escape Karting"), ranked(FAMILY, zoo, karting).toSet())
+    }
+
+    // Whole words only.
+    @Test
+    fun nameWordsMatchWholeWordsOnly() {
+        val names = listOf("Bandstand Fun Park", "Escapade Play")
+        val places = names.map { testPlace(it, "amusement_park") }
+        assertEquals(names.toSet(), ranked(FAMILY, *places.toTypedArray()).toSet())
+    }
+
     // Product Lead, 2026-10-07: time-sensitive categories drop a place known to be closed now.
     @Test
     fun knownClosedIsDroppedWhereTheCategoryIsTimeSensitive() {
@@ -195,6 +231,23 @@ class BasicRecommendationEngineTest {
         val a = testPlace("a", "zoo", metersNorth = 100)
         val b = testPlace("b", "zoo", metersNorth = 200)
         assertEquals(listOf("a", "b"), ranked(FAMILY, a, a, b, testPlace("c", "zoo", metersNorth = 300)))
+    }
+
+    // DN-M2-004: one aquarium HERE lists twice shows once, so a second aquarium keeps the other slot.
+    @Test
+    fun aPlaceListedTwiceShowsOnceAndUsesOneSlot() {
+        val record = testPlace("record-1", "aquarium", metersNorth = 1_700).copy(phones = setOf("+1"))
+        val again = testPlace("record-2", "aquarium", metersNorth = 1_700).copy(phones = setOf("+1"))
+        val other = testPlace("other", "aquarium", metersNorth = 2_600)
+        assertEquals(listOf("record-1", "other"), ranked(FAMILY, record, again, other))
+    }
+
+    // The better-ranked record stays, whatever its ID: here the nearer, second one.
+    @Test
+    fun theBetterRankedRecordOfAPlaceStays() {
+        val farther = testPlace("a-record", "aquarium", metersNorth = 1_750).copy(phones = setOf("+1"))
+        val nearer = testPlace("b-record", "aquarium", metersNorth = 1_745).copy(phones = setOf("+1"))
+        assertEquals(listOf("b-record"), ranked(FAMILY, farther, nearer))
     }
 
     // Review Focus 1: a provider can return a place past the radius; it gets no nearness, never a negative one.

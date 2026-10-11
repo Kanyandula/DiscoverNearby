@@ -1,14 +1,11 @@
 package com.kanyandula.discovernearby.places.tripadvisor
 
-import java.text.Normalizer
-import java.util.Locale
+import com.kanyandula.discovernearby.model.nameWords
 
 // Words that name the trade, not the place: "COSTA COFFEE" and "Costa" are one café. Place words such as "park" or
 // "beach" stay, so a beach doesn't match the park next to it.
 private val GENERIC_WORDS = setOf("the", "a", "an", "of", "and", "ltd", "co", "cafe", "coffee", "restaurant", "bar")
 private const val MIN_SHARED_CHARS = 4
-private val ACCENTS = Regex("\\p{M}")
-private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
 private const val MIN_SIMILARITY = 0.8
 private const val SAME_WORDS = 3
 private const val ONE_EXTRA_WORD = 2
@@ -35,12 +32,7 @@ internal fun nameMatch(a: String, b: String): Int {
     }
 }
 
-private fun words(name: String): List<String> =
-    Normalizer.normalize(name, Normalizer.Form.NFKD)
-        .replace(ACCENTS, "") // accents: "Café" is "Cafe"
-        .lowercase(Locale.ROOT)
-        .split(NON_ALPHANUMERIC)
-        .filter { it.isNotEmpty() && it !in GENERIC_WORDS }
+private fun words(name: String): List<String> = nameWords(name).filter { it !in GENERIC_WORDS }
 
 private fun numbers(words: List<String>) = words.filter { word -> word.all { it.isDigit() } }.toSet()
 

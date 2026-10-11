@@ -10,6 +10,8 @@ import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.AttributeType.CAFE
 import com.kanyandula.discovernearby.model.AttributeType.PARKING
 import com.kanyandula.discovernearby.model.AttributeType.TOILETS
+import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.model.nameWords
 
 /** Up to this many recommendations are shown, before the driving list limit (docs/03 §6). */
 const val DESIRED_RECOMMENDATIONS = 5
@@ -50,7 +52,19 @@ data class CategoryConfig(
      * (Product Lead, 2026-10-07).
      */
     val maxPerKind: Int?,
+    /** Places ruled out before scoring (Product Lead, 2026-10-11). */
+    val exclusion: KindExclusion? = null,
 )
+
+/**
+ * A place whose primary kind is [kind] is dropped when it also has one of [withKinds], or when its name has one of
+ * [words] (lower case) as a whole word (DN-M2-004).
+ */
+data class KindExclusion(val kind: String, val withKinds: Set<String>, val words: Set<String>) {
+    fun excludes(place: PlaceSummary): Boolean =
+        place.primaryKind == kind &&
+            (place.placeKinds.any { it in withKinds } || nameWords(place.name).any { it in words })
+}
 
 private const val STRONG_MATCH = 30
 private const val WEAK_MATCH = 15
@@ -96,6 +110,14 @@ val CategoryConfigs: Map<DiscoveryCategory, CategoryConfig> = mapOf(
         amenityWeights = mapOf(TOILETS to 10, PARKING to 10, CAFE to 5),
         excludeClosed = true,
         maxPerKind = DIVERSITY_CAP,
+        // HERE files non-family businesses under Amusement Park too: a takeaway, a bookmaker, community rooms, escape
+        // rooms, a salon, a brass band. No code tells them from a fun park, so their other codes and their names do
+        // (Product Lead, 2026-10-11, DN-M2-004).
+        exclusion = KindExclusion(
+            kind = "amusement_park",
+            withKinds = setOf("restaurant", "cafe", "coffee_shop", "finance", "community"),
+            words = setOf("escape", "salon", "band", "community"),
+        ),
     ),
     SCENIC to CategoryConfig(
         radiusMeters = 30_000,
