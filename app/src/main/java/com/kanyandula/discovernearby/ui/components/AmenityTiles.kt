@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,7 +27,6 @@ import com.kanyandula.discovernearby.model.AttributeType
 import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.model.attributeTypes
 import com.kanyandula.discovernearby.ui.label
-import com.kanyandula.discovernearby.ui.theme.Action
 import com.kanyandula.discovernearby.ui.theme.AmenityIconSize
 import com.kanyandula.discovernearby.ui.theme.AmenityTileHeight
 import com.kanyandula.discovernearby.ui.theme.AmenityTileRadius
@@ -72,8 +72,8 @@ private fun AmenityTile(tile: AmenityTile, modifier: Modifier = Modifier) {
     ) {
         // The slot stays when there is no icon, so every label sits on the same line.
         Box(Modifier.size(AmenityIconSize)) {
-            // Decorative: the label says it.
-            tile.icon?.let { Icon(painter = painterResource(it), contentDescription = null, tint = Action) }
+            // Decorative: the label says it. The badge carries its own colours.
+            tile.icon?.let { Icon(painter = painterResource(it), contentDescription = null, tint = Color.Unspecified) }
         }
         Text(
             text = stringResource(tile.label),
