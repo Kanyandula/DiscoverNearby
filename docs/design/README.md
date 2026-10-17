@@ -13,7 +13,7 @@ PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exporte
 | File | Screen | Layout pattern (Rev 3 template name) |
 | --- | --- | --- |
 | `00-overview.png` | App flow overview: system UI vs app vs outside, states per screen, Navigate hand-off | — |
-| `00-icons.png` | Icon set with suggested resource names (its app icon is superseded by `app-icon.svg`) | — |
+| `00-icons.png` | Icon set with suggested resource names | — |
 | `app-icon.svg` | Launcher icon, the Compass pin: the master for the adaptive icon's layers (DN-UX-008) | — |
 | `01-discover.png` | Discover | GridTemplate |
 | `02-recommendations.png` | Recommendations | ListTemplate |
