@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -42,12 +43,12 @@ import com.kanyandula.discovernearby.ui.kilometres
 import com.kanyandula.discovernearby.ui.kindLabel
 import com.kanyandula.discovernearby.ui.label
 import com.kanyandula.discovernearby.ui.theme.ChevronSize
-import com.kanyandula.discovernearby.ui.theme.NextRowPeek
 import com.kanyandula.discovernearby.ui.theme.RatingChipGap
 import com.kanyandula.discovernearby.ui.theme.RowImageHeight
 import com.kanyandula.discovernearby.ui.theme.RowImageIconSize
 import com.kanyandula.discovernearby.ui.theme.RowImageRadius
 import com.kanyandula.discovernearby.ui.theme.RowImageWidth
+import com.kanyandula.discovernearby.ui.theme.RowPeek
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 import com.kanyandula.discovernearby.ui.theme.RowPadding
 import com.kanyandula.discovernearby.ui.theme.RowRadius
@@ -74,7 +75,7 @@ fun RecommendationRow(
     val shape = RoundedCornerShape(RowRadius)
     Surface(
         onClick = onClick,
-        modifier = modifier.revealNextOnFocus().focusRing(shape).fillMaxWidth(),
+        modifier = modifier.revealNeighbours().focusRing(shape).fillMaxWidth(),
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
@@ -166,20 +167,24 @@ internal fun SupportingLine(text: AnnotatedString) {
 }
 
 /**
- * Rotary (DN-UX-006): a focused row also brings the top of the next row into view. The rotary service moves only to
- * rows on screen, so the next turn finds the next row there; a turn quicker than this scroll reaches the list's edge,
- * where the list's rotary scroll takes over (rotaryScrollable, DN-UX-010).
+ * Rotary (DN-UX-006, DN-UX-009, DN-UX-010): a focused row also brings the edges of the rows above and below it into
+ * view. The rotary service moves only to rows on screen, so the next turn either way finds the next row there. A turn
+ * quicker than this scroll reaches the list's edge, where the service keeps focus and sends the list a rotary scroll
+ * (rotaryScrollable); the row brings its neighbours into view again. Only the service moves focus: Compose doesn't tell
+ * it about a move to a row that was off screen, and it would turn on from the row it knew.
  */
-private fun Modifier.revealNextOnFocus(): Modifier = composed {
+private fun Modifier.revealNeighbours(): Modifier = composed {
     val requester = remember { BringIntoViewRequester() }
     val scope = rememberCoroutineScope()
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val peek = with(LocalDensity.current) { NextRowPeek.toPx() }
+    val peek = with(LocalDensity.current) { RowPeek.toPx() }
+    val reveal = { scope.launch { requester.bringIntoView(Rect(0f, -peek, size.width.toFloat(), size.height + peek)) } }
     bringIntoViewRequester(requester)
         .onSizeChanged { size = it }
-        .onFocusChanged { state ->
-            if (state.isFocused) {
-                scope.launch { requester.bringIntoView(Rect(0f, 0f, size.width.toFloat(), size.height + peek)) }
-            }
+        .onFocusChanged { if (it.isFocused) reveal() }
+        // Compose hands the service's scroll to the focused row, though it reads none of it (AXIS_SCROLL is 0).
+        .onRotaryScrollEvent {
+            reveal()
+            true
         }
 }

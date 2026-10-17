@@ -62,14 +62,11 @@ fun hereNotice() = "© ${Year.now().value} HERE"
  * A rotary scroll as Android 13's rotary service sends one to a list it can't leave (RotaryService.injectScrollEvent):
  * ACTION_SCROLL from the rotary encoder, AXIS_VSCROLL −detents clockwise.
  */
-fun rotaryScroll(
-    detents: Float,
-    source: Int = InputDevice.SOURCE_ROTARY_ENCODER,
-    axis: Int = MotionEvent.AXIS_VSCROLL,
-): MotionEvent {
+fun rotaryScroll(detents: Float): MotionEvent {
     val properties = MotionEvent.PointerProperties().apply { id = 0 }
-    val coords = MotionEvent.PointerCoords().apply { setAxisValue(axis, detents) }
+    val coords = MotionEvent.PointerCoords().apply { setAxisValue(MotionEvent.AXIS_VSCROLL, detents) }
     return MotionEvent.obtain(
-        0L, 0L, MotionEvent.ACTION_SCROLL, 1, arrayOf(properties), arrayOf(coords), 0, 0, 1f, 1f, 0, 0, source, 0,
+        0L, 0L, MotionEvent.ACTION_SCROLL, 1, arrayOf(properties), arrayOf(coords), 0, 0, 1f, 1f, 0, 0,
+        InputDevice.SOURCE_ROTARY_ENCODER, 0,
     )
 }

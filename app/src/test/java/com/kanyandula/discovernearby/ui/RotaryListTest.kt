@@ -1,7 +1,5 @@
 package com.kanyandula.discovernearby.ui
 
-import android.view.InputDevice
-import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -22,8 +20,6 @@ import com.kanyandula.discovernearby.model.Recommendation
 import com.kanyandula.discovernearby.ui.screens.RecommendationsScreen
 import com.kanyandula.discovernearby.ui.screens.RecommendationsUiState
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,12 +28,14 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * DN-UX-009, DN-UX-010: the rotary service moves only to rows on screen. At a marked list's visible edge it sends a
- * rotary scroll instead of leaving the list, and the app moves to the next or previous row, on screen or not.
+ * DN-UX-006, DN-UX-009, DN-UX-010, found on the emulator: the rotary service moves only to rows on screen, and the
+ * app rail follows the list. Unless the next row shows, a turn from the last visible row jumps to the rail; unless the
+ * row above shows, a turn up from the top one jumps to Back. A turn quicker than the focused row's reveal reaches the
+ * marked list's visible edge, where the service keeps focus and sends a rotary scroll; it shows the row beyond.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = AUTOMOTIVE_1024P)
-class RotaryListScrollTest {
+class RotaryListTest {
 
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
@@ -72,11 +70,9 @@ class RotaryListScrollTest {
         rule.useRotaryInput(inputModes)
     }
 
-    private fun scroll(event: MotionEvent): Boolean {
-        var consumed = false
-        rule.runOnUiThread { consumed = rule.activity.moveFocusForRotaryScroll(event) }
+    private fun serviceScroll(detents: Float) {
+        rule.runOnUiThread { rule.activity.dispatchGenericMotionEvent(rotaryScroll(detents)) }
         rule.waitForIdle()
-        return consumed
     }
 
     @Test
@@ -84,37 +80,43 @@ class RotaryListScrollTest {
         rule.onNode(list and hasContentDescription(ROTARY_VERTICALLY_SCROLLABLE)).assertExists()
     }
 
-    // D2: a quick turn from the last row on screen goes on to the row below it.
     @Test
-    fun aClockwiseScrollMovesToTheRowBelow() {
-        rule.onNodeWithText("Row 2").requestFocus()
-        assertTrue(scroll(rotaryScroll(-1f)))
-        rule.onNodeWithText("Row 3").assertIsFocused().assertIsDisplayed()
-    }
-
-    // D1: with the list scrolled down, a turn up from the top row on screen reaches the row above the screen.
-    @Test
-    fun aCounterClockwiseScrollMovesToTheRowAboveTheScreen() {
-        rule.onNode(list).performScrollToIndex(2)
-        rule.onNodeWithText("Row 1").assertDoesNotExist()
-        rule.onNodeWithText("Row 2").requestFocus()
-        assertTrue(scroll(rotaryScroll(1f)))
-        rule.onNodeWithText("Row 1").assertIsFocused().assertIsDisplayed()
+    fun aFocusedRowShowsTheNextOne() {
+        for (index in 0 until ROWS - 1) {
+            rule.onNodeWithText("Row $index").requestFocus()
+            rule.onNodeWithText("Row ${index + 1}").assertIsDisplayed()
+        }
     }
 
     @Test
-    fun eachDetentMovesOneRow() {
-        rule.onNodeWithText("Row 0").requestFocus()
-        scroll(rotaryScroll(-2f))
+    fun aFocusedRowShowsThePreviousOne() {
+        rule.onNode(list).performScrollToIndex(ROWS - 1)
+        for (index in ROWS - 1 downTo 1) {
+            rule.onNodeWithText("Row $index").requestFocus()
+            rule.onNodeWithText("Row ${index - 1}").assertIsDisplayed()
+        }
+    }
+
+    // D2: a quick turn down reaches the focused row at the list's bottom edge.
+    @Test
+    fun aClockwiseServiceScrollShowsTheRowBelowTheFocusedOne() {
+        rule.onNodeWithText("Row 2").requestFocus()
+        rule.onNode(list).performScrollToIndex(0)
+        rule.onNodeWithText("Row 3").assertDoesNotExist()
+        serviceScroll(-1f)
+        rule.onNodeWithText("Row 3").assertIsDisplayed()
         rule.onNodeWithText("Row 2").assertIsFocused()
     }
 
+    // D1: a quick turn up reaches the focused row at the list's top edge.
     @Test
-    fun otherScrollsAreLeftAlone() {
-        rule.onNodeWithText("Row 0").requestFocus()
-        assertFalse(scroll(rotaryScroll(-1f, source = InputDevice.SOURCE_MOUSE)))
-        assertFalse(scroll(rotaryScroll(-1f, axis = MotionEvent.AXIS_SCROLL)))
-        rule.onNodeWithText("Row 0").assertIsFocused()
+    fun aCounterClockwiseServiceScrollShowsTheRowAboveTheFocusedOne() {
+        rule.onNodeWithText("Row 2").requestFocus()
+        rule.onNode(list).performScrollToIndex(2)
+        rule.onNodeWithText("Row 1").assertDoesNotExist()
+        serviceScroll(1f)
+        rule.onNodeWithText("Row 1").assertIsDisplayed()
+        rule.onNodeWithText("Row 2").assertIsFocused()
     }
 
     private companion object {

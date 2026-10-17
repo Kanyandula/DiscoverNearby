@@ -1,7 +1,6 @@
 package com.kanyandula.discovernearby.ui
 
 import android.os.Bundle
-import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.kanyandula.discovernearby.DiscoverApplication
@@ -22,8 +21,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    // A marked list's rotary scroll is a move to the next or previous row (DN-UX-009, DN-UX-010).
-    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean =
-        moveFocusForRotaryScroll(event) || super.dispatchGenericMotionEvent(event)
 }
