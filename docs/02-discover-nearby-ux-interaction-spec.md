@@ -156,7 +156,7 @@ Navigate
 | Along Route presets (stretch) | List |
 | Stops Ahead (stretch) | List |
 
-No map is used in the POC. A map does not help prove the hypothesis and adds implementation and licensing complexity.
+No map is used in the POC (the rail's Map tab only opens "Coming soon", DN-UX-011). A map does not help prove the hypothesis and adds implementation and licensing complexity.
 
 ---
 
@@ -552,6 +552,7 @@ Discover:         Coffee → Food → Outdoors → Family → Scenic → Explore
 Recommendations:  Result 1 → Result 2 → Result 3 … → [rail]
 Place Details:    Content → Save → Navigate → [rail]
 Saved:            Saved place 1 → Saved place 2 … → [rail]
+Map, Profile:     Back → Back (message) → [rail]
 ```
 
 The app rail (DN-UX-006) comes after each screen's content, so the first turn still lands on the screen's first item.

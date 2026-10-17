@@ -99,8 +99,8 @@
     <string name="tab_map">Map</string>
     <string name="tab_profile">Profile</string>
     <string name="coming_soon_title">Coming soon</string>
-    <string name="map_coming_soon">The map isn\'t part of this version yet.</string>
-    <string name="profile_coming_soon">Profiles aren\'t part of this version yet.</string>
+    <string name="map_coming_soon_body">The map isn\'t part of this version yet.</string>
+    <string name="profile_coming_soon_body">Profiles aren\'t part of this version yet.</string>
     <string name="saved_empty_title">No saved places yet</string>
     <string name="saved_empty_body">Tap Save on a place to keep it here.</string>
     <string name="navigation_unavailable_title">Navigation unavailable</string>

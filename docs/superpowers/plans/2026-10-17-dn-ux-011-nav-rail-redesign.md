@@ -61,7 +61,8 @@ Tests: `ui/DiscoverNavigationTest.kt`, `ui/OpenTabTest.kt`.
 - [ ] Implement: `RailTab(route, icon, label, tinted = true, atBottom = false)` with DISCOVER (`ic_compass_pin`,
   untinted), SAVED (`ic_bookmark`), MAP (`ic_map`), PROFILE (`ic_person`, at the bottom); `selectedTab` returns the
   tab whose route is on the stack, else Discover; `openTab` pops to Discover, back to the tab's own screen when it is
-  selected, else navigates with `popUpTo<DiscoverRoute>()`; `ComingSoonScreen(title, icon, body, onBack)`.
+  selected, else navigates with `popUpTo<DiscoverRoute>()`; `ComingSoonScreen(title, icon, body, onBack)` (the
+  simplify pass made it `ComingSoonScreen(tab, body, onBack)`, the title and icon read from the tab).
 - [ ] Run them: they pass. Commit — `Add Map and Profile tabs that open Coming soon`.
 
 ### Task 2: The rail's look and the header

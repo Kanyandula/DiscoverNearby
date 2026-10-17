@@ -314,6 +314,15 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
+    @Test
+    fun mapTappedTwiceStacksOneScreen() {
+        tab("Map").performClick()
+        rule.onNodeWithText("Coming soon").assertIsDisplayed()
+        tab("Map").performClick()
+        systemBack()
+        onDiscover()
+    }
+
     // Save on Details, find it on Saved, open it: Saved stays selected, and Back walks Details → Saved → Discover.
     @Test
     fun aSavedPlaceOpensFromSavedWithTheTabSelected() {

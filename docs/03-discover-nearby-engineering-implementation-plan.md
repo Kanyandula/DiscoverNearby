@@ -130,7 +130,8 @@ app/
 │       ├── PlaceDetailsScreen          (details pane / message states)
 │       ├── PlaceDetailsViewModel
 │       ├── SavedScreen                 (saved places list / message states; DN-UX-006)
-│       └── SavedViewModel
+│       ├── SavedViewModel
+│       └── ComingSoonScreen            (the Map and Profile tabs; DN-UX-011)
 │
 ├── car/
 │   ├── DrivingRestrictions             (interface + DrivingState; no android.car imports)

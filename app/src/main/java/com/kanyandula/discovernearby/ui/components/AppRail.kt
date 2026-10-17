@@ -50,6 +50,8 @@ import com.kanyandula.discovernearby.ui.theme.RowRadius
  */
 @Composable
 fun AppRail(selected: RailTab, onSelect: (RailTab) -> Unit, modifier: Modifier = Modifier) {
+    // ponytail: the tabs need 421 dp; the reference panel gives 516. A shorter screen clips the first and last tab:
+    // shrink the tab height or gaps below a height threshold if other displays matter.
     Surface(modifier = modifier.width(MinTouchTarget).fillMaxHeight(), shape = RoundedCornerShape(PanelRadius)) {
         Column(
             modifier = Modifier.padding(vertical = RailPadding),
@@ -77,7 +79,8 @@ private fun RailItem(tab: RailTab, selected: Boolean, onClick: () -> Unit) {
         color = Color.Transparent,
         contentColor = if (selected) Color.White else OnSurfaceVariant,
     ) {
-        // The label is the tab's name (the tab merges it); the icon is decorative.
+        // The label is the tab's name (the tab merges it); the icon is decorative. The tile sits one label gap below
+        // the tab's top, as on R1.
         Column(
             modifier = Modifier.padding(top = RailLabelGap),
             horizontalAlignment = Alignment.CenterHorizontally,

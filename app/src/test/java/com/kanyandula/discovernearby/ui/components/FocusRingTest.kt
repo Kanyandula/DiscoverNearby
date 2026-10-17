@@ -21,9 +21,9 @@ import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.RailTab
 import com.kanyandula.discovernearby.ui.railTab
-import com.kanyandula.discovernearby.ui.text
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
+import com.kanyandula.discovernearby.ui.text
 import com.kanyandula.discovernearby.ui.theme.Accent
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.Highlight
@@ -95,7 +95,6 @@ class FocusRingTest {
         }
         rule.useRotaryInput(inputModes)
     }
-
 
     @Test
     fun focusedRecommendationRowShowsTheRing() {

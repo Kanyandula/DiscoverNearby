@@ -10,7 +10,6 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.unit.dp
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.RailTab
 import com.kanyandula.discovernearby.ui.ReferencePanelHeight
@@ -19,6 +18,8 @@ import com.kanyandula.discovernearby.ui.text
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import com.kanyandula.discovernearby.ui.theme.PanelPadding
+import com.kanyandula.discovernearby.ui.theme.RailPadding
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -56,7 +57,7 @@ class AppRailTest {
         val map = tabNode(RailTab.MAP).getUnclippedBoundsInRoot()
         val profile = tabNode(RailTab.PROFILE).getUnclippedBoundsInRoot()
         assertTrue(profile.top > map.bottom)
-        assertTrue(profile.bottom <= railHeight && railHeight - profile.bottom <= 16.dp)
+        assertEquals((railHeight - RailPadding).value, profile.bottom.value, 0.5f) // the rail's bottom padding
     }
 
     // The label is the tab's name; the icon is decorative, so the name isn't read twice.

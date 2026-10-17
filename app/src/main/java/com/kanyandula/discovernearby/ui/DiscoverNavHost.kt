@@ -164,19 +164,29 @@ fun DiscoverNavHost(
         }
         composable<SavedRoute> { entry -> SavedDestination(container, navController, entry) }
         composable<MapRoute> { entry ->
-            ComingSoonScreen(RailTab.MAP, R.string.map_coming_soon, onBack = {
-                if (navController.isTop(entry)) navController.popBackStack()
-            })
+            ComingSoonDestination(navController, entry, RailTab.MAP, R.string.map_coming_soon_body)
         }
         composable<ProfileRoute> { entry ->
-            ComingSoonScreen(RailTab.PROFILE, R.string.profile_coming_soon, onBack = {
-                if (navController.isTop(entry)) navController.popBackStack()
-            })
+            ComingSoonDestination(navController, entry, RailTab.PROFILE, R.string.profile_coming_soon_body)
         }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
             PlaceDetailsDestination(container, navController, entry)
         }
     }
+}
+
+@Composable
+private fun ComingSoonDestination(
+    navController: NavHostController,
+    entry: NavBackStackEntry,
+    tab: RailTab,
+    @StringRes body: Int,
+) {
+    ComingSoonScreen(
+        tab = tab,
+        body = body,
+        onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+    )
 }
 
 @Composable
