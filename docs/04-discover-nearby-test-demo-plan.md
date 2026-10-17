@@ -50,6 +50,8 @@ All scenarios run on one recorded configuration so results are repeatable. Fill 
 | `geo:` handler installed by default? | Record it | No. With the stub installed, `query-activities` (users 0 and 10) finds only the stub |
 | Stub navigation app | `tools/stub-navigation` APK installed | Installed with `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug` (DN-M0-008) |
 
+**M4 check (2026-10-17, DN-M4-001):** unchanged, except Android Studio is now 2026.2 (AI-262.9437.185.2621.16467767). While moving the image reports a list limit of 21 and a content depth of 3. Record: `docs/validation/2026-10-17-m4-emulator.md`.
+
 **Why this AVD (proven on NyasaPlayer):** NyasaPlayer's `docs/AAOS_DRIVING_STATE_TESTING.md` established that:
 
 - **The `userdebug` AOSP automotive image** honours `distractionOptimized` for a debug-signed, sideloaded app, and accepts driving-state commands over adb.
