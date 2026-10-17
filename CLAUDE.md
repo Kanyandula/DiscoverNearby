@@ -55,7 +55,7 @@ in place (DN-M0-012, DN-M0-001).
     `--es scenario`, warm relaunches included.
   - **Tests:** Robolectric uses `TestDiscoverApplication` (keyless) by its `Test<ApplicationName>` convention, so
     tests always get the fakes.
-  - **Live categories:** all six are live; they are accepted when M2 exits.
+  - **Live categories:** all six are live, and accepted with M2's exit (Product Lead, 2026-10-17).
   - **Attribution (DN-M1-003):** `ProviderAttribution` shows "© {year} HERE" under the list and on Place Details,
     for HERE data only (`PlaceSummary.attribution`). Placement without a map: ADR-001, Production licensing.
   - **Not from HERE:** photos, ratings and amenities (ADR-001's field availability). No source has Wi-Fi, outdoor
@@ -95,11 +95,12 @@ in place (DN-M0-012, DN-M0-001).
 - **Relevance benchmark (DN-M2-002):** `docs/benchmarks/2026-10-07-m2.md`; signed off by the Product Lead, 3 of 18
   cells fail (both Family failures have a wrong #1; Galway Scenic shows a mispositioned place), 4 stay uncertain.
   Place names stay in the private vault. DN-M2-003's daytime re-run (`docs/benchmarks/2026-10-10-m2-rerun.md`, 10
-  cells): 1 fails (Galway Scenic, a known HERE position error); both Family cells pass with caveats.
+  cells): 1 fails (Galway Scenic, a known HERE position error); both Family cells pass with caveats. DN-M2-004's
+  re-run (`docs/benchmarks/2026-10-17-m2-rerun.md`, 8 cells) has no failure; M2 exited (Product Lead, 2026-10-17).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 
-Next: DN-M2-004's daytime Family re-run (duplicates and the amusement rule are in), then M2's exit.
+Next: M4, automotive validation (DN-M4-001).
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
