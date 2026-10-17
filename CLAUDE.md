@@ -108,9 +108,10 @@ in place (DN-M0-012, DN-M0-001).
 - **M4 validation (DN-M4-001):** `docs/validation/2026-10-17-m4-emulator.md`; A–T on the emulator, F fails on rotary
   list reach: rows above the screen can't be reached turning up (DN-UX-009), fast turns skip rows going down
   (DN-UX-010). Both fixed (Product Lead, 2026-10-17): a focused row shows the rows beside it, and lists are rotary
-  scroll containers (`ui/RotaryScroll.kt`).
+  scroll containers (`ui/RotaryScroll.kt`). F's re-run passed, parked and moving.
 
-Next: Product ranks DN-UX-009/010 and chooses fix-and-re-run F or a revision in ADR-002; then DN-M4-002.
+Next: Product decides M4's exit (F passed its re-run; G's touch-scroll question is open), then DN-M4-002.
+DN-UX-012 (a list's first rotary turn sometimes goes to the rail) is in the backlog.
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)

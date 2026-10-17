@@ -340,9 +340,10 @@ adb-driven runs above.
 
 - **Status:** run 2026-10-17 in DN-M4-001: `docs/validation/2026-10-17-m4-emulator.md` (Rotary journey). The
   four gate items held in 2 of 2 journeys, parked and moving, and Back to Discover kept its turn in both. Scenario F
-  still fails, on the ticket's and docs/02 §16's reachability requirement: rows above the screen can't be reached
-  by turning up (DN-UX-009), and a quick turn skips rows going down (DN-UX-010). M4 waits on Product: fix and re-run
-  F, or a Product-approved revision recorded here.
+  failed on the ticket's and docs/02 §16's reachability requirement: rows above the screen couldn't be reached by
+  turning up (DN-UX-009), and a quick turn skipped rows going down (DN-UX-010). After the fix (Decision, "Rotary list
+  reach"), F's hand-driven re-run passed, parked and moving: every row reached in order both ways, at every turn speed
+  tried (the M4 record, "F re-run").
 - **Its role:** supplementary evidence. It doesn't replace or overwrite the adb-driven results above (Product,
   2026-10-06).
 
