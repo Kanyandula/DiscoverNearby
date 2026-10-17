@@ -1,9 +1,14 @@
 package com.kanyandula.discovernearby.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
@@ -29,6 +34,12 @@ val ReferencePanelWidth = 928.dp - MinTouchTarget - RailGap
 
 /** The app's own container, as MainActivity passes it (Robolectric creates the keyless TestDiscoverApplication). */
 fun appContainer() = (RuntimeEnvironment.getApplication() as DiscoverApplication).container
+
+/** A string resource as the app shows it. */
+fun text(@StringRes id: Int): String = RuntimeEnvironment.getApplication().getString(id)
+
+/** A rail tab, found by its label: "Saved", "Map" and "Profile" are also screen titles, which aren't tabs. */
+fun railTab(label: String) = hasText(label) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
 /** Rotary puts Compose in keyboard mode, where a clickable takes focus; touch never focuses one. */
 fun ComposeTestRule.useRotaryInput(inputModes: InputModeManager) {

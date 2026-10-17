@@ -1,18 +1,14 @@
 package com.kanyandula.discovernearby.ui
 
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,17 +21,13 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kanyandula.discovernearby.AppContainer
 import com.kanyandula.discovernearby.R
 import com.kanyandula.discovernearby.ui.components.AppRail
-import com.kanyandula.discovernearby.ui.theme.ContentGap
 import com.kanyandula.discovernearby.ui.theme.HeaderHeight
-import com.kanyandula.discovernearby.ui.theme.HeaderIconSize
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
 import com.kanyandula.discovernearby.ui.theme.PanelPadding
 import com.kanyandula.discovernearby.ui.theme.PanelRadius
@@ -88,20 +80,10 @@ fun DiscoverNearbyApp(container: AppContainer, modifier: Modifier = Modifier) {
     }
 }
 
+/** The app's name, its left edge on the rail's (DN-UX-011); the app's mark is the Discover tab's icon. */
 @Composable
 private fun AppHeader() {
-    Row(
-        modifier = Modifier.height(HeaderHeight),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ContentGap),
-    ) {
-        // The launcher icon's mark (DN-UX-008), in its own colours.
-        Icon(
-            painter = painterResource(R.drawable.ic_compass_pin),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier.size(HeaderIconSize),
-        )
+    Box(modifier = Modifier.height(HeaderHeight), contentAlignment = Alignment.CenterStart) {
         Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge)
     }
 }

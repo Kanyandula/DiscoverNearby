@@ -116,8 +116,12 @@ Navigate               (handoff to navigation app)
 
 Loading, empty, permission and error states are **states of these screens**, not extra screens pushed onto the stack. This keeps the back stack shallow and Back predictable.
 
-The app rail (DN-UX-006) sits left of every screen with two tabs, **Discover** and **Saved**. Saved opens on top of
-Discover; Discover returns to the grid. Neither builds a stack:
+The app rail (DN-UX-006, DN-UX-011) sits left of every screen in its own panel, with labelled tabs **Discover**,
+**Saved** and **Map**, and **Profile** at the bottom under a divider. The selected tab sits on an Action-blue tile with
+an Accent label; Discover's icon is the app's Compass pin. A tab's screen opens on top of Discover and replaces another
+tab's; Discover returns to the grid; none builds a stack. Map and Profile open a "Coming soon" message (their name as
+the header, "Coming soon", one line saying it isn't in this version, Back); the features are left out for now. The app
+header, "Discover Nearby", has no icon and lines up with the rail.
 
 ```text
 Saved                  (list of saved places)
@@ -147,11 +151,12 @@ Navigate
 | Recommendations (loading, content) | List |
 | Place Details (loading, content) | Details pane with Save and Navigate |
 | Saved (loading, content) | List, as Recommendations; reached from the app rail |
+| Map, Profile | "Coming soon" message state; reached from the app rail (DN-UX-011) |
 | Permission Required, errors, empty | Message state (title, body, up to two actions) drawn inside the owning screen |
 | Along Route presets (stretch) | List |
 | Stops Ahead (stretch) | List |
 
-No map is used in the POC. A map does not help prove the hypothesis and adds implementation and licensing complexity.
+No map is used in the POC (the rail's Map tab only opens "Coming soon", DN-UX-011). A map does not help prove the hypothesis and adds implementation and licensing complexity.
 
 ---
 
@@ -543,10 +548,11 @@ With a Compose UI, **the app builds rotary support**. Every actionable element i
 Expected order:
 
 ```text
-Discover:         Coffee → Food → Outdoors → Family → Scenic → Explore → [rail] Discover → Saved
+Discover:         Coffee → Food → Outdoors → Family → Scenic → Explore → [rail] Discover → Saved → Map → Profile
 Recommendations:  Result 1 → Result 2 → Result 3 … → [rail]
 Place Details:    Content → Save → Navigate → [rail]
 Saved:            Saved place 1 → Saved place 2 … → [rail]
+Map, Profile:     Back → Back (message) → [rail]
 ```
 
 The app rail (DN-UX-006) comes after each screen's content, so the first turn still lands on the screen's first item.

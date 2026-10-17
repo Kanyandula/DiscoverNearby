@@ -25,6 +25,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.location.LOCATION_PERMISSIONS
 import com.kanyandula.discovernearby.model.PlaceEnrichment
 import com.kanyandula.discovernearby.model.PlaceSummary
+import com.kanyandula.discovernearby.ui.screens.ComingSoonScreen
 import com.kanyandula.discovernearby.ui.screens.DiscoverScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsViewModel
@@ -45,10 +46,27 @@ data class RecommendationsRoute(val category: DiscoveryCategory)
 @Serializable
 data object SavedRoute
 
-/** The app rail's tabs (DN-UX-006). The car's Music, Phone and Settings stay on its system rail. */
-enum class RailTab(@param:DrawableRes val icon: Int, @param:StringRes val label: Int) {
-    DISCOVER(R.drawable.ic_grid, R.string.tab_discover),
-    SAVED(R.drawable.ic_bookmark_filled, R.string.tab_saved),
+@Serializable
+data object MapRoute
+
+@Serializable
+data object ProfileRoute
+
+/**
+ * The app rail's tabs in rotary order (DN-UX-006, DN-UX-011). The car's Music, Phone and Settings stay on its system
+ * rail. Discover's icon is the app's mark in its own colours; Profile sits at the rail's bottom.
+ */
+enum class RailTab(
+    val route: Any,
+    @param:DrawableRes val icon: Int,
+    @param:StringRes val label: Int,
+    val tinted: Boolean = true,
+    val atBottom: Boolean = false,
+) {
+    DISCOVER(DiscoverRoute, R.drawable.ic_compass_pin, R.string.tab_discover, tinted = false),
+    SAVED(SavedRoute, R.drawable.ic_bookmark, R.string.tab_saved),
+    MAP(MapRoute, R.drawable.ic_map, R.string.tab_map),
+    PROFILE(ProfileRoute, R.drawable.ic_person, R.string.tab_profile, atBottom = true),
 }
 
 // The route carries the place itself, so Details shows the summary at once and keeps it after a failed details
@@ -74,23 +92,29 @@ private val PlaceDetailsTypes = mapOf(
  */
 private fun NavHostController.isTop(entry: NavBackStackEntry) = currentBackStackEntry?.id == entry.id
 
-/** Saved while Saved is on the back stack: on Saved and on a Place Details opened from it (DN-UX-006). */
-internal fun NavHostController.selectedTab(): RailTab = try {
-    getBackStackEntry<SavedRoute>()
-    RailTab.SAVED
+/**
+ * The tab whose screen is on the back stack, else Discover: Saved stays selected on a Place Details opened from it
+ * (DN-UX-006). The tab screens replace each other on Discover, so at most one is on the stack.
+ */
+internal fun NavHostController.selectedTab(): RailTab =
+    RailTab.entries.firstOrNull { it != RailTab.DISCOVER && isOnStack(it.route) } ?: RailTab.DISCOVER
+
+private fun NavHostController.isOnStack(route: Any) = try {
+    getBackStackEntry(route::class)
+    true
 } catch (ignored: IllegalArgumentException) {
-    RailTab.DISCOVER
+    false
 }
 
 /**
- * Discover pops back to the grid; Saved goes back to the Saved screen when it is on the stack (its list, scroll and
- * focus stay), else opens it on Discover. Neither builds a stack (DN-UX-006).
+ * Discover pops back to the grid; another tab goes back to its own screen when it is selected (Saved's list, scroll
+ * and focus stay), else opens its screen on Discover. None builds a stack (DN-UX-006, DN-UX-011).
  */
 internal fun NavHostController.openTab(tab: RailTab) {
-    when {
-        tab == RailTab.DISCOVER -> popBackStack<DiscoverRoute>(inclusive = false)
-        selectedTab() == RailTab.SAVED -> popBackStack<SavedRoute>(inclusive = false)
-        else -> navigate(SavedRoute) { popUpTo<DiscoverRoute>() }
+    if (tab == RailTab.DISCOVER || selectedTab() == tab) {
+        popBackStack(tab.route::class, inclusive = false)
+    } else {
+        navigate(tab.route) { popUpTo<DiscoverRoute>() }
     }
 }
 
@@ -139,10 +163,30 @@ fun DiscoverNavHost(
             )
         }
         composable<SavedRoute> { entry -> SavedDestination(container, navController, entry) }
+        composable<MapRoute> { entry ->
+            ComingSoonDestination(navController, entry, RailTab.MAP, R.string.map_coming_soon_body)
+        }
+        composable<ProfileRoute> { entry ->
+            ComingSoonDestination(navController, entry, RailTab.PROFILE, R.string.profile_coming_soon_body)
+        }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
             PlaceDetailsDestination(container, navController, entry)
         }
     }
+}
+
+@Composable
+private fun ComingSoonDestination(
+    navController: NavHostController,
+    entry: NavBackStackEntry,
+    tab: RailTab,
+    @StringRes body: Int,
+) {
+    ComingSoonScreen(
+        tab = tab,
+        body = body,
+        onBack = { if (navController.isTop(entry)) navController.popBackStack() },
+    )
 }
 
 @Composable

@@ -79,15 +79,18 @@ in place (DN-M0-012, DN-M0-001).
     500 px wide through the image server's resizing; Coil loads them with a memory cache only.
   - **Cost:** 1,000 free calls a month, then charged. Keyless fakes, CI and Robolectric get no enrichment, and
     `--es scenario` fakes get `FakeEnricher`'s made-up data: develop on the fakes, keep live checks few.
-- **Saved places (DN-UX-006, ADR-004):** an app rail (`AppRail`, Discover and Saved) sits left of the panel, composed
-  after it so rotary reaches it after the content; the selected tab follows the back stack (`selectedTab`, `openTab`:
-  Saved single top on Discover). Save ↔ Saved (a bookmark) beside Navigate on Place Details (`toggleSave`, live
+- **Saved places (DN-UX-006, ADR-004):** an app rail (`AppRail`) sits left of the panel, composed after it so rotary
+  reaches it after the content; the selected tab follows the back stack (`selectedTab`, `openTab`: a tab's screen
+  single top on Discover). Save ↔ Saved (a bookmark) beside Navigate on Place Details (`toggleSave`, live
   `isSaved`). The Saved screen lists saved places nearest first (newest first without a location, no distances),
   driving limit applied. Storage: `saved/` (Room through KSP; `SavedPlacesRepository`, summary and enrichment as JSON,
   destructive migration), separate live and fake files, in memory under Robolectric (`TestDiscoverApplication`).
+- **Rail redesign (DN-UX-011):** the rail has its own panel and labelled tabs (Discover, Saved, Map; Profile at the
+  bottom under a divider), the label each tab's name; Map and Profile open `ComingSoonScreen`; the header has no icon
+  and lines up with the rail.
 - **Launcher icon (DN-UX-008):** the Compass pin, an adaptive icon of three vector layers (`drawable/ic_launcher_*`,
-  master `docs/design/app-icon.svg`); no round icon or bitmap mipmaps (minSdk 29). The app header shows the same mark
-  (`ic_compass_pin`).
+  master `docs/design/app-icon.svg`); no round icon or bitmap mipmaps (minSdk 29). The rail's Discover tab shows the
+  same mark (`ic_compass_pin`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is

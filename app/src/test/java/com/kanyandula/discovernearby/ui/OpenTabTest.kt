@@ -1,5 +1,6 @@
 package com.kanyandula.discovernearby.ui
 
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -9,6 +10,7 @@ import com.kanyandula.discovernearby.location.deviceAt
 import com.kanyandula.discovernearby.places.fake.TestLocation
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,5 +53,15 @@ class OpenTabTest {
         }
         open(RailTab.SAVED)
         assertEquals(savedScreen, topId())
+    }
+
+    // DN-UX-011: the tab screens replace each other on Discover, so Back from any of them lands on the grid.
+    @Test
+    fun tabScreensReplaceEachOtherOnDiscover() {
+        open(RailTab.MAP)
+        open(RailTab.PROFILE)
+        open(RailTab.SAVED)
+        rule.runOnIdle { nav.popBackStack() }
+        assertTrue(rule.runOnIdle { nav.currentDestination?.hasRoute<DiscoverRoute>() == true })
     }
 }
