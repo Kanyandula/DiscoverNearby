@@ -851,10 +851,12 @@ With a Compose UI, **the app owns rotary support**. On the Android 13 POC image,
 - reach the app rail (DN-UX-006; four tabs since DN-UX-011, Profile last) after each screen's content: the panel is
   composed before the rail, so the first turn still lands on the screen's first item. Three rules keep it there and
   every list row reachable (found on the emulator): Android's initial focus after a selected item leaves (a downward
-  search from the top) is handed from the rail to the screen panel; a focused list row also brings the top of the
-  next row into view, since the rotary service moves only to rows on screen; and each list is marked as a rotary
-  scroll container (car-ui's content description), so at the list's visible edge the service sends a rotary scroll
-  instead of leaving the list, which the app turns into a move to the next or previous row (DN-UX-009, DN-UX-010)
+  search from the top) is handed from the rail to the screen panel; a focused list row also brings the edges of the
+  rows above and below it into view, since the rotary service moves only to rows on screen; and each list is marked
+  as a rotary scroll container (car-ui's content description), so at the list's visible edge the service sends a
+  rotary scroll instead of leaving the list, and the focused row brings its neighbours into view again. Only the
+  rotary service moves focus: Compose doesn't report an app-made move to a row that was off screen, and the service
+  would turn on from the row it knew (DN-UX-009, DN-UX-010)
 - **verify** with the emulator rotary control that focus order is sensible, focus is visible, Back restores a sensible target, nothing is unreachable, and there are no traps
 
 How well AAOS rotary drives Compose focus on the reference image is **V7** (delivery plan §9). V7 covers the full Discover → Recommendations → Place Details → Navigate → Back journey, not only the Discover grid. Its gate and current status are in docs/05 §9 and ADR-002: controller rotation on Android 13 (nudging is not a POC requirement). It failed its clean re-test after one bounded Compose fix (2026-10-06); ADR-002 keeps Compose with a product waiver for this iteration.

@@ -23,6 +23,15 @@ Compose ignores that event, because it reads only `AXIS_SCROLL`. The service's o
 
 Root cause and the platform source are in "Evidence" below.
 
+> **Revised in Task 4 (2026-10-17).** The hand-driven re-run found that the app's Tab or Shift+Tab move fails with the
+> real service. Compose sends a focus event only for nodes already in its previous accessibility snapshot, so the
+> service never learns of a move to a row that was off screen. Turning up, the next click re-focused the same row; on a
+> fast spin, focus ran out of the list and round the rail. The second part is replaced: the app never moves rotary
+> focus. A focused row brings the edges of the rows above and below it into view (`revealNeighbours`, which replaces
+> `revealNextOnFocus`), and does so again on the service's scroll, which Compose hands to the focused row.
+> `moveFocusForRotaryScroll` and MainActivity's override are gone. Tasks 1–3 below describe the first design; commit
+> `303da1d`, the ledger and the M4 record have the change.
+
 **Tech Stack:** Kotlin, Jetpack Compose (BOM 2026.09.00, ui 1.12.1), Robolectric 4.17, Compose UI test; AAOS
 `AAOS_AOSP_33_userdebug` emulator (`cmd car_service inject-rotary`).
 

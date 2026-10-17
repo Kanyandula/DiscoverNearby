@@ -398,8 +398,11 @@ the Product Lead on 2026-10-06, after the re-test.
 
 **Rotary list reach (Product Lead, 2026-10-17):** fix DN-UX-009 and DN-UX-010, M4's F failures (a rotary change,
 so a new decision under "Any further rotary change is a new decision").
-- The lists are marked as rotary scroll containers; at a list's visible edge the rotary service sends a rotary
-  scroll instead of leaving the list, and the app turns it into a move to the next or previous row (docs/03 §17).
+- A focused list row shows the edges of the rows above and below it, and the lists are marked as rotary scroll
+  containers. At a list's visible edge the rotary service sends a rotary scroll instead of leaving the list, and the
+  focused row brings the rows beside it into view. The service makes every move (docs/03 §17).
+- A first fix, in which the app moved focus on that scroll, failed the hand-driven re-run and was replaced the same
+  day (the M4 record has both).
 - The V7 gate, the waiver and `ReturnFocus` are unchanged. F's re-run is recorded in
   `docs/validation/2026-10-17-m4-emulator.md`.
 
