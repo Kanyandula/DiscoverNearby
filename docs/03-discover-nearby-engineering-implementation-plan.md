@@ -496,6 +496,7 @@ data class PlaceSummary(
     val isOpenNow: Boolean?,              // null = unknown
     val travelTimeMinutes: Int?,          // only if provider supplies it
     val attribution: String? = null,      // copyright holder for the notice, e.g. "HERE"
+    @Transient val phones: Set<String> = emptySet(), // DN-M2-004: tells a place listed twice; never shown or stored
 )
 
 data class PlaceDetails(
@@ -601,6 +602,17 @@ Product Lead decisions (2026-10-07):
   (amusement park, aquarium, water park, children's museum). An amusement park weighs 20, since HERE files
   non-family businesses under it; the others weigh 30. The open-now bonus is 2, so it breaks near-ties without
   outweighing a few kilometres.
+- **DN-M2-004 (Product Lead, 2026-10-11):**
+  - **One place listed twice:** two records within 150 m that share a phone number, and stand within 10 m of each
+    other or where one name contains the other, are one place (`isSamePlaceAs`). The best-ranked stays and uses one
+    slot of its kind's cap. Records with no phone are never merged. A shared phone alone isn't enough, since
+    neighbouring businesses with one owner share a number.
+  - **Family's amusement rule:** a place filed first as an amusement park is dropped when it also carries a food,
+    finance or community code, or when its name has the word escape, salon, band or community (`KindExclusion`).
+    Finance and community are mapped from HERE only for this rule: they score nothing and are never a place's
+    primary kind.
+    HERE files salons, escape rooms, a takeaway and a brass band under Amusement Park, and no code tells them from a
+    fun park.
 - **With HERE (ADR-001):** `/browse` has no rating or amenities, so `qualitySignal` and `amenitySignal` are 0 and a
   HERE place scores on category match, nearness and open now. Only the fakes exercise those weights.
 

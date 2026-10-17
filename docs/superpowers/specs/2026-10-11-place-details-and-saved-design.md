@@ -97,7 +97,8 @@ Phone and Settings rail items (the car's); removing a place from the Saved list 
 **Save on Place Details**
 - **Save** (outline heart) ↔ **Saved** (filled heart); a tap toggles; the state follows the database.
 - Saves the place as Details knows it (the refreshed HERE summary once loaded), the category and the enrichment.
-- Works while driving (one tap). Focus order Save → Navigate; initial focus on Navigate.
+- Works while driving (one tap). Focus order Save → Navigate; initial focus on the screen's first item, Back (Product
+  Lead, 2026-10-11).
 
 **Saved screen**
 - Rows reuse `RecommendationRow`: photo or artwork, name, distance from the car now, kind, Tripadvisor chip.

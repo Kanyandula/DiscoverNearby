@@ -40,6 +40,39 @@ class HereMapperTest {
         assertEquals("HERE", place.attribution) // DN-M1-003: HERE's notice goes with its data (ADR-001 V6a)
     }
 
+    // DN-M2-004: phone numbers tell one place listed twice; spaces and dashes go, a leading + stays.
+    @Test
+    fun phonesAreReadWithoutSpacing() {
+        val place = checkNotNull(item(FULL_ITEM).toSummary())
+        assertEquals(setOf("+35310000000"), place.phones)
+        val base = """{"title": "T", "id": "i", "position": {"lat": 1.0, "lng": 2.0}, "contacts": """
+        assertEquals(
+            setOf("+3531111", "0912222"),
+            item(base + """[{"phone": [{"value": "+353 1-111"}]}, {"phone": [{"value": "091 2222"}]}]}""")
+                .toSummary()?.phones,
+        )
+        assertTrue(checkNotNull(item(base + "[]}").toSummary()).phones.isEmpty())
+        val junk = """[{"phone": [{"value": "+"}, {"value": "09+1 2222"}, {"value": " "}]}]}"""
+        assertEquals(setOf("0912222"), item(base + junk).toSummary()?.phones)
+    }
+
+    // DN-M2-004: the kinds that only rule a place out are never its primary kind, so a bookmaker filed second as an
+    // amusement park still shares the amusement cap, as before they were mapped.
+    @Test
+    fun aRuleOutKindIsNeverThePrimaryKind() {
+        val bookmaker = item(
+            """{"title": "T", "id": "i", "position": {"lat": 1.0, "lng": 2.0}, "categories": [
+                {"id": "700-7200-0271", "primary": true}, {"id": "550-5520-0207"}]}""",
+        ).toSummary()
+        assertEquals(setOf("finance", "amusement_park"), bookmaker?.placeKinds)
+        assertNull(bookmaker?.primaryKind)
+        val unflagged = item(
+            """{"title": "T", "id": "i", "position": {"lat": 1.0, "lng": 2.0}, "categories": [
+                {"id": "900-9200-0299"}, {"id": "550-5520-0207"}]}""",
+        ).toSummary()
+        assertEquals("amusement_park", unflagged?.primaryKind)
+    }
+
     // ADR-001 Field availability: /browse has no rating, parking, toilets or travel time. Unknown stays unknown.
     @Test
     fun fieldsHereLacksStayUnknown() {

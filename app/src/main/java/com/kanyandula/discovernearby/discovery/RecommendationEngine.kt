@@ -11,8 +11,9 @@ interface RecommendationEngine {
 
 /**
  * docs/03 §10 scoring, every weight from [CategoryConfigs]: category match + nearness + rating + amenities + open
- * now. Time-sensitive categories drop known-closed places; unknown data adds nothing; a category match below
- * [SCORE_FLOOR] is dropped; at most [CategoryConfig.maxPerKind] results share a kind. Ties: nearer, then id.
+ * now. Time-sensitive categories drop known-closed places, and a category's exclusion rules places out; unknown data
+ * adds nothing; a category match below [SCORE_FLOOR] is dropped; one place listed twice counts once (`isSamePlaceAs`);
+ * at most [CategoryConfig.maxPerKind] results share a kind. Ties: nearer, then id.
  */
 class BasicRecommendationEngine : RecommendationEngine {
 
@@ -22,13 +23,19 @@ class BasicRecommendationEngine : RecommendationEngine {
         val keptPerKind = mutableMapOf<String, Int>()
         return places
             .filterNot { config.excludeClosed && it.isOpenNow == false }
+            .filterNot { config.exclusion?.excludes(it) == true }
             .mapNotNull { score(it, context, config) }
             .sortedWith(
                 compareByDescending<Scored> { it.recommendation.score }
                     .thenBy { it.recommendation.distanceMeters }
                     .thenBy { it.recommendation.place.id },
             )
-            .distinctBy { it.recommendation.place.id } // the list keys rows by id; a repeated place would crash it
+            // In ranked order, so the best record of a place stays: a repeated ID would crash the list, and a place
+            // HERE lists twice would show twice and use two of its kind's slots (DN-M2-004).
+            .fold(mutableListOf<Scored>()) { kept, scored ->
+                if (kept.none { it.recommendation.place.isSamePlaceAs(scored.recommendation.place) }) kept += scored
+                kept
+            }
             .filter { scored ->
                 // Light diversity, in ranked order, so the strongest of each kind stay.
                 val kept = keptPerKind.getOrDefault(scored.kind, 0)

@@ -18,8 +18,9 @@ internal val HERE_CATEGORIES: Map<DiscoveryCategory, String> = mapOf(
     EXPLORE to "300-3000-0023,300-3000,300-3100",
 )
 
-// A HERE category, or its parent, → the normalised kind CategoryConfigs targets. The category's own entry wins: a
-// Coffee Shop (100-1100-0010) is "coffee_shop", any other Coffee-Tea place (100-1100-…) "cafe".
+// A HERE category, or its parent, → the normalised kind CategoryConfigs targets; a few more mark what rules a place out
+// (DN-M2-004). The category's own entry wins: a Coffee Shop (100-1100-0010) is "coffee_shop", any other Coffee-Tea
+// place (100-1100-…) "cafe".
 private val KINDS = mapOf(
     "100-1100-0010" to "coffee_shop",
     "100-1100" to "cafe",
@@ -37,8 +38,17 @@ private val KINDS = mapOf(
     "300-3000-0023" to "tourist_attraction",
     "300-3000" to "landmark",
     "300-3100" to "museum",
+    // DN-M2-004: they score in no category; Family's amusement rule reads them.
+    "700-7200-0271" to "finance",
+    "900-9200" to "community",
 )
 
-/** The domain kind for a HERE category ID (its own, else its parent's); null when no category we search covers it. */
+/**
+ * The kinds that only rule a place out (DN-M2-004). Never a place's primary kind, so a place filed first under one
+ * still shares the cap of the kind it matched, as before they were mapped.
+ */
+internal val RULE_OUT_KINDS = setOf("finance", "community")
+
+/** The domain kind for a HERE category ID (its own, else its parent's); null when no mapped category covers it. */
 internal fun kindFor(hereCategoryId: String): String? =
     KINDS[hereCategoryId] ?: KINDS[hereCategoryId.substringBeforeLast("-")]

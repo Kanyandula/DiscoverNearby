@@ -31,6 +31,9 @@ class HereCategoriesTest {
         assertEquals("water_park", kindFor("550-5520-0357"))
         assertEquals("childrens_museum", kindFor("300-3100-0027"))
         assertEquals("museum", kindFor("300-3100-0000"))
+        // DN-M2-004: codes that rule an amusement park out of Family; they score in no category.
+        assertEquals("finance", kindFor("700-7200-0271"))
+        assertEquals("community", kindFor("900-9200-0299"))
     }
 
     @Test
