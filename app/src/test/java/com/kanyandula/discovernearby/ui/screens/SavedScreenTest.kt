@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -13,6 +15,7 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.saved.SavedPlace
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
+import com.kanyandula.discovernearby.ui.ROTARY_VERTICALLY_SCROLLABLE
 import com.kanyandula.discovernearby.ui.hereNotice
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import org.junit.Assert.assertEquals
@@ -69,5 +72,12 @@ class SavedScreenTest {
     fun hereRowsCarryHeresNotice() {
         state = SavedUiState.Content(listOf(SavedRow(cafe, 2_100)))
         rule.onNodeWithText(hereNotice()).assertIsDisplayed()
+    }
+
+    // DN-UX-009, DN-UX-010: Saved's list is marked for the rotary service, as Recommendations' is.
+    @Test
+    fun savedRowsSitInAListMarkedForTheRotaryService() {
+        state = SavedUiState.Content(listOf(SavedRow(cafe, 2_100), SavedRow(park, null)))
+        rule.onNode(hasScrollAction() and hasContentDescription(ROTARY_VERTICALLY_SCROLLABLE)).assertExists()
     }
 }

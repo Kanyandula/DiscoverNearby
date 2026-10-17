@@ -15,6 +15,7 @@ import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.rememberReturnFocus
+import com.kanyandula.discovernearby.ui.rotaryScrollable
 import com.kanyandula.discovernearby.ui.theme.Highlight
 import com.kanyandula.discovernearby.ui.theme.RowGap
 
@@ -41,7 +42,10 @@ fun SavedScreen(
             SavedUiState.ParkToSee ->
                 MessageState(ParkToSeeMessage, backLabel = R.string.back, onBack = onBack, modifier = body)
             is SavedUiState.Content -> Column(modifier = body, verticalArrangement = Arrangement.spacedBy(RowGap)) {
-                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowGap)) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).rotaryScrollable(),
+                    verticalArrangement = Arrangement.spacedBy(RowGap),
+                ) {
                     items(state.rows, key = { it.place.summary.id }) { row ->
                         val id = row.place.summary.id
                         RecommendationRow(

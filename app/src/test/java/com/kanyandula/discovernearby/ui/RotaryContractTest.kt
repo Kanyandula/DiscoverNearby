@@ -3,6 +3,7 @@ package com.kanyandula.discovernearby.ui
 import android.view.View
 import android.view.ViewGroup
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -20,5 +21,12 @@ class RotaryContractTest {
         val root = activity.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
         assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_YES, root.importantForAccessibility)
         assertEquals("androidx.compose.ui.platform.ComposeView", root.accessibilityClassName.toString())
+    }
+
+    // DN-UX-009, DN-UX-010: MainActivity takes the rotary service's list scroll (moveFocusForRotaryScroll).
+    @Test
+    fun mainActivityTakesTheRotaryServicesListScroll() {
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
+        assertTrue(activity.dispatchGenericMotionEvent(rotaryScroll(-1f)))
     }
 }

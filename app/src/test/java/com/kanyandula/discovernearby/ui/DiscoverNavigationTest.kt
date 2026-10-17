@@ -8,6 +8,7 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -229,6 +231,7 @@ class DiscoverNavigationTest {
     private companion object {
         const val SETTLE_MS = 2_000L
         const val DB_TIMEOUT_MS = 5_000L
+        const val OUTDOORS_ROWS = 4 // the Outdoors fakes (FakePlaces)
 
         // Well inside NavHost's 700 ms default fade: the new screen is drawn but not yet RESUMED.
         const val MID_FADE_MS = 100L
@@ -368,5 +371,35 @@ class DiscoverNavigationTest {
         rotarySelect(rule.onNodeWithText("Coffee"))
         rule.onNodeWithContentDescription("Back").assertIsFocused()
         tab("Discover").assertIsNotFocused()
+    }
+
+    // DN-UX-009, DN-UX-010: the rotary service's list scroll moves through every row, off screen ones included, then
+    // out of the list: to the rail going down, to Back going up. Never trapped.
+    @Test
+    fun rotaryListScrollsReachEveryRowAndLeaveTheList() {
+        rotarySelect(rule.onNodeWithText("Outdoors"))
+        fun focused() = rule.onNode(isFocused()).fetchSemanticsNode().config[SemanticsProperties.Text].first().text
+        fun scroll(detents: Float) {
+            rule.runOnUiThread { rule.activity.moveFocusForRotaryScroll(rotaryScroll(detents)) }
+            rule.waitForIdle()
+        }
+        rule.runOnIdle { focusManager.moveFocus(FocusDirection.Next) } // the service's turn from Back to row 1
+        val down = mutableListOf(focused())
+        repeat(OUTDOORS_ROWS - 1) {
+            scroll(-1f)
+            down += focused()
+        }
+        assertEquals(OUTDOORS_ROWS, down.distinct().size)
+        assertTrue(down.all { it.endsWith(", Greystones") })
+        scroll(-1f)
+        tab("Discover").assertIsFocused()
+        val up = mutableListOf<String>()
+        repeat(OUTDOORS_ROWS) {
+            scroll(1f)
+            up += focused()
+        }
+        assertEquals(down.reversed(), up)
+        scroll(1f)
+        rule.onNodeWithContentDescription("Back").assertIsFocused()
     }
 }

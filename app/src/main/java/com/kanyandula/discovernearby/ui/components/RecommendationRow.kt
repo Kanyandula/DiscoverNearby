@@ -167,8 +167,8 @@ internal fun SupportingLine(text: AnnotatedString) {
 
 /**
  * Rotary (DN-UX-006): a focused row also brings the top of the next row into view. The rotary service moves only to
- * rows on screen, and the app rail follows the list, so without that glimpse a turn from the last visible row would
- * jump to the rail instead of scrolling on (found on the emulator).
+ * rows on screen, so the next turn finds the next row there; a turn quicker than this scroll reaches the list's edge,
+ * where the list's rotary scroll takes over (rotaryScrollable, DN-UX-010).
  */
 private fun Modifier.revealNextOnFocus(): Modifier = composed {
     val requester = remember { BringIntoViewRequester() }

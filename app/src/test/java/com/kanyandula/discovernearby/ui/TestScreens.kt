@@ -1,5 +1,7 @@
 package com.kanyandula.discovernearby.ui
 
+import android.view.InputDevice
+import android.view.MotionEvent
 import androidx.annotation.StringRes
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -55,3 +57,19 @@ fun ComposeTestRule.rotarySelect(node: SemanticsNodeInteraction, inputModes: Inp
 
 /** HERE's copyright notice as the screens draw it this year (ADR-001 V6a). */
 fun hereNotice() = "© ${Year.now().value} HERE"
+
+/**
+ * A rotary scroll as Android 13's rotary service sends one to a list it can't leave (RotaryService.injectScrollEvent):
+ * ACTION_SCROLL from the rotary encoder, AXIS_VSCROLL −detents clockwise.
+ */
+fun rotaryScroll(
+    detents: Float,
+    source: Int = InputDevice.SOURCE_ROTARY_ENCODER,
+    axis: Int = MotionEvent.AXIS_VSCROLL,
+): MotionEvent {
+    val properties = MotionEvent.PointerProperties().apply { id = 0 }
+    val coords = MotionEvent.PointerCoords().apply { setAxisValue(axis, detents) }
+    return MotionEvent.obtain(
+        0L, 0L, MotionEvent.ACTION_SCROLL, 1, arrayOf(properties), arrayOf(coords), 0, 0, 1f, 1f, 0, 0, source, 0,
+    )
+}
