@@ -338,7 +338,9 @@ orders.
 The hand-driven journey (Extended Controls → Car rotary, no touch) is recorded here, separately from the
 adb-driven runs above.
 
-- **Status:** pending; the user runs it.
+- **Status:** run 2026-10-17 in DN-M4-001: `docs/validation/2026-10-17-m4-emulator.md` (Rotary journey). The
+  journey completes with rotary only, parked and in Drive, and Back to Discover kept its turn. It found two list
+  defects: rows above the screen can't be reached by turning up (D1), and fast turns skip rows going down (D2).
 - **Its role:** supplementary evidence. It doesn't replace or overwrite the adb-driven results above (Product,
   2026-10-06).
 
