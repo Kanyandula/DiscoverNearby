@@ -5,7 +5,6 @@ import androidx.compose.ui.unit.dp
 // Canvas artboard sizes (1408 × 792 frame), taken 1:1 as dp. Text sizes live in Type.kt.
 val MinTouchTarget = 76.dp // docs/02 §15
 val HeaderHeight = 56.dp
-val HeaderIconSize = 22.dp
 val ContentGap = 12.dp
 val PanelRadius = 24.dp
 val PanelPadding = 24.dp
@@ -55,9 +54,16 @@ val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
 val InfoIconGap = 12.dp
 
-// The app rail (DN-UX-006): Discover and Saved, 76 dp targets, left of the panel.
+// The app rail (DN-UX-006, DN-UX-011): a 76 dp column left of the panel, in its own panel; each tab a 76 × 96 dp
+// target, an icon on a 64 × 60 dp tile with its label under it.
 val RailGap = 16.dp
 val RailIconSize = 32.dp
+val RailPadding = 8.dp
+val RailTabGap = 4.dp
+val RailTabHeight = 96.dp
+val RailTileWidth = 64.dp
+val RailTileHeight = 60.dp
+val RailLabelGap = 6.dp
 val NextRowPeek = 40.dp // a focused list row also shows this much below it: the gap and the next row's top
 
 // Rotary focus ring (DN-M0-011): a 4.dp outline in Accent, or light (OnSurface) on Action-blue fills. docs/02 §16
