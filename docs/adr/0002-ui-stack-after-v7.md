@@ -396,6 +396,13 @@ the Product Lead on 2026-10-06, after the re-test.
   overwrite the automated results.
 - **M0 exits under the waiver.** DN-UX-001 is unblocked.
 
+**Rotary list reach (Product Lead, 2026-10-17):** fix DN-UX-009 and DN-UX-010, M4's F failures (a rotary change,
+so a new decision under "Any further rotary change is a new decision").
+- The lists are marked as rotary scroll containers; at a list's visible edge the rotary service sends a rotary
+  scroll instead of leaving the list, and the app turns it into a move to the next or previous row (docs/03 §17).
+- The V7 gate, the waiver and `ReturnFocus` are unchanged. F's re-run is recorded in
+  `docs/validation/2026-10-17-m4-emulator.md`.
+
 **Prior decision (before the re-test; history): B, keep Compose for the emulator POC this iteration.** The Product
 Lead decided this on 2026-10-06. V7 then failed its clean re-test, and the choice returned to Product (decided
 above).

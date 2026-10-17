@@ -107,7 +107,7 @@ in place (DN-M0-012, DN-M0-001).
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
 - **M4 validation (DN-M4-001):** `docs/validation/2026-10-17-m4-emulator.md`; A–T on the emulator, F fails on rotary
   list reach: rows above the screen can't be reached turning up (DN-UX-009), fast turns skip rows going down
-  (DN-UX-010). Both wait for a Product decision (ADR-002).
+  (DN-UX-010). Both fixed (Product Lead, 2026-10-17): lists are rotary scroll containers (`ui/RotaryScroll.kt`).
 
 Next: Product ranks DN-UX-009/010 and chooses fix-and-re-run F or a revision in ADR-002; then DN-M4-002.
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
@@ -161,9 +161,11 @@ Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
   UX spec §16, initial focus on first item. Rotary focus after Back goes through `ReturnFocus` only. Its
   Discover restore was not always reported to the rotary service in the re-test (waived for this iteration, ADR-002);
   don't change it without a new Product decision. Where focus lands after Back is recorded, not gated.
-- The app rail comes after each screen's content in rotary order (DN-UX-006, docs/03 §17). Keep its two rules: the rail
-  hands a downward entry (Android's initial focus) to the screen panel, and a focused list row shows the next row's top
-  (`revealNextOnFocus`), or the rotary service jumps to the rail instead of scrolling.
+- The app rail comes after each screen's content in rotary order (DN-UX-006, docs/03 §17). Keep its three rules: the
+  rail hands a downward entry (Android's initial focus) to the screen panel; a focused list row shows the next row's
+  top (`revealNextOnFocus`); and each list is a rotary scroll container (`rotaryScrollable`), whose rotary scroll
+  MainActivity turns into the next or previous row (`moveFocusForRotaryScroll`, DN-UX-009/010), or rotary skips rows
+  off screen.
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).
