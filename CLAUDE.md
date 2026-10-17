@@ -103,7 +103,7 @@ in place (DN-M0-012, DN-M0-001).
   list reach: rows above the screen can't be reached turning up (DN-UX-009), fast turns skip rows going down
   (DN-UX-010). Both wait for a Product decision (ADR-002).
 
-Next: Product ranks DN-UX-009/010; then the demo and GO decision (DN-M4-002).
+Next: Product ranks DN-UX-009/010 and chooses fix-and-re-run F or a revision in ADR-002; then DN-M4-002.
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
