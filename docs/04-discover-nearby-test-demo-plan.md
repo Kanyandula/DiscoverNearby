@@ -399,10 +399,10 @@ Performance is a **POC target, not a release gate**. Record measured values; don
 
 | Measure | Target | Measured |
 | --- | --- | --- |
-| Launch → Discover visible | Appears quickly | |
-| Category → recommendations | Normally within a few seconds | |
-| Open place → details | Normally within a few seconds | |
-| Provider timeout | Exists; ends loading (~8 s configured) | |
+| Launch → Discover visible | Appears quickly | 1.2–1.7 s cold (`am start -W`, M4 2026-10-17) |
+| Category → recommendations | Normally within a few seconds | 3–8 s for the first category after a cold start (location fix included); under 6 s after |
+| Open place → details | Normally within a few seconds | Under 4 s, the car-park check included |
+| Provider timeout | Exists; ends loading (~8 s configured) | Ends 8.7–13.0 s after the tap (4 runs): the location fix (up to 8 s) comes before the 8 s provider timeout |
 
 The hard requirements are:
 

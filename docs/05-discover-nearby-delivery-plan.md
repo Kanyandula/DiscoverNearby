@@ -354,7 +354,7 @@ M3 is provider-independent. M4 validates the complete core flow after the provid
 
 ## 9. Verification Register
 
-**Current milestone gates (2026-10-17):** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. M1 and M3 are done. M2 has exited on DN-M2-004's re-run (Product Lead, 2026-10-17): of the 18 benchmark cells, 1 fails, Galway Scenic, a known HERE position error (benchmark records in `docs/benchmarks/`). M4 is next. V4: HERE provisionally selected; production licensing parked (ADR-001). V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
+**Current milestone gates (2026-10-17):** M0 has exited under ADR-002's product waiver: V7 failed its clean re-test after the one bounded fix (2026-10-06) and stays recorded as failed. M1 and M3 are done. M2 has exited on DN-M2-004's re-run (Product Lead, 2026-10-17): of the 18 benchmark cells, 1 fails, Galway Scenic, a known HERE position error (benchmark records in `docs/benchmarks/`). M4's validation run (DN-M4-001, 2026-10-17, `docs/validation/2026-10-17-m4-emulator.md`) found two rotary list-reach defects (DN-UX-009, DN-UX-010) for Product to rank; the demo and GO decision (DN-M4-002) follow. V4: HERE provisionally selected; production licensing parked (ADR-001). V6a–c are provider facts captured while making ADR-001. V8 is a confirmed distribution constraint, but the production route remains open and does not block this POC; Product must settle it before production planning.
 
 Status key: 🔴 open · 🟡 captured by ADR-001 · 🟢 closed / resolved.
 
