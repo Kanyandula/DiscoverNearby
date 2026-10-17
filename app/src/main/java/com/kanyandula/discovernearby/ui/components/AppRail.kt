@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ private fun RailItem(tab: RailTab, selected: Boolean, onClick: () -> Unit) {
                 painter = painterResource(tab.icon),
                 contentDescription = stringResource(tab.label),
                 modifier = Modifier.size(RailIconSize),
+                tint = if (tab.tinted) LocalContentColor.current else Color.Unspecified,
             )
         }
     }

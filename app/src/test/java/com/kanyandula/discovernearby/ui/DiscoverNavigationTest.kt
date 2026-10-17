@@ -282,6 +282,29 @@ class DiscoverNavigationTest {
         assertTrue(rule.activity.isFinishing) // nothing was stacked under the grid
     }
 
+    // DN-UX-011: Map and Profile open "Coming soon" on Discover; the tab is selected and Back returns to Discover.
+    @Test
+    fun mapOpensComingSoonAndBackReturns() {
+        tab("Map").performClick()
+        rule.onNodeWithText("Coming soon").assertIsDisplayed()
+        rule.onNodeWithText("The map isn't part of this version yet.").assertIsDisplayed()
+        tab("Map").assertIsSelected()
+        tab("Discover").assertIsNotSelected()
+        systemBack()
+        onDiscover()
+        tab("Discover").assertIsSelected()
+    }
+
+    @Test
+    fun profileComingSoonBackButtonReturnsToDiscover() {
+        tab("Profile").performClick()
+        rule.onNodeWithText("Profiles aren't part of this version yet.").assertIsDisplayed()
+        tab("Profile").assertIsSelected()
+        rule.onNodeWithText("Back").performClick()
+        onDiscover()
+        tab("Discover").assertIsSelected()
+    }
+
     @Test
     fun savedTappedTwiceStacksOneScreen() {
         tab("Saved").performClick()
@@ -322,6 +345,10 @@ class DiscoverNavigationTest {
         tab("Discover").assertIsFocused()
         turn()
         tab("Saved").assertIsFocused()
+        turn()
+        tab("Map").assertIsFocused()
+        turn()
+        tab("Profile").assertIsFocused() // DN-UX-011: Profile last, under the divider
     }
 
     // DN-UX-006, found on the emulator: when the selected tile leaves, Android gives the window initial focus (a
