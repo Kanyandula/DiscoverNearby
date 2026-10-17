@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon layer: shape only, since the system tints it; the disc and the pivot are evenOdd holes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.08"
+        android:scaleY="1.08">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M52.74,80.814L36.784,56.129A20.5,20.5 0,1 1,71.216 56.129L55.26,80.814A1.5,1.5 0,0 1,52.74 80.814Z M40.5,45a13.5,13.5 0,1 0,27 0a13.5,13.5 0,1 0,-27 0Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M62.13,36.87L57.25,48.25L45.87,53.13L50.75,41.75Z M51.8,45a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0Z" />
+    </group>
+</vector>
