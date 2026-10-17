@@ -105,8 +105,11 @@ in place (DN-M0-012, DN-M0-001).
   re-run (`docs/benchmarks/2026-10-17-m2-rerun.md`, 8 cells) has no failure; M2 exited (Product Lead, 2026-10-17).
 - **Car App Library rotary probe (DN-SP-002):** removed in DN-M0-015 once ADR-002 kept Compose; its evidence is in
   `docs/adr/0002/`, its source in the DN-SP-002 plan and git history.
+- **M4 validation (DN-M4-001):** `docs/validation/2026-10-17-m4-emulator.md`; A–T on the emulator, F fails on rotary
+  list reach: rows above the screen can't be reached turning up (DN-UX-009), fast turns skip rows going down
+  (DN-UX-010). Both wait for a Product decision (ADR-002).
 
-Next: M4, automotive validation (DN-M4-001).
+Next: Product ranks DN-UX-009/010 and chooses fix-and-re-run F or a revision in ADR-002; then DN-M4-002.
 Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 
 ## Stack (Revision 4)
