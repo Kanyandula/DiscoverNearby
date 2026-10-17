@@ -8,10 +8,13 @@ PNG exports of the design canvas "Discover Nearby — AAOS POC Screens", exporte
 
 **Place Details follows artboard 3c (DN-UX-007):** the canvas's artboard 3c (the Product Lead, 2026-10-11, drawn at the emulator's 1024 × 768) rearranges the concept, `03b-place-details-concept.png` (DN-UX-005), which replaced `03-place-details.png`. Back and the place name head the page, as on the other screens; the photo sits under Back, with the facts and the description beside it; the tiles sit below the photo. The app keeps an in-app Back (the AOSP car bar has none), the distance (on the kind line), the photo credit and the HERE notice. Its tiles show only what a source has: the place's own amenities (none from HERE) and "Car park nearby", whose parking icon is a white P on an Action-blue badge (5.2:1; Google asks 4.5:1 of icons); Wi-Fi, outdoor seating and family friendly have no source (DN-SP-005). The ★ rating is Tripadvisor's own graphic (ADR-003). The rail on the left of the 1408 × 792 mockups is the car's system UI (`00-overview.png`). The app's own rail (DN-UX-006) sits left of the panel under the header: Discover (grid) and Saved (bookmark), icons only, the selected tab on Raised grey. Save (outline bookmark) ↔ Saved (filled bookmark) sits left of Navigate on Raised grey. `03c-place-details-header.png` is not a canvas export: it is the app on the reference emulator (fakes, parked) after DN-UX-007, the Product Lead's choice in place of an export.
 
+**Launcher icon (DN-UX-008):** the Compass pin (the Product Lead, 2026-10-17, from the canvas's "App icon" artboards): a white pin with a dark-blue disc and a diagonal compass needle, coral north and white south, on Action blue. `app-icon.svg` is the master on the 108 × 108 dp adaptive-icon canvas; the app builds it from three vector layers (background, foreground, monochrome for themed icons), the mark inside the 66 dp safe zone and 62 dp tall. It replaces the app icon in `00-icons.png`, the earlier pin with an amber needle on navy.
+
 | File | Screen | Layout pattern (Rev 3 template name) |
 | --- | --- | --- |
 | `00-overview.png` | App flow overview: system UI vs app vs outside, states per screen, Navigate hand-off | — |
-| `00-icons.png` | Icon set with suggested resource names | — |
+| `00-icons.png` | Icon set with suggested resource names (its app icon is superseded by `app-icon.svg`) | — |
+| `app-icon.svg` | Launcher icon, the Compass pin: the master for the adaptive icon's layers (DN-UX-008) | — |
 | `01-discover.png` | Discover | GridTemplate |
 | `02-recommendations.png` | Recommendations | ListTemplate |
 | `03-place-details.png` | Place Details | PaneTemplate |
