@@ -23,8 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -52,16 +50,18 @@ import com.kanyandula.discovernearby.ui.theme.RowRadius
  */
 @Composable
 fun AppRail(selected: RailTab, onSelect: (RailTab) -> Unit, modifier: Modifier = Modifier) {
-    val (bottom, top) = RailTab.entries.partition { it.atBottom }
     Surface(modifier = modifier.width(MinTouchTarget).fillMaxHeight(), shape = RoundedCornerShape(PanelRadius)) {
         Column(
             modifier = Modifier.padding(vertical = RailPadding),
             verticalArrangement = Arrangement.spacedBy(RailTabGap),
         ) {
-            top.forEach { tab -> RailItem(tab, selected = tab == selected, onClick = { onSelect(tab) }) }
-            Spacer(modifier = Modifier.weight(1f))
-            HorizontalDivider(modifier = Modifier.padding(horizontal = ContentGap), color = Raised)
-            bottom.forEach { tab -> RailItem(tab, selected = tab == selected, onClick = { onSelect(tab) }) }
+            RailTab.entries.forEach { tab ->
+                if (tab.atBottom) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = ContentGap), color = Raised)
+                }
+                RailItem(tab, selected = tab == selected, onClick = { onSelect(tab) })
+            }
         }
     }
 }
@@ -69,7 +69,6 @@ fun AppRail(selected: RailTab, onSelect: (RailTab) -> Unit, modifier: Modifier =
 @Composable
 private fun RailItem(tab: RailTab, selected: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(RowRadius)
-    val name = stringResource(tab.label)
     Surface(
         selected = selected,
         onClick = onClick,
@@ -78,9 +77,9 @@ private fun RailItem(tab: RailTab, selected: Boolean, onClick: () -> Unit) {
         color = Color.Transparent,
         contentColor = if (selected) Color.White else OnSurfaceVariant,
     ) {
-        // The label is the tab's name, read once: the visible label adds nothing to it.
+        // The label is the tab's name (the tab merges it); the icon is decorative.
         Column(
-            modifier = Modifier.padding(top = RailLabelGap).clearAndSetSemantics { contentDescription = name },
+            modifier = Modifier.padding(top = RailLabelGap),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(RailLabelGap),
         ) {
@@ -98,7 +97,7 @@ private fun RailItem(tab: RailTab, selected: Boolean, onClick: () -> Unit) {
                 )
             }
             Text(
-                text = name,
+                text = stringResource(tab.label),
                 style = MaterialTheme.typography.titleSmall,
                 color = if (selected) Accent else OnSurfaceVariant,
                 fontWeight = if (selected) FontWeight.SemiBold else null,

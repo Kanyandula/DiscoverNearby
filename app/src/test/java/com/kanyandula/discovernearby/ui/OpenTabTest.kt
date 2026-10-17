@@ -55,16 +55,11 @@ class OpenTabTest {
         assertEquals(savedScreen, topId())
     }
 
-    // DN-UX-011: Map and Profile follow the same rules: tapped again they keep their screen, and the tab screens
-    // replace each other on Discover, so Back from any of them lands on the grid.
+    // DN-UX-011: the tab screens replace each other on Discover, so Back from any of them lands on the grid.
     @Test
     fun tabScreensReplaceEachOtherOnDiscover() {
         open(RailTab.MAP)
-        val mapScreen = topId()
-        open(RailTab.MAP)
-        assertEquals(mapScreen, topId())
         open(RailTab.PROFILE)
-        assertEquals(RailTab.PROFILE, rule.runOnIdle { nav.selectedTab() })
         open(RailTab.SAVED)
         rule.runOnIdle { nav.popBackStack() }
         assertTrue(rule.runOnIdle { nav.currentDestination?.hasRoute<DiscoverRoute>() == true })

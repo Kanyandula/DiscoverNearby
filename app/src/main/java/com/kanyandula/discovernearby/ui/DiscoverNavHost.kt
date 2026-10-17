@@ -100,7 +100,7 @@ internal fun NavHostController.selectedTab(): RailTab =
     RailTab.entries.firstOrNull { it != RailTab.DISCOVER && isOnStack(it.route) } ?: RailTab.DISCOVER
 
 private fun NavHostController.isOnStack(route: Any) = try {
-    getBackStackEntry(route)
+    getBackStackEntry(route::class)
     true
 } catch (ignored: IllegalArgumentException) {
     false
@@ -111,10 +111,10 @@ private fun NavHostController.isOnStack(route: Any) = try {
  * and focus stay), else opens its screen on Discover. None builds a stack (DN-UX-006, DN-UX-011).
  */
 internal fun NavHostController.openTab(tab: RailTab) {
-    when {
-        tab == RailTab.DISCOVER -> popBackStack<DiscoverRoute>(inclusive = false)
-        selectedTab() == tab -> popBackStack(tab.route, inclusive = false)
-        else -> navigate(tab.route) { popUpTo<DiscoverRoute>() }
+    if (tab == RailTab.DISCOVER || selectedTab() == tab) {
+        popBackStack(tab.route::class, inclusive = false)
+    } else {
+        navigate(tab.route) { popUpTo<DiscoverRoute>() }
     }
 }
 
@@ -164,20 +164,14 @@ fun DiscoverNavHost(
         }
         composable<SavedRoute> { entry -> SavedDestination(container, navController, entry) }
         composable<MapRoute> { entry ->
-            ComingSoonScreen(
-                title = R.string.tab_map,
-                icon = R.drawable.ic_map,
-                body = R.string.map_coming_soon,
-                onBack = { if (navController.isTop(entry)) navController.popBackStack() },
-            )
+            ComingSoonScreen(RailTab.MAP, R.string.map_coming_soon, onBack = {
+                if (navController.isTop(entry)) navController.popBackStack()
+            })
         }
         composable<ProfileRoute> { entry ->
-            ComingSoonScreen(
-                title = R.string.tab_profile,
-                icon = R.drawable.ic_person,
-                body = R.string.profile_coming_soon,
-                onBack = { if (navController.isTop(entry)) navController.popBackStack() },
-            )
+            ComingSoonScreen(RailTab.PROFILE, R.string.profile_coming_soon, onBack = {
+                if (navController.isTop(entry)) navController.popBackStack()
+            })
         }
         composable<PlaceDetailsRoute>(typeMap = PlaceDetailsTypes) { entry ->
             PlaceDetailsDestination(container, navController, entry)

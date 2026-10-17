@@ -54,8 +54,7 @@ val NavigateIconSize = 28.dp
 val NavigateIconGap = 14.dp
 val InfoIconGap = 12.dp
 
-// The app rail (DN-UX-006, DN-UX-011): a 76 dp column left of the panel, in its own panel; each tab a 76 × 96 dp
-// target, an icon on a 64 × 60 dp tile with its label under it.
+// The app rail (DN-UX-006, DN-UX-011, artboards R1 and R2): each tab an icon on a tile, its label under it.
 val RailGap = 16.dp
 val RailIconSize = 32.dp
 val RailPadding = 8.dp

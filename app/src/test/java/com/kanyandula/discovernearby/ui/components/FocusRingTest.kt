@@ -20,6 +20,8 @@ import com.kanyandula.discovernearby.discovery.DiscoveryCategory
 import com.kanyandula.discovernearby.discovery.testPlace
 import com.kanyandula.discovernearby.ui.AUTOMOTIVE_1024P
 import com.kanyandula.discovernearby.ui.RailTab
+import com.kanyandula.discovernearby.ui.railTab
+import com.kanyandula.discovernearby.ui.text
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsScreen
 import com.kanyandula.discovernearby.ui.screens.PlaceDetailsUiState
 import com.kanyandula.discovernearby.ui.theme.Accent
@@ -33,7 +35,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -95,7 +96,6 @@ class FocusRingTest {
         rule.useRotaryInput(inputModes)
     }
 
-    private fun text(id: Int) = RuntimeEnvironment.getApplication().getString(id)
 
     @Test
     fun focusedRecommendationRowShowsTheRing() {
@@ -117,7 +117,7 @@ class FocusRingTest {
     @Test
     fun focusedRailTabShowsTheRing() {
         show { AppRail(selected = RailTab.DISCOVER, onSelect = {}) }
-        val saved = rule.onNodeWithContentDescription(text(R.string.tab_saved))
+        val saved = rule.onNode(railTab(text(R.string.tab_saved)))
         saved.requestFocus()
         assertArrayEquals(Accent.rgb(), saved.edgePixel().rgb(), TOLERANCE)
     }

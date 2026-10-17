@@ -254,7 +254,7 @@ class DiscoverNavigationTest {
         rule.onNodeWithText("Brew & Bloom, Greystones").assertIsDisplayed()
     }
 
-    private fun tab(name: String) = rule.onNodeWithContentDescription(name)
+    private fun tab(name: String) = rule.onNode(railTab(name))
 
     /** Room answers on its own threads: wait for [text] rather than assume one frame is enough. */
     private fun waitForText(text: String) =
