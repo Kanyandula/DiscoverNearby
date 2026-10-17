@@ -697,6 +697,6 @@ The canvas contains:
 - **Core flow** — Discover, Recommendations, Place Details, and the stub navigation hand-off.
 - **States** — Permission Required (parked and driving), Location Unavailable, Loading, Empty, Network/Provider Error, Timeout, Navigation Unavailable, Sparse Results, and Details summary-only fallback.
 - **Stretch** — Along Route presets and Stops Ahead.
-- **Icon set** — the app icon, six category icons, amenity icons and state/action icons, with suggested resource names (`ic_cat_*`, `ic_amenity_*`, `ic_*`).
+- **Icon set** — the app icon, six category icons, amenity icons and state/action icons, with suggested resource names (`ic_cat_*`, `ic_amenity_*`, `ic_*`). The launcher icon is now the Compass pin, `design/app-icon.svg` (DN-UX-008).
 
 **How to read the mockups:** the app draws its own UI in Compose, so the mockups are the **visual spec**: layout, hierarchy, copy, states, icons and colours. Colours and type become a Material 3 theme (day and night). System chrome (status bar, system navigation) still comes from the vehicle. Template names in artboard titles (`GridTemplate` and so on) date from Revision 3; read them as layout patterns. Frames are 1408 × 792 and the reference emulator is 1024p landscape, so layouts adapt to the screen instead of hard-coding frame sizes.

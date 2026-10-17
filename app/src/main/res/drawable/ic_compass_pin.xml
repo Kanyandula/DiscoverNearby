@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher icon's mark for the app header: ic_launcher_foreground's shapes, cropped to the mark. Drawn untinted. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="58"
+    android:viewportHeight="58">
+    <group
+        android:translateX="-25"
+        android:translateY="-24">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M52.74,80.814L36.784,56.129A20.5,20.5 0,1 1,71.216 56.129L55.26,80.814A1.5,1.5 0,0 1,52.74 80.814Z" />
+        <path
+            android:fillColor="#FF1A47B8"
+            android:pathData="M40.5,45a13.5,13.5 0,1 0,27 0a13.5,13.5 0,1 0,-27 0Z" />
+        <path
+            android:fillColor="#FFFF7A59"
+            android:pathData="M62.13,36.87L57.25,48.25L50.75,41.75Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M45.87,53.13L57.25,48.25L50.75,41.75Z" />
+        <path
+            android:fillColor="#FF1A47B8"
+            android:pathData="M51.8,45a2.2,2.2 0,1 0,4.4 0a2.2,2.2 0,1 0,-4.4 0Z" />
+    </group>
+</vector>

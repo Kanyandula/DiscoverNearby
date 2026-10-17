@@ -85,6 +85,9 @@ in place (DN-M0-012, DN-M0-001).
   `isSaved`). The Saved screen lists saved places nearest first (newest first without a location, no distances),
   driving limit applied. Storage: `saved/` (Room through KSP; `SavedPlacesRepository`, summary and enrichment as JSON,
   destructive migration), separate live and fake files, in memory under Robolectric (`TestDiscoverApplication`).
+- **Launcher icon (DN-UX-008):** the Compass pin, an adaptive icon of three vector layers (`drawable/ic_launcher_*`,
+  master `docs/design/app-icon.svg`); no round icon or bitmap mipmaps (minSdk 29). The app header shows the same mark
+  (`ic_compass_pin`).
 - **Ranking (DN-M2-001):** `BasicRecommendationEngine` scores docs/03 §10 (category match, nearness, rating,
   amenities, open now) with every weight in `CategoryConfigs`. Closed places are dropped in Coffee, Food, Family and
   Explore; at most three per primary kind in Outdoors and two in Family and Explore; below a category match of 10 is

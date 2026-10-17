@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -94,10 +95,11 @@ private fun AppHeader() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ContentGap),
     ) {
+        // The launcher icon's mark (DN-UX-008), in its own colours.
         Icon(
-            painter = painterResource(R.drawable.ic_location),
+            painter = painterResource(R.drawable.ic_compass_pin),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = Color.Unspecified,
             modifier = Modifier.size(HeaderIconSize),
         )
         Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge)
