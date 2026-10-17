@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,7 +43,6 @@ import com.kanyandula.discovernearby.model.PlaceSummary
 import com.kanyandula.discovernearby.ui.SEPARATOR
 import com.kanyandula.discovernearby.ui.clockTime
 import com.kanyandula.discovernearby.ui.components.AmenityTiles
-import com.kanyandula.discovernearby.ui.components.BackButton
 import com.kanyandula.discovernearby.ui.components.Message
 import com.kanyandula.discovernearby.ui.components.MessageState
 import com.kanyandula.discovernearby.ui.components.PlaceImage
@@ -75,11 +77,11 @@ import com.kanyandula.discovernearby.ui.theme.RowGap
 import com.kanyandula.discovernearby.ui.theme.RowLineGap
 
 /**
- * Place Details as in the Product Lead's concept (03b-place-details-concept, DN-UX-005): Back, the photo and what is
- * known about the place across the top; the amenity tiles; Tripadvisor's description; Navigate bottom right, with
- * Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional details call (docs/02 §7), and one layout
- * serves every state but the hand-off failure, so the actions stay put when details or the car park arrive (the tile
- * row can appear late and push the description down). [enrichment] is the row's
+ * Place Details as the Product Lead's artboard 3c (DN-UX-007), from the concept (DN-UX-005): Back and the name as the
+ * header; the photo under Back, with what is known about the place and Tripadvisor's description beside it; the
+ * amenity tiles; Navigate bottom right, with Save ↔ Saved beside it (DN-UX-006). Navigate never waits on the optional
+ * details call (docs/02 §7), and one layout serves every state but the hand-off failure, so the actions stay put when
+ * details or the car park arrive (the tile row can appear late, under the photo). [enrichment] is the row's
  * Tripadvisor data (DN-UX-004, DN-UX-005); the description is hidden while [drivingRestricted]: cars limit text then.
  */
 @Suppress("LongParameterList") // the state plus one lambda per user action
@@ -104,36 +106,32 @@ fun PlaceDetailsScreen(
         }
     } else {
         val content = state as? PlaceDetailsUiState.Content
+        val summaryOnly = state is PlaceDetailsUiState.SummaryOnly
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
-            // Squeezed first on a short panel; the actions and the notice below always stay whole.
+            // Back and the name head the page as on the other screens (DN-UX-007): the photo lines up with the tiles.
+            ScreenHeader(title = state.summary.name, onBack = onBack)
+            // Squeezed first on a short panel; the header, the actions and the notice always stay whole.
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DetailsGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ContentGap)) {
-                    BackButton(onBack)
                     Photo(category, enrichment?.photoUrl)
-                    Summary(
-                        place = state.summary,
-                        distanceMeters = distanceMeters,
-                        opening = openingLine(state.summary, content?.closing, content?.details?.openingSummary),
-                        enrichment = enrichment,
-                        summaryOnly = state is PlaceDetailsUiState.SummaryOnly,
-                        modifier = Modifier.weight(1f),
-                    )
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
+                        Summary(
+                            place = state.summary,
+                            distanceMeters = distanceMeters,
+                            opening = openingLine(state.summary, content?.closing, content?.details?.openingSummary),
+                            enrichment = enrichment,
+                            summaryOnly = summaryOnly,
+                        )
+                        enrichment?.description?.let { Description(it, summaryOnly, hidden = drivingRestricted) }
+                    }
                 }
                 AmenityTiles(state.summary, content?.carParkNearby)
-                enrichment?.description?.takeUnless { drivingRestricted }?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
             Column(verticalArrangement = Arrangement.spacedBy(PhotoCreditGap)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ButtonGap)) {
                     // Save ↔ Saved (DN-UX-006) on Raised grey, so the Accent ring shows on it.
                     ActionButton(
-                        icon = if (saved) R.drawable.ic_heart_filled else R.drawable.ic_heart,
+                        icon = if (saved) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark,
                         label = if (saved) R.string.saved else R.string.save,
                         container = Raised,
                         content = OnSurface,
@@ -180,50 +178,57 @@ private fun Photo(category: DiscoveryCategory, photoUrl: String?) {
 }
 
 /**
- * The name; Tripadvisor's rating as Tripadvisor draws it, else the place's own; "Kind · price · distance"; the opening
- * line; and on the fallback the summary-only note. Each only when known.
+ * Tripadvisor's rating as Tripadvisor draws it, else the place's own; "Kind · price · distance"; the opening line; and
+ * on the fallback the summary-only note. Each only when known, as lines of the caller's column beside the photo.
  */
 @Composable
-private fun Summary(
+private fun ColumnScope.Summary(
     place: PlaceSummary,
     distanceMeters: Int?,
     opening: AnnotatedString?,
     enrichment: PlaceEnrichment?,
     summaryOnly: Boolean,
-    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(RowLineGap)) {
-        Text(
-            text = place.name,
-            style = MaterialTheme.typography.headlineSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+    val tripadvisor = enrichment?.rating
+    if (tripadvisor != null) {
+        TripadvisorRating(
+            rating = tripadvisor,
+            count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
         )
-        val tripadvisor = enrichment?.rating
-        if (tripadvisor != null) {
-            TripadvisorRating(
-                rating = tripadvisor,
-                count = tripadvisor.count?.let { pluralStringResource(R.plurals.reviews, it, it) },
+    } else {
+        ratingLine(place)?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
-        } else {
-            ratingLine(place)?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
-        val facts = listOfNotNull(
-            kindLabel(place.primaryKind)?.let { stringResource(it) },
-            enrichment?.priceLevel?.let { stringResource(it.label) },
-            distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
-        )
-        SupportingLine(facts.joinToString(SEPARATOR))
-        opening?.let { SupportingLine(it) }
-        if (summaryOnly) DetailsUnavailable()
     }
+    val facts = listOfNotNull(
+        kindLabel(place.primaryKind)?.let { stringResource(it) },
+        enrichment?.priceLevel?.let { stringResource(it.label) },
+        distanceMeters?.let { stringResource(R.string.distance_away, kilometres(it)) },
+    )
+    SupportingLine(facts.joinToString(SEPARATOR))
+    opening?.let { SupportingLine(it) }
+    if (summaryOnly) DetailsUnavailable()
+}
+
+/**
+ * Tripadvisor's description beside the photo: one line on the fallback, where the summary-only note takes the other
+ * (PlaceDetailsFitTest). [hidden] while driving, but kept in place: without a photo it can be the row's tallest part,
+ * and the tiles below must not move as the car moves off.
+ */
+@Composable
+private fun Description(text: String, summaryOnly: Boolean, hidden: Boolean) {
+    Text(
+        text = text,
+        modifier = if (hidden) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier,
+        style = MaterialTheme.typography.bodyLarge,
+        maxLines = if (summaryOnly) 1 else 2,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 /** "4.6 ★" and, when the provider counts them, "(342 reviews)" in the muted style; null without a rating. */
