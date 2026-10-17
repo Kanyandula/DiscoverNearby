@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108">
+  <!-- Discover Nearby launcher icon, "Compass pin" (DN-UX-008): the master for the adaptive icon's layers.
+       108 x 108 dp canvas; launchers show the centre 72 dp and never clip the central 66 dp circle. -->
+  <title>Discover Nearby — Compass pin</title>
+  <!-- Background layer: Action blue (ui/theme Action). -->
+  <rect width="108" height="108" fill="#2563EB"/>
+  <!-- Foreground layer: the mark, 8% larger about the centre. -->
+  <g transform="translate(54 54) scale(1.08) translate(-54 -54)">
+    <path d="M52.74 80.814L36.784 56.129A20.5 20.5 0 1 1 71.216 56.129L55.26 80.814A1.5 1.5 0 0 1 52.74 80.814Z" fill="#FFFFFF"/>
+    <circle cx="54" cy="45" r="13.5" fill="#1A47B8"/>
+    <path d="M62.13 36.87L57.25 48.25L50.75 41.75Z" fill="#FF7A59"/>
+    <path d="M45.87 53.13L57.25 48.25L50.75 41.75Z" fill="#FFFFFF"/>
+    <circle cx="54" cy="45" r="2.2" fill="#1A47B8"/>
+  </g>
+</svg>
