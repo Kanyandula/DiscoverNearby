@@ -166,9 +166,10 @@ Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 - The app rail comes after each screen's content in rotary order (DN-UX-006, docs/03 §17). Keep its three rules: the
   rail hands a downward entry (Android's initial focus) to the screen panel; a focused list row shows the edges of the
   rows above and below it (`revealNeighbours`); and each list is a rotary scroll container (`rotaryScrollable`), whose
-  rotary scroll the focused row answers by showing them again (DN-UX-009/010). Only the rotary service moves rotary
-  focus: Compose doesn't report an app-made move to a row that was off screen, so the service turns on from the row
-  it knew.
+  rotary scroll the focused row answers by showing them again (DN-UX-009/010). On a turn, only the rotary service
+  moves rotary focus: Compose doesn't report an app-made move to a row that was off screen, so the service turns on
+  from the row it knew. The reveal shows one neighbour, never more: on a quick spin the service moves to the list's
+  first or last row on screen.
 - Every request carries a requestId; drop stale responses. Provider calls have a timeout.
 - Attributes shown only if PROVIDED or DERIVED. All user text in strings.xml.
 - `docs/design/` is the visual spec (layout, copy, states, icons, colours).

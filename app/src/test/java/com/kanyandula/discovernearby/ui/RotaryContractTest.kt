@@ -29,7 +29,7 @@ class RotaryContractTest {
         assertEquals("androidx.compose.ui.platform.ComposeView", root.accessibilityClassName.toString())
     }
 
-    // DN-UX-009, DN-UX-010, found on the emulator: only the rotary service moves rotary focus. Compose doesn't tell
+    // DN-UX-009, DN-UX-010, found on the emulator: on a turn, only the rotary service moves focus. Compose doesn't tell
     // the service about a move to a row that was off screen, so after the app moved focus on the service's list
     // scroll, the service turned on from the row it knew: a dead turn, and on a fast spin focus ran out of the list
     // and round the rail.

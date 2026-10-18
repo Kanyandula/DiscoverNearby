@@ -401,7 +401,7 @@ the Product Lead on 2026-10-06, after the re-test.
 so a new decision under "Any further rotary change is a new decision").
 - A focused list row shows the edges of the rows above and below it, and the lists are marked as rotary scroll
   containers. At a list's visible edge the rotary service sends a rotary scroll instead of leaving the list, and the
-  focused row brings the rows beside it into view. The service makes every move (docs/03 §17).
+  focused row brings the rows beside it into view. On a turn, the service makes every move (docs/03 §17).
 - A first fix, in which the app moved focus on that scroll, failed the hand-driven re-run and was replaced the same
   day (the M4 record has both).
 - The V7 gate, the waiver and `ReturnFocus` are unchanged. F's re-run is recorded in

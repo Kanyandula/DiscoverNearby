@@ -27,7 +27,7 @@ Root cause and the platform source are in "Evidence" below.
 > real service. Compose sends a focus event only for nodes already in its previous accessibility snapshot, so the
 > service never learns of a move to a row that was off screen. Turning up, the next click re-focused the same row; on a
 > fast spin, focus ran out of the list and round the rail. The second part is replaced: the app never moves rotary
-> focus. A focused row brings the edges of the rows above and below it into view (`revealNeighbours`, which replaces
+> focus on a turn. A focused row brings the edges of the rows above and below it into view (`revealNeighbours`, which replaces
 > `revealNextOnFocus`), and does so again on the service's scroll, which Compose hands to the focused row.
 > `moveFocusForRotaryScroll` and MainActivity's override are gone. Tasks 1–3 below describe the first design; commit
 > `303da1d`, the ledger and the M4 record have the change.
@@ -93,8 +93,9 @@ Root cause and the platform source are in "Evidence" below.
     `SOURCE_ROTARY_ENCODER`, sent to the focused window.
   - **Compose drops that scroll:** `AndroidComposeView.handleRotaryEvent` reads `AXIS_SCROLL` only, so the event
     carries 0 px.
-  - **The service's follow-up move fails on Compose:** `handleViewScrolledEvent` then calls
-    `findFocusableDescendantInDirection`, which uses `focusSearch`.
+  - **The service's follow-up move fails on Compose** for a single detent: `handleViewScrolledEvent` then calls
+    `findFocusableDescendantInDirection`, which uses `focusSearch`. On an accelerated turn it focuses the container's
+    first or last focusable descendant instead (a tree search), which works on Compose (found in the final review).
   - **App focus moves are accepted:** the service follows them (`handleViewFocusedEvent`, which ignores a late event
     when focus has moved since).
 - **A throwaway spike** (the marker on Recommendations and the Tab translation in `MainActivity`) confirmed the cause:

@@ -12,6 +12,7 @@ internal const val ROTARY_VERTICALLY_SCROLLABLE = "com.android.car.ui.utils.VERT
  * turn at the list's visible edge left it for the screen's Back or the app rail, skipping the rows off screen. Marked,
  * while the list can still scroll that way, the service keeps focus and sends a rotary scroll instead (Android 13's
  * Navigator.findRotateTarget). The focused row answers it by bringing the rows beside it into view (RecommendationRow),
- * and the next turn moves to one.
+ * and the service moves to one: on the next turn, or right after its scroll on a quick spin, when it takes the list's
+ * first or last row on screen. So the reveal shows one neighbour, never more, or a quick spin would skip rows.
  */
 fun Modifier.rotaryScrollable(): Modifier = semantics { contentDescription = ROTARY_VERTICALLY_SCROLLABLE }

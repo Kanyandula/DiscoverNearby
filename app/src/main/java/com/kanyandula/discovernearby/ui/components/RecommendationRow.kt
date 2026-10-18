@@ -170,8 +170,8 @@ internal fun SupportingLine(text: AnnotatedString) {
  * Rotary (DN-UX-006, DN-UX-009, DN-UX-010): a focused row also brings the edges of the rows above and below it into
  * view. The rotary service moves only to rows on screen, so the next turn either way finds the next row there. A turn
  * quicker than this scroll reaches the list's edge, where the service keeps focus and sends the list a rotary scroll
- * (rotaryScrollable); the row brings its neighbours into view again. Only the service moves focus: Compose doesn't tell
- * it about a move to a row that was off screen, and it would turn on from the row it knew.
+ * (rotaryScrollable); the row brings its neighbours into view again. On a turn, only the service moves focus: Compose
+ * doesn't tell it about a move to a row that was off screen, and it would turn on from the row it knew.
  */
 private fun Modifier.revealNeighbours(): Modifier = composed {
     val requester = remember { BringIntoViewRequester() }
