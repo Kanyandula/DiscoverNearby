@@ -70,11 +70,6 @@ class RotaryListTest {
         rule.useRotaryInput(inputModes)
     }
 
-    private fun serviceScroll(detents: Float) {
-        rule.runOnUiThread { rule.activity.dispatchGenericMotionEvent(rotaryScroll(detents)) }
-        rule.waitForIdle()
-    }
-
     @Test
     fun theListIsMarkedForTheRotaryService() {
         rule.onNode(list and hasContentDescription(ROTARY_VERTICALLY_SCROLLABLE)).assertExists()
@@ -103,7 +98,7 @@ class RotaryListTest {
         rule.onNodeWithText("Row 2").requestFocus()
         rule.onNode(list).performScrollToIndex(0)
         rule.onNodeWithText("Row 3").assertDoesNotExist()
-        serviceScroll(-1f)
+        rule.serviceScroll(-1f)
         rule.onNodeWithText("Row 3").assertIsDisplayed()
         rule.onNodeWithText("Row 2").assertIsFocused()
     }
@@ -114,7 +109,7 @@ class RotaryListTest {
         rule.onNodeWithText("Row 2").requestFocus()
         rule.onNode(list).performScrollToIndex(2)
         rule.onNodeWithText("Row 1").assertDoesNotExist()
-        serviceScroll(1f)
+        rule.serviceScroll(1f)
         rule.onNodeWithText("Row 1").assertIsDisplayed()
         rule.onNodeWithText("Row 2").assertIsFocused()
     }

@@ -37,10 +37,7 @@ class RotaryContractTest {
     fun theRotaryServicesScrollLeavesFocusWhereItIs() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false) // rotary input, as useRotaryInput
         rule.onNodeWithText("Coffee").requestFocus().assertIsFocused()
-        repeat(2) {
-            rule.runOnUiThread { rule.activity.dispatchGenericMotionEvent(rotaryScroll(-1f)) }
-            rule.waitForIdle()
-        }
+        repeat(2) { rule.serviceScroll(-1f) }
         rule.onNodeWithText("Coffee").assertIsFocused()
     }
 }

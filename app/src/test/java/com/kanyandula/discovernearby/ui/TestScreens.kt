@@ -2,6 +2,7 @@ package com.kanyandula.discovernearby.ui
 
 import android.view.InputDevice
 import android.view.MotionEvent
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -11,6 +12,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
@@ -69,4 +71,10 @@ fun rotaryScroll(detents: Float): MotionEvent {
         0L, 0L, MotionEvent.ACTION_SCROLL, 1, arrayOf(properties), arrayOf(coords), 0, 0, 1f, 1f, 0, 0,
         InputDevice.SOURCE_ROTARY_ENCODER, 0,
     )
+}
+
+/** The rotary service's list scroll ([rotaryScroll]) sent to the activity, then the UI left to settle. */
+fun AndroidComposeTestRule<*, out ComponentActivity>.serviceScroll(detents: Float) {
+    runOnUiThread { activity.dispatchGenericMotionEvent(rotaryScroll(detents)) }
+    waitForIdle()
 }
