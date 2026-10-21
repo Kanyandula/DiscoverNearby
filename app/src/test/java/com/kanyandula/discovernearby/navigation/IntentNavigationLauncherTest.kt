@@ -1,5 +1,7 @@
 package com.kanyandula.discovernearby.navigation
 
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import org.junit.Assert.assertEquals
@@ -11,21 +13,53 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 
+private const val HANDED_OFF = "geo:53.148000,-6.060300"
+
 @RunWith(RobolectricTestRunner::class)
 class IntentNavigationLauncherTest {
 
     private val app = RuntimeEnvironment.getApplication()
 
-    // The system picks the navigation app: no package or component is named (docs/03 §11).
+    /** Records each intent it starts; [refuse] throws for the actions it names. */
+    private class Recording(base: Context, val refuse: (String?) -> Throwable?) : ContextWrapper(base) {
+        val started = mutableListOf<Intent>()
+        override fun startActivity(intent: Intent) {
+            refuse(intent.action)?.let { throw it }
+            started += intent
+        }
+    }
+
+    private fun assertHandOff(intent: Intent, action: String) {
+        assertEquals(action, intent.action)
+        assertEquals(HANDED_OFF, intent.dataString)
+        assertTrue(intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
+        assertNull(intent.component)
+        assertNull(intent.`package`)
+    }
+
+    // AAOS's navigation intent first (DN-SP-006); the system picks the app: no package or component (docs/03 §11).
     @Test
-    fun startsAGeoViewIntentInANewTask() {
+    fun startsTheNavigateIntentInANewTask() {
         assertTrue(IntentNavigationLauncher(app).navigateTo(HARBOUR_ROASTERS).isSuccess)
-        val started = shadowOf(app).nextStartedActivity
-        assertEquals(Intent.ACTION_VIEW, started.action)
-        assertEquals("geo:53.148000,-6.060300", started.dataString)
-        assertTrue(started.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
-        assertNull(started.component)
-        assertNull(started.`package`)
+        assertHandOff(shadowOf(app).nextStartedActivity, ACTION_NAVIGATE)
+        assertNull("nothing else is started", shadowOf(app).nextStartedActivity)
+    }
+
+    // An app that only views geo: links (the stub, a non-car app) still gets the place.
+    @Test
+    fun withoutANavigateHandlerItFallsBackToAGeoView() {
+        val context = Recording(app) { if (it == ACTION_NAVIGATE) ActivityNotFoundException() else null }
+        assertTrue(IntentNavigationLauncher(context).navigateTo(HARBOUR_ROASTERS).isSuccess)
+        assertHandOff(context.started.single(), Intent.ACTION_VIEW)
+    }
+
+    @Test
+    fun anyOtherNavigateFailureFallsBackToAGeoView() {
+        listOf(SecurityException(), IllegalStateException()).forEach { failure ->
+            val context = Recording(app) { if (it == ACTION_NAVIGATE) failure else null }
+            assertTrue(IntentNavigationLauncher(context).navigateTo(HARBOUR_ROASTERS).isSuccess)
+            assertHandOff(context.started.single(), Intent.ACTION_VIEW)
+        }
     }
 
     @Test
@@ -35,12 +69,11 @@ class IntentNavigationLauncherTest {
     }
 
     @Test
-    fun anyOtherHandOffFailureIsAFailure() {
+    fun aFailedFallbackIsAFailure() {
         listOf(SecurityException(), IllegalStateException()).forEach { failure ->
-            val refusing = object : ContextWrapper(app) {
-                override fun startActivity(intent: Intent) = throw failure
-            }
-            assertTrue(IntentNavigationLauncher(refusing).navigateTo(HARBOUR_ROASTERS).isFailure)
+            val context = Recording(app) { failure }
+            assertTrue(IntentNavigationLauncher(context).navigateTo(HARBOUR_ROASTERS).isFailure)
+            assertTrue(context.started.isEmpty())
         }
     }
 }
