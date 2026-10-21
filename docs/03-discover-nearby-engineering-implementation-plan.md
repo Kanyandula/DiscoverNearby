@@ -681,7 +681,7 @@ A minimal separate APK in `tools/stub-navigation/`. Its only jobs are to:
 2. receive the navigation request
 3. display the received coordinates and the request on a simple Compose screen and log them (`StubNav: received geo:… via <action>`)
 
-`adb -s emulator-5554 shell pm disable com.kanyandula.stubnavigation/.NavigateAlias` leaves only the `VIEW` filter, so Navigate exercises its fallback; `pm enable` restores it.
+`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias` leaves only the `VIEW` filter, so Navigate exercises its fallback; `pm enable` restores it. The stub is `testOnly`, because Android 13 lets the shell disable a component only in a test-only app; Gradle's `installDebug` installs it as is (`adb install` needs `-t`).
 
 This makes “correct destination handed off” observable and repeatable without a production navigation app.
 

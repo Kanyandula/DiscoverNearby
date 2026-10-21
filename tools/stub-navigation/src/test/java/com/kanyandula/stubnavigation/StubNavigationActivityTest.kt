@@ -3,6 +3,7 @@ package com.kanyandula.stubnavigation
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
@@ -61,6 +62,12 @@ class StubNavigationActivityTest {
         val alias = ComponentName(app.packageName, handler.activityInfo.name)
         assertTrue(app.packageManager.getActivityInfo(alias, PackageManager.GET_META_DATA).metaData
             .getBoolean("distractionOptimized"))
+    }
+
+    // Android 13 lets the shell disable a component (the alias, docs/04 E) only in a test-only app.
+    @Test
+    fun isTestOnlySoTheShellCanDisableTheAlias() {
+        assertTrue(app.applicationInfo.flags and ApplicationInfo.FLAG_TEST_ONLY != 0)
     }
 
     // Shown while driving; one instance, so a later hand-off reaches the open stub instead of being dropped.
