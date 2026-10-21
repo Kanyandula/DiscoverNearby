@@ -347,6 +347,25 @@ There is no Car App Library dependency, so there is no Car App API level. `minSd
 
 Stretch: `AlongRouteScreen` (list of destination presets), `StopsAheadScreen` (list).
 
+### App rail
+
+How the rail is built (DN-UX-006, DN-UX-011):
+
+- **One list of tabs.** `RailTab` gives each tab its route, icon and label. `selectedTab()` reads the selection off
+  the back stack (the tab whose screen is on it, else Discover), so it is never stored; `openTab()` pops to Discover,
+  pops back to a selected tab's own screen, or opens the tab's screen on Discover. A new tab is one entry.
+- **The label is the tab's name.** The tab merges its label and the icon is decorative, so a screen reader reads each
+  tab once; tests find a tab by its label and the Tab role, since "Saved", "Map" and "Profile" are also screen titles.
+- **The rail keeps its 76 dp column.** The mock-up's wider rail would have narrowed the content panel; the tiles shrink
+  instead (64 × 60 dp, each tab 76 × 96 dp), so the panel keeps its 836 dp and Place Details its fit. The labels fit at
+  14 sp, so they stay; the Product Lead would have dropped them had they widened the rail (2026-10-17).
+- **Known limits,** none on the reference emulator:
+  - the tabs need 421 dp of the rail's 516 dp; a display with under about 501 dp after the system bars clips the first
+    and last tab (a `ponytail:` comment in `AppRail` names the fix);
+  - at a font scale of 1.25 or more, the labels clip ("Discov…");
+  - with the rail full height, a hardware Down key from the panel's lowest item can be pulled back into the panel by
+    the rail's downward-entry rule (§17); rotary rotation is unaffected.
+
 ### Back stack
 
 There is no template-step budget; that was a template-host limit. The rules it produced still hold, for UX reasons:
