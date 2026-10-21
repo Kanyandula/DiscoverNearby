@@ -3,6 +3,7 @@ package com.kanyandula.stubnavigation
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
@@ -22,6 +23,9 @@ import org.robolectric.shadows.ShadowLog
 private const val GREYSTONES = "geo:53.144000,-6.063300"
 private const val WICKLOW = "geo:52.980000,-6.044000"
 
+// AAOS's navigation intent, which the app sends first (DN-M3-002); the stub also takes a plain geo: view.
+private const val ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE"
+
 @RunWith(RobolectricTestRunner::class)
 class StubNavigationActivityTest {
 
@@ -30,10 +34,10 @@ class StubNavigationActivityTest {
 
     private val app = RuntimeEnvironment.getApplication()
 
-    private fun intent(uri: String?) = Intent(app, StubNavigationActivity::class.java).setData(uri?.let(Uri::parse))
+    private fun intent(uri: String?, action: String = Intent.ACTION_VIEW) =
+        Intent(app, StubNavigationActivity::class.java).setAction(action).setData(uri?.let(Uri::parse))
 
-    private fun launch(uri: String?) =
-        Robolectric.buildActivity(StubNavigationActivity::class.java, intent(uri)).setup()
+    private fun launch(intent: Intent) = Robolectric.buildActivity(StubNavigationActivity::class.java, intent).setup()
 
     private fun logged() = ShadowLog.getLogsForTag("StubNav").map { it.msg }
 
@@ -46,6 +50,22 @@ class StubNavigationActivityTest {
         assertTrue("other apps must be able to start it", handlers.single().activityInfo.exported)
     }
 
+    // Through the alias (see the manifest), shown while driving.
+    @Test
+    fun anImplicitNavigateIntentResolvesToTheStubThroughItsAlias() {
+        val handoff = Intent(ACTION_NAVIGATE, Uri.parse(GREYSTONES))
+        val flags = PackageManager.MATCH_DEFAULT_ONLY or PackageManager.GET_META_DATA
+        val alias = app.packageManager.queryIntentActivities(handoff, flags).single().activityInfo
+        assertEquals(StubNavigationActivity::class.java.name, alias.targetActivity)
+        assertTrue("other apps must be able to start it", alias.exported)
+        assertTrue(alias.metaData.getBoolean("distractionOptimized"))
+    }
+
+    @Test
+    fun isTestOnlySoTheShellCanDisableTheAlias() {
+        assertTrue(app.applicationInfo.flags and ApplicationInfo.FLAG_TEST_ONLY != 0)
+    }
+
     // Shown while driving; one instance, so a later hand-off reaches the open stub instead of being dropped.
     @Test
     fun showsWhileDrivingAndKeepsOneInstance() {
@@ -55,28 +75,40 @@ class StubNavigationActivityTest {
         assertEquals(ActivityInfo.LAUNCH_SINGLE_TASK, info.launchMode)
     }
 
-    @Test
-    fun showsAndLogsTheReceivedDestination() {
-        launch(GREYSTONES)
+    private fun assertShowsAndLogs(action: String) {
+        launch(intent(GREYSTONES, action))
         rule.onNodeWithText(GREYSTONES).assertIsDisplayed()
-        assertEquals(listOf("received $GREYSTONES"), logged())
+        rule.onNodeWithText("via $action").assertIsDisplayed()
+        assertEquals(listOf("received $GREYSTONES via $action"), logged())
     }
+
+    @Test
+    fun showsAndLogsANavigateRequest() = assertShowsAndLogs(ACTION_NAVIGATE)
+
+    @Test
+    fun showsAndLogsAGeoView() = assertShowsAndLogs(Intent.ACTION_VIEW)
 
     // A second hand-off while the stub is still open replaces the first, on screen and in the log.
     @Test
     fun aLaterHandOffReplacesTheFirst() {
-        val stub = launch(GREYSTONES).newIntent(intent(WICKLOW))
+        val stub = launch(intent(GREYSTONES, ACTION_NAVIGATE)).newIntent(intent(WICKLOW))
         rule.onNodeWithText(WICKLOW).assertIsDisplayed()
+        rule.onNodeWithText("via ${Intent.ACTION_VIEW}").assertIsDisplayed()
         rule.onNodeWithText(GREYSTONES).assertDoesNotExist()
-        assertEquals(listOf("received $GREYSTONES", "received $WICKLOW"), logged())
+        rule.onNodeWithText("via $ACTION_NAVIGATE").assertDoesNotExist()
+        assertEquals(
+            listOf("received $GREYSTONES via $ACTION_NAVIGATE", "received $WICKLOW via ${Intent.ACTION_VIEW}"),
+            logged(),
+        )
         // A day/night relaunch rebuilds from the activity's intent, so it must be the latest hand-off.
         assertEquals(WICKLOW, stub.get().intent.dataString)
     }
 
     @Test
     fun openedWithoutADestinationSaysSo() {
-        launch(uri = null)
+        launch(intent(uri = null))
         rule.onNodeWithText("No destination received").assertIsDisplayed()
+        rule.onNodeWithText("via", substring = true).assertDoesNotExist()
         assertEquals(emptyList<String>(), logged())
     }
 }

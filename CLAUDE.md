@@ -32,7 +32,8 @@ in place (DN-M0-012, DN-M0-001).
   `--es scenario <FakeScenario>`.
 - **Place Details (DN-M0-005):** rows open `PlaceDetailsRoute(place, distanceMeters)` (JSON route via
   `JsonNavType`); `PlaceDetailsViewModel` falls back to the summary; Navigate hands off through
-  `IntentNavigationLauncher` (DN-M3-001: `ACTION_VIEW geo:`, failure → `NavigationUnavailable`).
+  `IntentNavigationLauncher` (DN-M3-001, DN-M3-002: AAOS's `NAVIGATE` + `geo:` first, then `ACTION_VIEW geo:`;
+  both failing → `NavigationUnavailable`).
 - **Location (DN-M0-006):** `AndroidLocationProvider` (GPS/network, 8 s fix timeout; approximate-only uses the
   platform's recent coarse fix), Grant only while restrictions allow it, denied copy; emulator location via
   `adb emu geo fix`, location on for user 10, `pm clear --user 10`.
@@ -43,8 +44,10 @@ in place (DN-M0-012, DN-M0-001).
   to the item selected by rotary once 250 ms have passed; the wait rests on a working hypothesis about Compose's
   semantics snapshot); `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for
   the emulator POC, with a product waiver**; the V7 re-test record is `docs/adr/0002/v7-retest-2026-10-06/`.
-- **Stub navigation app (DN-M0-008):** module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` VIEW handler
-  (`singleTask`, distractionOptimized) that shows the URI and logs `StubNav: received geo:…`.
+- **Stub navigation app (DN-M0-008):** module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` handler for
+  VIEW and, through `.NavigateAlias`, AAOS's `NAVIGATE` (DN-M3-002; `singleTask`, distractionOptimized, `testOnly`, so
+  `adb install` needs `-t`). It shows the URI and the request and logs `StubNav: received geo:… via <action>`;
+  `pm disable` on the alias tests the fallback.
 - **Smoke baseline (DN-M0-007):** reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it
   when the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 - **Provider evaluation (DN-SP-001):** `tools/provider-eval/evaluate.py` (stdlib Python, not in Gradle or CI); output
@@ -139,7 +142,7 @@ Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
 - `saved/` — saved places in Room (DN-UX-006, ADR-004): `SavedPlacesRepository`, `RoomSavedPlaces`, the database
 - `location/`, `navigation/` — interfaces + Android implementations (`IntentNavigationLauncher`)
 - `model/` — GeoPoint, PlaceSummary, PlaceDetails, PlaceAttribute, Recommendation, PlaceEnrichment
-- `tools/stub-navigation/` — separate test APK: ACTION_VIEW `geo:` handler, distractionOptimized
+- `tools/stub-navigation/` — separate test APK: `geo:` handler (VIEW, and NAVIGATE via an alias), distractionOptimized
 
 ## Architecture rules (do not break)
 - Only `ui/` imports Compose. Only `car/CarDrivingRestrictions` imports `android.car`.
@@ -152,9 +155,10 @@ Travel time stays parked by the user. DN-TD-002 (Gradle/CI tuning) is P3.
   and re-trims when the state changes. Saved has no cap of 5: every saved place while parked, the limit while driving.
 - Loading/content/error are states of ONE destination, never pushed destinations.
   Core path ≤ 3 destinations deep. Back pops one; Back on Discover leaves the app.
-- Navigation: `Intent(ACTION_VIEW, "geo:%.6f,%.6f")` with Locale.US, application Context +
-  FLAG_ACTIVITY_NEW_TASK. Never target a specific app. ActivityNotFound/Security/any failure →
-  NavigationUnavailable.
+- Navigation: `Intent("androidx.car.app.action.NAVIGATE", "geo:%.6f,%.6f")` first, then `Intent(ACTION_VIEW, …)`
+  with the same URI (DN-M3-002): coordinates only, no `q=` or label; Locale.US, application Context +
+  FLAG_ACTIVITY_NEW_TASK. Never target a specific app or set a default; the action is a string (no Car App Library).
+  Both failing (ActivityNotFound/Security/any) → NavigationUnavailable.
 - Location permission via `rememberLauncherForActivityResult(RequestMultiplePermissions())`, fine and coarse
   together (either grant counts; approximate-only must work — DN-M0-006);
   Grant offered only when `DrivingState.distractionOptimizationRequired` is false. It reports UX

@@ -96,7 +96,7 @@ The UI is built in Jetpack Compose as a distraction-optimized AAOS activity, and
 
 ### 4.4 Navigation handoff
 
-A selected recommendation can be passed to an installed navigation application through a standard Android `geo:` intent. The system decides which navigation application handles it.
+A selected recommendation can be passed to an installed navigation application through standard Android intents: the Android Automotive navigation intent (`androidx.car.app.action.NAVIGATE` with a `geo:` URI), which starts a route in car navigation apps, then a plain `geo:` view intent if no app takes it. The system decides which navigation application handles it.
 
 ### 4.5 Route-aware discovery (stretch)
 

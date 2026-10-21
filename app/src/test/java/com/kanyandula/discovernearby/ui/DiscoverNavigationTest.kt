@@ -1,6 +1,5 @@
 package com.kanyandula.discovernearby.ui
 
-import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -22,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.kanyandula.discovernearby.location.deviceAt
+import com.kanyandula.discovernearby.navigation.ACTION_NAVIGATE
 import com.kanyandula.discovernearby.places.fake.TestLocation
 import com.kanyandula.discovernearby.ui.theme.DiscoverNearbyTheme
 import com.kanyandula.discovernearby.ui.theme.MinTouchTarget
@@ -201,14 +201,15 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
-    // docs/04 E: Navigate hands the selected place to the system — Greystones + Harbour Roasters' offset.
+    // docs/04 E: Navigate hands Harbour Roasters, Greystones, to the system: AAOS's navigation intent first
+    // (DN-M3-002).
     @Test
     fun navigateHandsTheSelectedPlaceToTheSystem() {
         rule.onNodeWithText("Coffee").performClick()
         rule.onNodeWithText("Harbour Roasters, Greystones").performClick()
         rule.onNodeWithText("Navigate").performClick()
         val started = shadowOf(RuntimeEnvironment.getApplication()).nextStartedActivity
-        assertEquals(Intent.ACTION_VIEW, started.action)
+        assertEquals(ACTION_NAVIGATE, started.action)
         assertEquals("geo:53.148000,-6.060300", started.dataString)
     }
 
