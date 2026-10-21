@@ -26,6 +26,7 @@ import com.kanyandula.discovernearby.ui.components.ProviderAttribution
 import com.kanyandula.discovernearby.ui.components.RecommendationRow
 import com.kanyandula.discovernearby.ui.components.ScreenHeader
 import com.kanyandula.discovernearby.ui.rememberReturnFocus
+import com.kanyandula.discovernearby.ui.rotaryScrollable
 import com.kanyandula.discovernearby.ui.theme.Highlight
 import com.kanyandula.discovernearby.ui.theme.MessageGap
 import com.kanyandula.discovernearby.ui.theme.MessageIconSize
@@ -67,7 +68,10 @@ fun RecommendationsScreen(
                 modifier = body,
                 verticalArrangement = Arrangement.spacedBy(RowGap),
             ) {
-                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(RowGap)) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).rotaryScrollable(),
+                    verticalArrangement = Arrangement.spacedBy(RowGap),
+                ) {
                     items(state.recommendations, key = { it.place.id }) { recommendation ->
                         val enrichment = state.enrichments[recommendation.place.id]
                         RecommendationRow(

@@ -1,5 +1,8 @@
 package com.kanyandula.discovernearby.ui
 
+import android.view.InputDevice
+import android.view.MotionEvent
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -9,6 +12,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
@@ -55,3 +59,22 @@ fun ComposeTestRule.rotarySelect(node: SemanticsNodeInteraction, inputModes: Inp
 
 /** HERE's copyright notice as the screens draw it this year (ADR-001 V6a). */
 fun hereNotice() = "© ${Year.now().value} HERE"
+
+/**
+ * A rotary scroll as Android 13's rotary service sends one to a list it can't leave (RotaryService.injectScrollEvent):
+ * ACTION_SCROLL from the rotary encoder, AXIS_VSCROLL −detents clockwise.
+ */
+fun rotaryScroll(detents: Float): MotionEvent {
+    val properties = MotionEvent.PointerProperties().apply { id = 0 }
+    val coords = MotionEvent.PointerCoords().apply { setAxisValue(MotionEvent.AXIS_VSCROLL, detents) }
+    return MotionEvent.obtain(
+        0L, 0L, MotionEvent.ACTION_SCROLL, 1, arrayOf(properties), arrayOf(coords), 0, 0, 1f, 1f, 0, 0,
+        InputDevice.SOURCE_ROTARY_ENCODER, 0,
+    )
+}
+
+/** The rotary service's list scroll ([rotaryScroll]) sent to the activity, then the UI left to settle. */
+fun AndroidComposeTestRule<*, out ComponentActivity>.serviceScroll(detents: Float) {
+    runOnUiThread { activity.dispatchGenericMotionEvent(rotaryScroll(detents)) }
+    waitForIdle()
+}

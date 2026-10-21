@@ -340,9 +340,10 @@ adb-driven runs above.
 
 - **Status:** run 2026-10-17 in DN-M4-001: `docs/validation/2026-10-17-m4-emulator.md` (Rotary journey). The
   four gate items held in 2 of 2 journeys, parked and moving, and Back to Discover kept its turn in both. Scenario F
-  still fails, on the ticket's and docs/02 §16's reachability requirement: rows above the screen can't be reached
-  by turning up (DN-UX-009), and a quick turn skips rows going down (DN-UX-010). M4 waits on Product: fix and re-run
-  F, or a Product-approved revision recorded here.
+  failed on the ticket's and docs/02 §16's reachability requirement: rows above the screen couldn't be reached by
+  turning up (DN-UX-009), and a quick turn skipped rows going down (DN-UX-010). After the fix (Decision, "Rotary list
+  reach"), F's hand-driven re-run passed, parked and moving: every row reached in order both ways, at every turn speed
+  tried (the M4 record, "F re-run").
 - **Its role:** supplementary evidence. It doesn't replace or overwrite the adb-driven results above (Product,
   2026-10-06).
 
@@ -395,6 +396,16 @@ the Product Lead on 2026-10-06, after the re-test.
 - **The manual Extended Controls run** is supplementary evidence in its own section. It doesn't replace or
   overwrite the automated results.
 - **M0 exits under the waiver.** DN-UX-001 is unblocked.
+
+**Rotary list reach (Product Lead, 2026-10-17):** fix DN-UX-009 and DN-UX-010, M4's F failures (a rotary change,
+so a new decision under "Any further rotary change is a new decision").
+- A focused list row shows the edges of the rows above and below it, and the lists are marked as rotary scroll
+  containers. At a list's visible edge the rotary service sends a rotary scroll instead of leaving the list, and the
+  focused row brings the rows beside it into view. On a turn, the service makes every move (docs/03 §17).
+- A first fix, in which the app moved focus on that scroll, failed the hand-driven re-run and was replaced the same
+  day (the M4 record has both).
+- The V7 gate, the waiver and `ReturnFocus` are unchanged. F's re-run is recorded in
+  `docs/validation/2026-10-17-m4-emulator.md`.
 
 **Prior decision (before the re-test; history): B, keep Compose for the emulator POC this iteration.** The Product
 Lead decided this on 2026-10-06. V7 then failed its clean re-test, and the choice returned to Product (decided
