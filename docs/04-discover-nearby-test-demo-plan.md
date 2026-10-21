@@ -83,7 +83,8 @@ Use `cmdline-tools/latest`, not the legacy `tools/bin/sdkmanager`. Always pass `
 # Play services present?
 adb shell pm list packages | grep com.google.android.gms
 
-# Which apps can handle the navigation intent?
+# Which apps can handle the navigation intents? (Navigate sends NAVIGATE first, then VIEW; DN-M3-002)
+adb shell cmd package query-activities -a androidx.car.app.action.NAVIGATE -d "geo:53.1440,-6.0633"
 adb shell cmd package query-activities -a android.intent.action.VIEW -d "geo:53.1440,-6.0633"
 ```
 
@@ -144,7 +145,7 @@ Use Extended controls → Car rotary (rotate, nudge, select, Back). Rotary verif
 
 1. Build and install `tools/stub-navigation`: `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug`.
 2. Confirm it appears in the navigation-intent query above.
-3. Optional sanity check, independent of Discover Nearby: send a navigation intent from adb (`adb -s emulator-5554 shell am start -W -a android.intent.action.VIEW -d "geo:53.1440,-6.0633"`) and confirm the stub displays it.
+3. Optional sanity check, independent of Discover Nearby: send each navigation intent from adb (`adb -s emulator-5554 shell am start -W -a androidx.car.app.action.NAVIGATE -d "geo:53.1440,-6.0633"`, then the same with `-a android.intent.action.VIEW`) and confirm the stub displays it, with the request under it.
 4. During tests, read the received destination on the stub screen or in logcat:
 
 ```bash
@@ -254,7 +255,11 @@ Open a recommendation.
 
 Open a place and select **Navigate**.
 
-**Expected:** the stub navigation app opens and shows or logs `geo:` coordinates equal to the selected place's coordinates (to 5 decimal places). Discover Nearby does not attempt guidance.
+**Expected:** the stub navigation app opens and shows or logs `geo:` coordinates equal to the selected place's coordinates (to 5 decimal places), via `androidx.car.app.action.NAVIGATE`. Discover Nearby does not attempt guidance.
+
+**Fallback (DN-M3-002):** with the stub's `NAVIGATE` alias disabled (`adb -s emulator-5554 shell pm disable com.kanyandula.stubnavigation/.NavigateAlias`), Navigate shows the same coordinates via `android.intent.action.VIEW`. Re-enable it afterwards (`pm enable`).
+
+**Real navigation app (optional, not the reference image):** on an image with Google Play and a navigation app, Navigate should start a route or offer one: on the Play image in DN-SP-006, Google Maps started navigating by itself and Waze listed "Received location", one tap. Record the app, its version and what it did; it doesn't gate the POC.
 
 ### F — Rotary Interaction
 
@@ -351,7 +356,7 @@ The fake details call fails.
 
 ### S — Navigation Handoff Error
 
-Uninstall or disable the stub navigation app (and confirm no other handler exists), then select Navigate.
+Uninstall or disable the stub navigation app (and confirm no other app handles either navigation intent, §2), then select Navigate.
 
 **Expected:** “Navigation unavailable” with Back. No crash.
 
@@ -421,7 +426,7 @@ Run on the §2 configuration, from a known state: app and stub installed from th
 
 1. **Launch** — the Discover grid appears; no block screen.
 2. **Core flow (touch)** — Coffee → Recommendations (location granted through the app's own flow on first use) → first row → Place Details; Navigate is shown.
-3. **Stub** — the stub navigation app answers the `geo:` query (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a android.intent.action.VIEW -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
+3. **Stub** — the stub navigation app answers both `geo:` queries (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a androidx.car.app.action.NAVIGATE -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
 4. **Rotary (V7)** — without touch: rotate through the grid, select, then rotate on Recommendations and Place Details and Back twice (Scenario F). Record against the docs/05 §9 V7 row.
 5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash. SLOW (10 s) outlasts the 8 s provider timeout, so that load ends in the timeout message with Try Again (Scenario O); a load that completes after a gear change is not covered.
 6. **Deepest path and Back** — in Drive: Discover → Recommendations → Place Details → Back → Back ends on Discover, and Back on Discover leaves the app (Scenario T).
@@ -501,7 +506,7 @@ Automated tests have two layers: JVM unit tests, and Compose UI tests run locall
 
 - each screen renders each of its states (Discover grid; Recommendations loading, content, empty, error, permission; Details content and summary-only)
 - Recommendations: loading → content, loading → empty, loading → error, all on the same screen
-- Navigate starts `ACTION_VIEW` with the expected `geo:` URI, asserted with Robolectric's `shadowOf(application).nextStartedActivity`
+- Navigate starts `androidx.car.app.action.NAVIGATE` with the expected `geo:` URI, asserted with Robolectric's `shadowOf(application).nextStartedActivity`
 - Grant is hidden while `distractionOptimizationRequired` is true and shown when it is false (fake `DrivingRestrictions`)
 
 These run as local tests with no emulator, using NyasaPlayer's setup (delivery plan V2). One M0 smoke test verifies the project configuration: `DiscoverScreenTest` renders `DiscoverScreen` in `testDebugUnitTest`, which CI runs on every PR. Rotary, focus and Park/Drive on the real platform are covered by the emulator scenarios.
@@ -535,7 +540,7 @@ These run as local tests with no emulator, using NyasaPlayer's setup (delivery p
 ### Navigation
 
 - `geo:` URI uses `Locale.US`, 6 decimal places
-- exceptions → `NavigationUnavailable`
+- any `NAVIGATE` failure → `ACTION_VIEW` with the same URI; both failing → `NavigationUnavailable` (DN-M3-002)
 
 ### Route calculations (stretch)
 
@@ -573,7 +578,7 @@ One continuous flow on the recorded emulator configuration. The demo stays on th
 - useful recommendations (relevance benchmark)
 - driver-oriented interaction
 - rotary support
-- navigation handoff via a standard `geo:` intent
+- navigation handoff via standard intents (Android Automotive's navigation intent, then a `geo:` view)
 - emulator-based vehicle-state validation
 
 ---

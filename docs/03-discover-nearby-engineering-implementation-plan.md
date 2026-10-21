@@ -652,38 +652,42 @@ Every place that passes the score floor and diversity rule, in ranked order. The
 ### Mechanism
 
 ```kotlin
+internal const val ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE"
+
 class IntentNavigationLauncher(private val appContext: Context) : NavigationLauncher {
-    override fun navigateTo(point: GeoPoint): Result<Unit> = runCatching {
-        val uri = Uri.parse(
-            String.format(Locale.US, "geo:%.6f,%.6f", point.lat, point.lng)
-        )
-        appContext.startActivity(
-            Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
+    override fun navigateTo(point: GeoPoint): Result<Unit> {
+        val uri = Uri.parse(String.format(Locale.US, "geo:%.6f,%.6f", point.lat, point.lng))
+        return runCatching { start(ACTION_NAVIGATE, uri) }.recoverCatching { start(Intent.ACTION_VIEW, uri) }
     }
+
+    private fun start(action: String, uri: Uri) =
+        appContext.startActivity(Intent(action, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 ```
 
 - It takes the **application** `Context`, so `AppContainer` can own it and pass it to `PlaceDetailsViewModel` without holding an `Activity`. Starting from a non-activity context requires `FLAG_ACTIVITY_NEW_TASK`. The app is in the foreground when the user taps Navigate, so background-start limits don't apply.
 
-- The **system** resolves the intent. Discover Nearby does not target Google Maps or any specific app. If several apps handle `geo:`, the system may show a chooser.
-- `ActivityNotFoundException`, `SecurityException`, or any other failure maps to `NavigationUnavailable`.
-- Car App Library navigation apps listen for `androidx.car.app.action.NAVIGATE`, which only a template app can send. Whether a real navigation app on a given image also accepts `ACTION_VIEW` + `geo:` is an optional check; the POC proves handoff with the stub.
+- **Two requests, one URI** (DN-SP-006, DN-M3-002). First `androidx.car.app.action.NAVIGATE`: Android Automotive's navigation intent, which car navigation apps must handle (Google's navigation-intent spec for navigation apps); `geo:lat,lng` means "navigate to these coordinates". Any app may send it with `startActivity`; it is a string, so no Car App Library. If it fails (no handler, `SecurityException`, anything else), `ACTION_VIEW` with the same URI, for apps that only show a `geo:` point. If that fails too, `NavigationUnavailable`.
+- **Coordinates only**, no `q=` and no label: Waze reads a query as a text search (the wrong place) or fails, while coordinates reached the right place in both Google Maps and Waze (DN-SP-006). Google Maps names the destination from its own map data.
+- The **system** resolves the intent. Discover Nearby does not target Google Maps or any specific app and sets no default. With several navigation apps and no default, the platform shows its chooser ("Complete action using"); its behaviour while driving is untested.
+- **What the navigation app does is its own:** on the Play image, `NAVIGATE` made Google Maps start navigating by itself, and Waze list the place as "Received location", one tap to start (DN-SP-006). No app is guaranteed to behave; before production, test the hand-off with the navigation app of each target vehicle. The POC proves the hand-off with the stub.
 - `Locale.US` formatting prevents comma decimal separators in some locales.
 
 ### Stub navigation app (emulator verification)
 
 A minimal separate APK in `tools/stub-navigation/`. Its only jobs are to:
 
-1. register as a navigation handler: one activity with an `ACTION_VIEW` intent filter for the `geo` scheme, declared `distractionOptimized` so it shows while driving
+1. register as a navigation handler for both requests, declared `distractionOptimized` so it shows while driving: the activity takes `ACTION_VIEW` + `geo`, and an `activity-alias`, `.NavigateAlias`, takes `NAVIGATE` + `geo`
 2. receive the navigation request
-3. display the received coordinates on a simple Compose screen and log them (`StubNav: received geo:…`)
+3. display the received coordinates and the request on a simple Compose screen and log them (`StubNav: received geo:… via <action>`)
+
+`adb -s emulator-5554 shell pm disable com.kanyandula.stubnavigation/.NavigateAlias` leaves only the `VIEW` filter, so Navigate exercises its fallback; `pm enable` restores it.
 
 This makes “correct destination handed off” observable and repeatable without a production navigation app.
 
 It is the Gradle module `:stub-navigation` in the root build (`projectDir = tools/stub-navigation`), so CI builds, lints and tests it with the app; it shares the project's one compile SDK (`android-compileSdk` in the version catalog). Install: `./gradlew :stub-navigation:installDebug`.
 
-Verify in M3 that the system resolves the `geo:` intent to the stub on the chosen image. If another handler exists, record whether a chooser appears.
+Verify in M3 that the system resolves both intents to the stub on the chosen image. If another handler exists, record whether a chooser appears.
 
 ### Out of scope
 
