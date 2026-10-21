@@ -259,7 +259,7 @@ Open a place and select **Navigate**.
 
 **Fallback (DN-M3-002):** with the stub's `NAVIGATE` alias disabled (`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias`), Navigate shows the same coordinates via `android.intent.action.VIEW`. Re-enable it afterwards (`pm enable`).
 
-**Real navigation app (optional, not the reference image):** on an image with Google Play and a navigation app, Navigate should start a route or offer one: on the Play image in DN-SP-006, Google Maps started navigating by itself and Waze listed "Received location", one tap. Record the app, its version and what it did; it doesn't gate the POC.
+**Real navigation app (optional, not the reference image):** on an image with Google Play and a navigation app, Navigate should start a route or offer one: on the Play image, Google Maps and Waze each started navigating by themselves (DN-SP-006, DN-M3-002). Record the app, its version and what it did; it doesn't gate the POC.
 
 ### F — Rotary Interaction
 
