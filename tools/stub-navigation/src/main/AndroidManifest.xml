@@ -7,7 +7,7 @@
 
         <!--
             The emulator's stand-in for a navigation app (docs/03 §11): any app's ACTION_VIEW geo: intent
-            resolves here. singleTask, so a later hand-off reaches the open stub instead of being dropped.
+            resolves here, and NAVIGATE through the alias below. singleTask, so a later hand-off reaches the open stub instead of being dropped.
         -->
         <activity
             android:name=".StubNavigationActivity"
@@ -25,6 +25,27 @@
                 <data android:scheme="geo" />
             </intent-filter>
         </activity>
+
+        <!--
+            AAOS's navigation intent, which the app sends first (DN-M3-002). An alias of the same activity, so
+            `pm disable com.kanyandula.stubnavigation/.NavigateAlias` leaves only the geo: view above, the app's
+            fallback (docs/04 E).
+        -->
+        <activity-alias
+            android:name=".NavigateAlias"
+            android:exported="true"
+            android:targetActivity=".StubNavigationActivity">
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
+            <intent-filter>
+                <action android:name="androidx.car.app.action.NAVIGATE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="geo" />
+            </intent-filter>
+        </activity-alias>
     </application>
 
 </manifest>

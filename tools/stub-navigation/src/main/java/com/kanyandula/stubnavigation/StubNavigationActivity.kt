@@ -27,12 +27,13 @@ private val ScreenPadding = 48.dp
 private val LineGap = 16.dp
 
 /**
- * The emulator's stand-in for a navigation app (docs/03 §11): shows and logs the geo: URI it is handed,
- * verbatim. No routing or guidance.
+ * The emulator's stand-in for a navigation app (docs/03 §11): shows and logs the geo: URI it is handed, verbatim,
+ * and the request that carried it (AAOS's NAVIGATE or a geo: VIEW). No routing or guidance.
  */
 class StubNavigationActivity : ComponentActivity() {
 
     private var destination by mutableStateOf<Uri?>(null)
+    private var request by mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,18 +43,19 @@ class StubNavigationActivity : ComponentActivity() {
             setIntent(it)
             receive(it)
         }
-        setContent { StubNavigationScreen(destination) }
+        setContent { StubNavigationScreen(destination, request) }
     }
 
     // ponytail: logs again when the activity is recreated (e.g. a day/night switch); harmless for a test tool.
     private fun receive(intent: Intent) {
         destination = intent.data
-        intent.data?.let { Log.i(TAG, "received $it") }
+        request = intent.action
+        intent.data?.let { Log.i(TAG, "received $it via ${intent.action}") }
     }
 }
 
 @Composable
-private fun StubNavigationScreen(destination: Uri?) {
+private fun StubNavigationScreen(destination: Uri?, request: String?) {
     MaterialTheme(colorScheme = darkColorScheme()) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -66,6 +68,12 @@ private fun StubNavigationScreen(destination: Uri?) {
                     text = destination?.toString() ?: stringResource(R.string.no_destination),
                     style = MaterialTheme.typography.displaySmall,
                 )
+                if (destination != null) {
+                    Text(
+                        text = stringResource(R.string.received_via, request.orEmpty()),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
             }
         }
     }
