@@ -32,8 +32,7 @@ private val LineGap = 16.dp
  */
 class StubNavigationActivity : ComponentActivity() {
 
-    private var destination by mutableStateOf<Uri?>(null)
-    private var request by mutableStateOf<String?>(null)
+    private var received by mutableStateOf<Intent?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,13 +42,12 @@ class StubNavigationActivity : ComponentActivity() {
             setIntent(it)
             receive(it)
         }
-        setContent { StubNavigationScreen(destination, request) }
+        setContent { StubNavigationScreen(received?.data, received?.action) }
     }
 
     // ponytail: logs again when the activity is recreated (e.g. a day/night switch); harmless for a test tool.
     private fun receive(intent: Intent) {
-        destination = intent.data
-        request = intent.action
+        received = intent
         intent.data?.let { Log.i(TAG, "received $it via ${intent.action}") }
     }
 }

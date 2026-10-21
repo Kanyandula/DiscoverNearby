@@ -13,8 +13,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 
-private const val HANDED_OFF = "geo:53.148000,-6.060300"
-
 @RunWith(RobolectricTestRunner::class)
 class IntentNavigationLauncherTest {
 
@@ -31,7 +29,7 @@ class IntentNavigationLauncherTest {
 
     private fun assertHandOff(intent: Intent, action: String) {
         assertEquals(action, intent.action)
-        assertEquals(HANDED_OFF, intent.dataString)
+        assertEquals(geoUri(HARBOUR_ROASTERS), intent.dataString)
         assertTrue(intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
         assertNull(intent.component)
         assertNull(intent.`package`)
@@ -47,15 +45,8 @@ class IntentNavigationLauncherTest {
 
     // An app that only views geo: links (the stub, a non-car app) still gets the place.
     @Test
-    fun withoutANavigateHandlerItFallsBackToAGeoView() {
-        val context = Recording(app) { if (it == ACTION_NAVIGATE) ActivityNotFoundException() else null }
-        assertTrue(IntentNavigationLauncher(context).navigateTo(HARBOUR_ROASTERS).isSuccess)
-        assertHandOff(context.started.single(), Intent.ACTION_VIEW)
-    }
-
-    @Test
-    fun anyOtherNavigateFailureFallsBackToAGeoView() {
-        listOf(SecurityException(), IllegalStateException()).forEach { failure ->
+    fun anyNavigateFailureFallsBackToAGeoView() {
+        listOf(ActivityNotFoundException(), SecurityException(), IllegalStateException()).forEach { failure ->
             val context = Recording(app) { if (it == ACTION_NAVIGATE) failure else null }
             assertTrue(IntentNavigationLauncher(context).navigateTo(HARBOUR_ROASTERS).isSuccess)
             assertHandOff(context.started.single(), Intent.ACTION_VIEW)

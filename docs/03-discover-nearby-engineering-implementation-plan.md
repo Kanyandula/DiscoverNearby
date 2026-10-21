@@ -652,11 +652,13 @@ Every place that passes the score floor and diversity rule, in ranked order. The
 ### Mechanism
 
 ```kotlin
+internal fun geoUri(point: GeoPoint): String = "geo:${point.latLng()}" // %.6f,%.6f, Locale.US
+
 internal const val ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE"
 
 class IntentNavigationLauncher(private val appContext: Context) : NavigationLauncher {
     override fun navigateTo(point: GeoPoint): Result<Unit> {
-        val uri = Uri.parse(String.format(Locale.US, "geo:%.6f,%.6f", point.lat, point.lng))
+        val uri = geoUri(point).toUri()
         return runCatching { start(ACTION_NAVIGATE, uri) }.recoverCatching { start(Intent.ACTION_VIEW, uri) }
     }
 
@@ -670,7 +672,7 @@ class IntentNavigationLauncher(private val appContext: Context) : NavigationLaun
 - **Two requests, one URI** (DN-SP-006, DN-M3-002). First `androidx.car.app.action.NAVIGATE`: Android Automotive's navigation intent, which car navigation apps must handle (Google's navigation-intent spec for navigation apps); `geo:lat,lng` means "navigate to these coordinates". Any app may send it with `startActivity`; it is a string, so no Car App Library. If it fails (no handler, `SecurityException`, anything else), `ACTION_VIEW` with the same URI, for apps that only show a `geo:` point. If that fails too, `NavigationUnavailable`.
 - **Coordinates only**, no `q=` and no label: Waze reads a query as a text search (the wrong place) or fails, while coordinates reached the right place in both Google Maps and Waze (DN-SP-006). Google Maps names the destination from its own map data.
 - The **system** resolves the intent. Discover Nearby does not target Google Maps or any specific app and sets no default. With several navigation apps and no default, the platform shows its chooser ("Complete action using"); its behaviour while driving is untested.
-- **What the navigation app does is its own:** on the Play image, `NAVIGATE` made Google Maps and Waze each start navigating by themselves (DN-SP-006, DN-M3-002); while Waze was stuck after its first run it only listed the place as "Received location", one tap to start. No app is guaranteed to behave; before production, test the hand-off with the navigation app of each target vehicle. The POC proves the hand-off with the stub.
+- **What the navigation app does is its own** (what Google Maps and Waze did: docs/04 Scenario E). No app is guaranteed to behave; before production, test the hand-off with the navigation app of each target vehicle. The POC proves the hand-off with the stub.
 - `Locale.US` formatting prevents comma decimal separators in some locales.
 
 ### Stub navigation app (emulator verification)

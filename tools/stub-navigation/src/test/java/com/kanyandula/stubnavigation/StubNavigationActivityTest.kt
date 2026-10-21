@@ -37,8 +37,7 @@ class StubNavigationActivityTest {
     private fun intent(uri: String?, action: String = Intent.ACTION_VIEW) =
         Intent(app, StubNavigationActivity::class.java).setAction(action).setData(uri?.let(Uri::parse))
 
-    private fun launch(uri: String?, action: String = Intent.ACTION_VIEW) =
-        Robolectric.buildActivity(StubNavigationActivity::class.java, intent(uri, action)).setup()
+    private fun launch(intent: Intent) = Robolectric.buildActivity(StubNavigationActivity::class.java, intent).setup()
 
     private fun logged() = ShadowLog.getLogsForTag("StubNav").map { it.msg }
 
@@ -51,20 +50,17 @@ class StubNavigationActivityTest {
         assertTrue("other apps must be able to start it", handlers.single().activityInfo.exported)
     }
 
-    // The NAVIGATE filter sits on an alias of the same activity, so `pm disable` on the alias exercises the app's
-    // fallback to a geo: view (docs/04 E) while the stub keeps answering it.
+    // Through the alias (see the manifest), shown while driving.
     @Test
     fun anImplicitNavigateIntentResolvesToTheStubThroughItsAlias() {
         val handoff = Intent(NAVIGATE, Uri.parse(GREYSTONES))
-        val handler = app.packageManager.queryIntentActivities(handoff, PackageManager.MATCH_DEFAULT_ONLY).single()
-        assertEquals(StubNavigationActivity::class.java.name, handler.activityInfo.targetActivity)
-        assertTrue("other apps must be able to start it", handler.activityInfo.exported)
-        val alias = ComponentName(app.packageName, handler.activityInfo.name)
-        assertTrue(app.packageManager.getActivityInfo(alias, PackageManager.GET_META_DATA).metaData
-            .getBoolean("distractionOptimized"))
+        val flags = PackageManager.MATCH_DEFAULT_ONLY or PackageManager.GET_META_DATA
+        val alias = app.packageManager.queryIntentActivities(handoff, flags).single().activityInfo
+        assertEquals(StubNavigationActivity::class.java.name, alias.targetActivity)
+        assertTrue("other apps must be able to start it", alias.exported)
+        assertTrue(alias.metaData.getBoolean("distractionOptimized"))
     }
 
-    // Android 13 lets the shell disable a component (the alias, docs/04 E) only in a test-only app.
     @Test
     fun isTestOnlySoTheShellCanDisableTheAlias() {
         assertTrue(app.applicationInfo.flags and ApplicationInfo.FLAG_TEST_ONLY != 0)
@@ -80,7 +76,7 @@ class StubNavigationActivityTest {
     }
 
     private fun assertShowsAndLogs(action: String) {
-        launch(GREYSTONES, action)
+        launch(intent(GREYSTONES, action))
         rule.onNodeWithText(GREYSTONES).assertIsDisplayed()
         rule.onNodeWithText("via $action").assertIsDisplayed()
         assertEquals(listOf("received $GREYSTONES via $action"), logged())
@@ -95,18 +91,20 @@ class StubNavigationActivityTest {
     // A second hand-off while the stub is still open replaces the first, on screen and in the log.
     @Test
     fun aLaterHandOffReplacesTheFirst() {
-        val stub = launch(GREYSTONES).newIntent(intent(WICKLOW))
+        val stub = launch(intent(GREYSTONES)).newIntent(intent(WICKLOW))
         rule.onNodeWithText(WICKLOW).assertIsDisplayed()
         rule.onNodeWithText(GREYSTONES).assertDoesNotExist()
-        val view = Intent.ACTION_VIEW
-        assertEquals(listOf("received $GREYSTONES via $view", "received $WICKLOW via $view"), logged())
+        assertEquals(
+            listOf("received $GREYSTONES via ${Intent.ACTION_VIEW}", "received $WICKLOW via ${Intent.ACTION_VIEW}"),
+            logged(),
+        )
         // A day/night relaunch rebuilds from the activity's intent, so it must be the latest hand-off.
         assertEquals(WICKLOW, stub.get().intent.dataString)
     }
 
     @Test
     fun openedWithoutADestinationSaysSo() {
-        launch(uri = null)
+        launch(intent(uri = null))
         rule.onNodeWithText("No destination received").assertIsDisplayed()
         assertEquals(emptyList<String>(), logged())
     }

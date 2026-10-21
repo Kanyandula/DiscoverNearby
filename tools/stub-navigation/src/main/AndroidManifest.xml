@@ -9,7 +9,8 @@
 
         <!--
             The emulator's stand-in for a navigation app (docs/03 §11): any app's ACTION_VIEW geo: intent
-            resolves here, and NAVIGATE through the alias below. singleTask, so a later hand-off reaches the open stub instead of being dropped.
+            resolves here, and NAVIGATE through the alias below. singleTask, so a later hand-off reaches the open
+            stub instead of being dropped.
         -->
         <activity
             android:name=".StubNavigationActivity"
