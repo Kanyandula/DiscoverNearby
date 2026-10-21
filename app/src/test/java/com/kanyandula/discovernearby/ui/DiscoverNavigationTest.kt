@@ -201,7 +201,8 @@ class DiscoverNavigationTest {
         onDiscover()
     }
 
-    // docs/04 E: Navigate hands the selected place to the system (AAOS's navigation intent first, DN-M3-002).
+    // docs/04 E: Navigate hands Harbour Roasters, Greystones, to the system: AAOS's navigation intent first
+    // (DN-M3-002).
     @Test
     fun navigateHandsTheSelectedPlaceToTheSystem() {
         rule.onNodeWithText("Coffee").performClick()

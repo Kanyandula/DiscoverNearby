@@ -43,7 +43,7 @@ class IntentNavigationLauncherTest {
         assertNull("nothing else is started", shadowOf(app).nextStartedActivity)
     }
 
-    // An app that only views geo: links (the stub, a non-car app) still gets the place.
+    // An app that only views geo: links (a non-car app; the stub with its alias disabled) still gets the place.
     @Test
     fun anyNavigateFailureFallsBackToAGeoView() {
         listOf(ActivityNotFoundException(), SecurityException(), IllegalStateException()).forEach { failure ->

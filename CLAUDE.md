@@ -33,7 +33,7 @@ in place (DN-M0-012, DN-M0-001).
 - **Place Details (DN-M0-005):** rows open `PlaceDetailsRoute(place, distanceMeters)` (JSON route via
   `JsonNavType`); `PlaceDetailsViewModel` falls back to the summary; Navigate hands off through
   `IntentNavigationLauncher` (DN-M3-001, DN-M3-002: AAOS's `NAVIGATE` + `geo:` first, then `ACTION_VIEW geo:`;
-  failure → `NavigationUnavailable`).
+  both failing → `NavigationUnavailable`).
 - **Location (DN-M0-006):** `AndroidLocationProvider` (GPS/network, 8 s fix timeout; approximate-only uses the
   platform's recent coarse fix), Grant only while restrictions allow it, denied copy; emulator location via
   `adb emu geo fix`, location on for user 10, `pm clear --user 10`.
@@ -45,8 +45,9 @@ in place (DN-M0-012, DN-M0-001).
   semantics snapshot); `RotaryContractTest`. ADR-002 (Product Lead, 2026-10-06, after the re-test): **Compose for
   the emulator POC, with a product waiver**; the V7 re-test record is `docs/adr/0002/v7-retest-2026-10-06/`.
 - **Stub navigation app (DN-M0-008):** module `:stub-navigation` in `tools/stub-navigation/`, a `geo:` handler for
-  VIEW and, through `.NavigateAlias`, AAOS's `NAVIGATE` (DN-M3-002; `singleTask`, distractionOptimized). It shows the
-  URI and the request and logs `StubNav: received geo:… via <action>`; `pm disable` on the alias tests the fallback.
+  VIEW and, through `.NavigateAlias`, AAOS's `NAVIGATE` (DN-M3-002; `singleTask`, distractionOptimized, `testOnly`, so
+  `adb install` needs `-t`). It shows the URI and the request and logs `StubNav: received geo:… via <action>`;
+  `pm disable` on the alias tests the fallback.
 - **Smoke baseline (DN-M0-007):** reference configuration in docs/04 §2, the M0 smoke in docs/04 §10 (re-run it
   when the image or UI changes); the Robolectric smoke test is `DiscoverScreenTest`.
 - **Provider evaluation (DN-SP-001):** `tools/provider-eval/evaluate.py` (stdlib Python, not in Gradle or CI); output

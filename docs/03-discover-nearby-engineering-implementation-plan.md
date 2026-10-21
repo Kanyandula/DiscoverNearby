@@ -669,7 +669,7 @@ class IntentNavigationLauncher(private val appContext: Context) : NavigationLaun
 
 - It takes the **application** `Context`, so `AppContainer` can own it and pass it to `PlaceDetailsViewModel` without holding an `Activity`. Starting from a non-activity context requires `FLAG_ACTIVITY_NEW_TASK`. The app is in the foreground when the user taps Navigate, so background-start limits don't apply.
 
-- **Two requests, one URI** (DN-SP-006, DN-M3-002). First `androidx.car.app.action.NAVIGATE`: Android Automotive's navigation intent, which car navigation apps must handle (Google's navigation-intent spec for navigation apps); `geo:lat,lng` means "navigate to these coordinates". Any app may send it with `startActivity`; it is a string, so no Car App Library. If it fails (no handler, `SecurityException`, anything else), `ACTION_VIEW` with the same URI, for apps that only show a `geo:` point. If that fails too, `NavigationUnavailable`.
+- **Two requests, one URI** (DN-SP-006, DN-M3-002). First `androidx.car.app.action.NAVIGATE`: Android Automotive's navigation intent, which car navigation apps must handle (Google's navigation-intent spec for navigation apps, https://developer.android.com/develop/devices/assistant/intents-assistant-nav-app); `geo:lat,lng` means "navigate to these coordinates". Any app may send it with `startActivity`; it is a string, so no Car App Library. If it fails (no handler, `SecurityException`, anything else), `ACTION_VIEW` with the same URI, for apps that only show a `geo:` point. If that fails too, `NavigationUnavailable`.
 - **Coordinates only**, no `q=` and no label: Waze reads a query as a text search (the wrong place) or fails, while coordinates reached the right place in both Google Maps and Waze (DN-SP-006). Google Maps names the destination from its own map data.
 - The **system** resolves the intent. Discover Nearby does not target Google Maps or any specific app and sets no default. With several navigation apps and no default, the platform shows its chooser ("Complete action using"); its behaviour while driving is untested.
 - **What the navigation app does is its own** (what Google Maps and Waze did: docs/04 Scenario E). No app is guaranteed to behave; before production, test the hand-off with the navigation app of each target vehicle. The POC proves the hand-off with the stub.
@@ -683,7 +683,7 @@ A minimal separate APK in `tools/stub-navigation/`. Its only jobs are to:
 2. receive the navigation request
 3. display the received coordinates and the request on a simple Compose screen and log them (`StubNav: received geo:… via <action>`)
 
-`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias` leaves only the `VIEW` filter, so Navigate exercises its fallback; `pm enable` restores it. The stub is `testOnly`, because Android 13 lets the shell disable a component only in a test-only app; Gradle's `installDebug` installs it as is (`adb install` needs `-t`).
+`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias` leaves only the `VIEW` filter, so Navigate exercises its fallback; `adb -s emulator-5554 shell pm enable --user 10 com.kanyandula.stubnavigation/.NavigateAlias` restores it (a disabled alias survives reinstalls). The stub is `testOnly`, because Android 13 lets the shell disable a component only in a test-only app; Gradle's `installDebug` installs it as is (`adb install` needs `-t`).
 
 This makes “correct destination handed off” observable and repeatable without a production navigation app.
 
@@ -939,7 +939,7 @@ Three layers:
 | Layer | Covers |
 | --- | --- |
 | Unit tests (JVM) | Ranking, category mapping, provider → domain mapping, stale requests, error mapping |
-| Compose UI tests (Robolectric) | Each screen renders each state, loading/content/error transitions, Navigate starts an `ACTION_VIEW` `geo:` intent (Robolectric `shadowOf(application).nextStartedActivity`), Grant hidden while distraction optimization is required and shown when it is not |
+| Compose UI tests (Robolectric) | Each screen renders each state, loading/content/error transitions, Navigate starts `androidx.car.app.action.NAVIGATE` with the `geo:` URI, `ACTION_VIEW` as the fallback (Robolectric `shadowOf(application).nextStartedActivity`), Grant hidden while distraction optimization is required and shown when it is not |
 | AAOS emulator | Touch, rotary, Back, permission flow, Park/Drive, location changes, full flow, visual sanity |
 
 **Resolved (V2):** Compose UI tests run as **local Robolectric tests** with `createComposeRule`, using NyasaPlayer's setup (its ticket T1, automotive Compose test tooling). M0 includes one smoke test that renders `DiscoverScreen`. Rotary, focus, and Park/Drive on the real platform remain **emulator-tested**.
@@ -1033,7 +1033,7 @@ Starts when ADR-001 is Accepted, or Provisionally selected pending licensing con
 
 ### M3 — Navigation Handoff
 
-- `ACTION_VIEW` + `geo:`
+- `NAVIGATE` + `geo:`, then `ACTION_VIEW` + `geo:` (DN-M3-002)
 - stub navigation app
 - failure state
 - destination verification

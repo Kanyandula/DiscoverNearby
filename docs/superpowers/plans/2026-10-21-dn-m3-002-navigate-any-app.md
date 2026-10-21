@@ -17,7 +17,8 @@ exercises the fallback on the emulator. The stub shows and logs which request it
 
 **Spec:** the vault ticket DN-M3-002 (`tickets/DN-M3-002-navigate-any-app.md`) and its spike, DN-SP-006
 (`tickets/DN-SP-006-navigation-handoff-any-app.md`): `NAVIGATE` + `geo:lat,lng` reached the right place in Google Maps
-(started by itself) and Waze ("Received location", one tap); every `q=` form is out (Waze: text search or failure).
+(started by itself) and Waze (right place; "Received location", one tap, while stuck after its first run); every `q=`
+form is out (Waze: text search or failure).
 
 ## Global Constraints
 
@@ -82,7 +83,7 @@ exercises the fallback on the emulator. The stub shows and logs which request it
 - [ ] `./gradlew detekt lintDebug testDebugUnitTest assembleDebug`.
 - [ ] Reference emulator (`AAOS_AOSP_33_userdebug`, fakes): Navigate → the stub shows `NAVIGATE`; alias disabled →
   `VIEW`; stub disabled → Navigation unavailable; in Drive the stub still shows. Re-enable everything.
-- [ ] Play image (supplementary): the app's Navigate → Waze (the default) lists "Received location"; record it.
+- [ ] Play image (supplementary): the app's Navigate → Waze (the default) starts navigating; record it.
 - [ ] Ticket completion notes.
 
 ### Task 6: Review and PR

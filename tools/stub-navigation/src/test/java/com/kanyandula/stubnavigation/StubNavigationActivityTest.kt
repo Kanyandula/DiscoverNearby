@@ -24,7 +24,7 @@ private const val GREYSTONES = "geo:53.144000,-6.063300"
 private const val WICKLOW = "geo:52.980000,-6.044000"
 
 // AAOS's navigation intent, which the app sends first (DN-M3-002); the stub also takes a plain geo: view.
-private const val NAVIGATE = "androidx.car.app.action.NAVIGATE"
+private const val ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE"
 
 @RunWith(RobolectricTestRunner::class)
 class StubNavigationActivityTest {
@@ -53,7 +53,7 @@ class StubNavigationActivityTest {
     // Through the alias (see the manifest), shown while driving.
     @Test
     fun anImplicitNavigateIntentResolvesToTheStubThroughItsAlias() {
-        val handoff = Intent(NAVIGATE, Uri.parse(GREYSTONES))
+        val handoff = Intent(ACTION_NAVIGATE, Uri.parse(GREYSTONES))
         val flags = PackageManager.MATCH_DEFAULT_ONLY or PackageManager.GET_META_DATA
         val alias = app.packageManager.queryIntentActivities(handoff, flags).single().activityInfo
         assertEquals(StubNavigationActivity::class.java.name, alias.targetActivity)
@@ -83,7 +83,7 @@ class StubNavigationActivityTest {
     }
 
     @Test
-    fun showsAndLogsANavigateRequest() = assertShowsAndLogs(NAVIGATE)
+    fun showsAndLogsANavigateRequest() = assertShowsAndLogs(ACTION_NAVIGATE)
 
     @Test
     fun showsAndLogsAGeoView() = assertShowsAndLogs(Intent.ACTION_VIEW)
@@ -91,11 +91,13 @@ class StubNavigationActivityTest {
     // A second hand-off while the stub is still open replaces the first, on screen and in the log.
     @Test
     fun aLaterHandOffReplacesTheFirst() {
-        val stub = launch(intent(GREYSTONES)).newIntent(intent(WICKLOW))
+        val stub = launch(intent(GREYSTONES, ACTION_NAVIGATE)).newIntent(intent(WICKLOW))
         rule.onNodeWithText(WICKLOW).assertIsDisplayed()
+        rule.onNodeWithText("via ${Intent.ACTION_VIEW}").assertIsDisplayed()
         rule.onNodeWithText(GREYSTONES).assertDoesNotExist()
+        rule.onNodeWithText("via $ACTION_NAVIGATE").assertDoesNotExist()
         assertEquals(
-            listOf("received $GREYSTONES via ${Intent.ACTION_VIEW}", "received $WICKLOW via ${Intent.ACTION_VIEW}"),
+            listOf("received $GREYSTONES via $ACTION_NAVIGATE", "received $WICKLOW via ${Intent.ACTION_VIEW}"),
             logged(),
         )
         // A day/night relaunch rebuilds from the activity's intent, so it must be the latest hand-off.
@@ -106,6 +108,7 @@ class StubNavigationActivityTest {
     fun openedWithoutADestinationSaysSo() {
         launch(intent(uri = null))
         rule.onNodeWithText("No destination received").assertIsDisplayed()
+        rule.onNodeWithText("via", substring = true).assertDoesNotExist()
         assertEquals(emptyList<String>(), logged())
     }
 }

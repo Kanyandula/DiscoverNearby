@@ -47,7 +47,7 @@ All scenarios run on one recorded configuration so results are repeatable. Fill 
 | Hardware profile | `automotive_1024p_landscape` | `automotive_1024p_landscape` |
 | Android Studio version | Current stable | Android Studio Quail 2026.1 (AI-261.23567.138.2611.15483818); emulator 36.4.9.0 |
 | Compose BOM version | Pinned at M0 | `2026.09.00` |
-| `geo:` handler installed by default? | Record it | No. With the stub installed, `query-activities` (users 0 and 10) finds only the stub |
+| `geo:` handler installed by default? | Record it | No. With the stub installed, `query-activities` finds only the stub: `VIEW` (users 0 and 10) and `NAVIGATE` through its alias (user 10, DN-M3-002) |
 | Stub navigation app | `tools/stub-navigation` APK installed | Installed with `ANDROID_SERIAL=emulator-5554 ./gradlew :stub-navigation:installDebug` (DN-M0-008) |
 
 **M4 check (2026-10-17, DN-M4-001):** unchanged, except Android Studio is now 2026.2 (AI-262.9437.185.2621.16467767). While moving the image reports a list limit of 21 and a content depth of 3. Record: `docs/validation/2026-10-17-m4-emulator.md`.
@@ -257,7 +257,7 @@ Open a place and select **Navigate**.
 
 **Expected:** the stub navigation app opens and shows or logs `geo:` coordinates equal to the selected place's coordinates (to 5 decimal places), via `androidx.car.app.action.NAVIGATE`. Discover Nearby does not attempt guidance.
 
-**Fallback (DN-M3-002):** with the stub's `NAVIGATE` alias disabled (`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias`), Navigate shows the same coordinates via `android.intent.action.VIEW`. Re-enable it afterwards (`pm enable`).
+**Fallback (DN-M3-002):** with the stub's `NAVIGATE` alias disabled (`adb -s emulator-5554 shell pm disable --user 10 com.kanyandula.stubnavigation/.NavigateAlias`), Navigate shows the same coordinates via `android.intent.action.VIEW`. Re-enable it afterwards (`adb -s emulator-5554 shell pm enable --user 10 com.kanyandula.stubnavigation/.NavigateAlias`); a disabled alias survives reinstalls.
 
 **Real navigation app (optional, not the reference image):** on an image with Google Play and a navigation app, Navigate should start a route or offer one: on the Play image, Google Maps and Waze each started navigating by themselves (DN-SP-006, DN-M3-002). Record the app, its version and what it did; it doesn't gate the POC.
 
@@ -426,7 +426,7 @@ Run on the §2 configuration, from a known state: app and stub installed from th
 
 1. **Launch** — the Discover grid appears; no block screen.
 2. **Core flow (touch)** — Coffee → Recommendations (location granted through the app's own flow on first use) → first row → Place Details; Navigate is shown.
-3. **Stub** — the stub navigation app answers both `geo:` queries (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a androidx.car.app.action.NAVIGATE -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off joins this check once `IntentNavigationLauncher` lands (DN-M3-001).
+3. **Stub** — the stub navigation app answers both `geo:` queries (§2) and an adb hand-off shows on it: `adb -s emulator-5554 shell am start -W -a androidx.car.app.action.NAVIGATE -d "geo:53.144000,-6.063300"`. The app's own Navigate hand-off is Scenario E.
 4. **Rotary (V7)** — without touch: rotate through the grid, select, then rotate on Recommendations and Place Details and Back twice (Scenario F). Record against the docs/05 §9 V7 row.
 5. **Park / Drive** — in Drive (moving): open a category, Back; with `--es scenario SLOW`, select Coffee and switch gear while it loads; return to Park (Scenario H). No block screen, no crash. SLOW (10 s) outlasts the 8 s provider timeout, so that load ends in the timeout message with Try Again (Scenario O); a load that completes after a gear change is not covered.
 6. **Deepest path and Back** — in Drive: Discover → Recommendations → Place Details → Back → Back ends on Discover, and Back on Discover leaves the app (Scenario T).
@@ -434,7 +434,7 @@ Run on the §2 configuration, from a known state: app and stub installed from th
 ### Setup
 
 - [ ] Emulator configuration recorded (§2)
-- [ ] Stub navigation app installed and visible to the navigation intent
+- [ ] Stub navigation app installed and visible to both navigation intents (§2)
 
 ### Launch
 
